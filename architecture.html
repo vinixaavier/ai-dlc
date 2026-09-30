@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ai-dlc · Arquitetura</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --orange: #f78166;
+    --purple: #bc8cff;
+    --yellow: #d29920;
+    --cyan: #39d2c9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.6 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 40px 24px;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  h1 { font-size: 28px; margin: 0 0 4px; }
+  .subtitle { color: var(--muted); margin: 0 0 32px; }
+  h2 {
+    font-size: 13px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    margin: 48px 0 20px;
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .card h3 { margin: 0 0 6px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .card p { margin: 0; color: var(--muted); font-size: 13.5px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+  code {
+    background: #21262d;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 1px 5px;
+    font-size: 12.5px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .diagram {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    overflow-x: auto;
+  }
+  svg text { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .node-box { fill: #1c2431; stroke: var(--border); stroke-width: 1.5; }
+  .node-box.ate { fill: #231d33; stroke: var(--purple); }
+  .node-box.gpu { fill: #1d2b23; stroke: var(--green); }
+  .node-box.observ { fill: #14212b; stroke: var(--cyan); }
+  .node-box.gitops { fill: #2a2517; stroke: var(--yellow); }
+  .node-title { fill: var(--text); font-size: 13px; font-weight: 600; }
+  .node-desc { fill: var(--muted); font-size: 10.5px; }
+  .zone-label { fill: var(--muted); font-size: 11px; letter-spacing: .08em; }
+  .zone-label.ate { fill: var(--purple); }
+  .zone-label.gpu { fill: var(--green); }
+  .zone-label.observ { fill: var(--cyan); }
+  .zone-label.gitops { fill: var(--yellow); }
+  .flow { fill: none; stroke: var(--accent); stroke-width: 1.5; }
+  .flow.dash { stroke-dasharray: 5 4; stroke: var(--muted); }
+  .flow-label { fill: var(--muted); font-size: 10.5px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th { text-align: left; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+  th, td { border-bottom: 1px solid var(--border); padding: 8px 10px; }
+  td path, td code { color: var(--text); }
+  .note {
+    border-left: 3px solid var(--accent);
+    background: #10233a;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    color: var(--muted);
+    font-size: 13.5px;
+  }
+  ol.flow-steps li { margin-bottom: 8px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px; color: var(--muted); font-size: 12.5px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>ai-dlc · Agent Factory</h1>
+<p class="subtitle">Plataforma local de construção e execução de agentes no modelo de ator, rodando em Kind, gerenciada por GitOps.</p>
+
+<h2>Visão geral</h2>
+<div class="diagram">
+<svg width="960" height="560" viewBox="0 0 960 560">
+  <!-- Client -->
+  <rect x="380" y="16" width="200" height="48" rx="10" class="node-box"/>
+  <text x="480" y="38" text-anchor="middle" class="node-title">Clientes</text>
+  <text x="480" y="54" text-anchor="middle" class="node-desc">CLI · browser · kagent-a2a (gRPC-Web)</text>
+
+  <!-- kgateway -->
+  <rect x="380" y="96" width="200" height="56" rx="10" class="node-box"/>
+  <text x="480" y="118" text-anchor="middle" class="node-title">kgateway</text>
+  <text x="480" y="134" text-anchor="middle" class="node-desc">Gateway API · *.localhost</text>
+  <path class="flow" d="M 480 64 L 480 96"/>
+
+  <!-- AgentGateway -->
+  <rect x="340" y="192" width="280" height="72" rx="10" class="node-box"/>
+  <text x="480" y="214" text-anchor="middle" class="node-title">AgentGateway (agentgateway-system)</text>
+  <text x="480" y="230" text-anchor="middle" class="node-desc">OpenAI / Anthropic / Codex routes</text>
+  <text x="480" y="246" text-anchor="middle" class="node-desc">A2A gateway · MCP routing · analytics</text>
+  <path class="flow" d="M 480 152 L 480 192"/>
+  <text x="492" y="178" class="flow-label">aigw.localhost</text>
+
+  <!-- kagent -->
+  <rect x="620" y="310" width="290" height="88" rx="10" class="node-box"/>
+  <text x="765" y="332" text-anchor="middle" class="node-title">kagent (ns: kagent)</text>
+  <text x="765" y="350" text-anchor="middle" class="node-desc">controller · Go ADK · UI</text>
+  <text x="765" y="366" text-anchor="middle" class="node-desc">CRDs: Harness · AgentTemplate ·</text>
+  <text x="765" y="382" text-anchor="middle" class="node-desc">ModelConfig · RemoteMCPServer</text>
+  <path class="flow" d="M 620 228 C 660 260, 700 280, 730 310"/>
+  <text x="655" y="272" class="flow-label">/v1/chat/completions</text>
+
+  <!-- Substrate zone -->
+  <rect x="40" y="300" width="520" height="180" rx="12" fill="none" stroke="#bc8cff" stroke-width="1" stroke-dasharray="6 5"/>
+  <text x="56" y="322" class="zone-label ate">AGENT SUBSTRATE (ns: ate-system) — runtime de ator</text>
+  <rect x="60" y="340" width="170" height="56" rx="8" class="node-box ate"/>
+  <text x="145" y="362" text-anchor="middle" class="node-title">ATE API + Controller</text>
+  <text x="145" y="378" text-anchor="middle" class="node-desc">api :443 · ciclo de vida</text>
+  <rect x="250" y="340" width="170" height="56" rx="8" class="node-box ate"/>
+  <text x="335" y="362" text-anchor="middle" class="node-title">atelet · atenet</text>
+  <text x="335" y="378" text-anchor="middle" class="node-desc">router · egress (ext_proc)</text>
+  <rect x="440" y="340" width="100" height="56" rx="8" class="node-box ate"/>
+  <text x="490" y="362" text-anchor="middle" class="node-title">WorkerPool</text>
+  <text x="490" y="378" text-anchor="middle" class="node-desc">kagent-default ×6</text>
+  <rect x="60" y="410" width="170" height="56" rx="8" class="node-box ate"/>
+  <text x="145" y="432" text-anchor="middle" class="node-title">Ator (gVisor)</text>
+  <text x="145" y="448" text-anchor="middle" class="node-desc">instância de agente</text>
+  <rect x="250" y="410" width="170" height="56" rx="8" class="node-box ate"/>
+  <text x="335" y="432" text-anchor="middle" class="node-title">Snapshots (rustfs)</text>
+  <text x="335" y="448" text-anchor="middle" class="node-desc">gs://ate-snapshots/…</text>
+  <rect x="440" y="410" width="100" height="56" rx="8" class="node-box ate"/>
+  <text x="490" y="432" text-anchor="middle" class="node-title">postgres</text>
+  <text x="490" y="448" text-anchor="middle" class="node-desc">· valkey · CA/JWT</text>
+  <path class="flow" d="M 145 396 L 145 410"/>
+  <path class="flow dash" d="M 335 410 L 335 396"/>
+  <path class="flow" d="M 730 398 L 560 380"/>
+  <text x="600" y="380" class="flow-label">cria ator por AgentTemplate</text>
+
+  <!-- LLM runtime -->
+  <rect x="660" y="192" width="250" height="72" rx="10" class="node-box gpu"/>
+  <text x="785" y="214" text-anchor="middle" class="node-title">llm-runtime (ns: sglang)</text>
+  <text x="785" y="230" text-anchor="middle" class="node-desc">SGLang / vLLM · Qwen3.8-27B NVFP4</text>
+  <text x="785" y="246" text-anchor="middle" class="node-desc">GPU RTX 5090 via GPU Operator</text>
+  <path class="flow" d="M 620 236 L 660 236"/>
+  <text x="618" y="228" class="flow-label"></text>
+
+  <!-- Observability -->
+  <rect x="40" y="510" width="870" height="36" rx="8" class="node-box observ"/>
+  <text x="475" y="533" text-anchor="middle" class="node-desc">Observabilidade: OTel Collector :4317 → Tempo (traces) · Prometheus (métricas) · Loki (logs) → Grafana · exportado por todos os agentes, harnesses e o substrate</text>
+
+  <!-- GitOps -->
+  <rect x="40" y="96" width="260" height="56" rx="10" class="node-box gitops"/>
+  <text x="170" y="118" text-anchor="middle" class="node-title">Gitea → Argo CD</text>
+  <text x="170" y="134" text-anchor="middle" class="node-desc">GitOps · charts OCI no registry</text>
+  <path class="flow dash" d="M 300 124 L 340 124"/>
+  <text x="282" y="116" class="flow-label">aplica</text>
+
+  <text x="785" y="180" class="zone-label gpu">host RTX 5090</text>
+</svg>
+<div class="legend">
+  <span><i class="sw" style="background:#231d33;border:1px solid var(--purple)"></i> Substrate (ator)</span>
+  <span><i class="sw" style="background:#1d2b23;border:1px solid var(--green)"></i> GPU / modelo</span>
+  <span><i class="sw" style="background:#14212b;border:1px solid var(--cyan)"></i> Observabilidade</span>
+  <span><i class="sw" style="background:#2a2517;border:1px solid var(--yellow)"></i> GitOps</span>
+  <span style="color:var(--accent)">— fluxo principal</span>
+</div>
+</div>
+
+<h2>Componentes</h2>
+<div class="grid">
+  <div class="card">
+    <h3><span class="dot" style="background:var(--purple)"></span>Agent Substrate</h3>
+    <p>Namespace <code>ate-system</code>. Runtime de modelo de ator: agentes rodam como atores sandboxados em gVisor (<code>ateom-gvisor</code>), alocados por worker pools. Ciclo de vida via ATE API: spawn → execução → <strong>suspend com snapshot</strong> do estado na storage de objeto (rustfs) → restore sob demanda. Rede do ator passa por <code>atenet-router</code> + <code>atenet-egress</code> (proxy com ext_proc).</p>
+  </div>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--accent)"></span>kagent</h3>
+    <p>Namespace <code>kagent</code>. Controller k8s + runtime Go ADK + UI. Declara agentes por CRD: <code>Harness</code> (runtime de execução — por ex. BYO image do ADK), <code>AgentTemplate</code> (especialização: prompt, modelo, label selector do harness), <code>ModelConfig</code> e <code>RemoteMCPServer</code>. Com substrate habilitado, o controller gera o workload e alocá-lo em atores do worker pool <code>kagent-default</code> com snapshot policy própria.</p>
+  </div>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--green)"></span>llm-runtime</h3>
+    <p>Namespace <code>sglang</code>. SGLang ou vLLM (selecionável por <code>values.runtime</code>) servindo Qwen 3.8-27B NVFP4 na RTX 5090. GPU injetada via CDI do NVIDIA (GPU Operator gerencia device plugin + DCGM). Atrás do AgentGateway em <code>/v1</code>.</p>
+  </div>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--accent)"></span>AgentGateway</h3>
+    <p>Namespace <code>agentgateway-system</code>. Router central: API compatível OpenAI (<code>/v1/chat/completions</code>), Anthropic (<code>/v1/messages</code>) e Codex (<code>/v1/responses</code>), gateway A2A (agentes expostos em <code>aigw.localhost/&lt;agente&gt;</code>), roteamento MCP e analytics de uso de LLM em postgres próprio. É por ele que todo tráfego de LLM e A2A dos agentes e harnesses passa.</p>
+  </div>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--muted)"></span>Harnesses</h3>
+    <p>Wrap CLIs de agente atrás do AgentGateway como agentes de fábrica: <code>pi-harness</code> (Pi coding agent), <code>codex-harness</code>, <code>claude-harness</code> e <code>adk-harness</code> (agent Go ADK dentro do Substrate, via CRD <code>Harness</code>). Cada um é um Argo Application em <code>argocd/apps/</code>.</p>
+  </div>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--muted)"></span>AgentRegistry</h3>
+    <p>Discovery declarativo de agentes e servidores MCP (<code>ar.dev/v1alpha1</code>). Catálogos aplicados via <code>/v0/apply</code> por hook do Argo (não é CRD). Descreve os agentes A2A em execução (<code>kagent-catalog.yaml</code>) para clientes descobrirem quem está exposto no gateway.</p>
+  </div>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--cyan)"></span>Observabilidade</h3>
+    <p>OTel Collector (<code>otel</code>) recebe traces/métricas/logs em <code>:4317</code>; Tempo guarda traces (TraceQL), Prometheus cobre métricas (job <code>substrate</code> raspando <code>:9090</code> dos pods de <code>ate-system</code>), Loki guarda logs; Grafana une tudo. Todos os agentes, harnesses e o substrate exportam OTel — cada interação de ator fica rastreável.</p>
+  </div>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--yellow)"></span>GitOps / Platform</h3>
+    <p>Gitea hospeda o repo; Argo CD reconcilia os charts OCI da pasta <code>platform/</code> (pacotados pelo bootstrap no registry in-cluster). Ownership dividido em <code>agentgateway-platform</code>, <code>kgateway-platform</code> e <code>agentregistry-platform</code>. kgateway faz o roteamento HTTP local (<code>*.localhost</code>) e o registry in-cluster serve imagens e charts via HTTP.</p>
+  </div>
+</div>
+
+<h2>Ciclo de vida do ator</h2>
+<ol class="flow-steps">
+  <li>Declarar <code>Harness</code> + <code>AgentTemplate</code> no namespace <code>kagent</code> (GitOps → Argo → controller).</li>
+  <li>O controller kagent resolve o harness e cria o workload no Substrate: um ator gVisor do worker pool <code>kagent-default</code>.</li>
+  <li>O ator inicia o runtime ADK; o estado inicial é persistido como snapshot (<code>gs://ate-snapshots/kagent/…</code>) e reaproveitado em restaurações — cold start quase zero.</li>
+  <li>Quando o ator fica ocioso, é suspenso imediatamente após <code>agent_end</code> (flush de OTel incluso); a restauração do snapshot é o que atende a próxima requisição.</li>
+  <li>Requisições de LLM saem pelo egress do atenet, chegam no AgentGateway e no SGLang; cada etapa gera span (traceparent propagado).</li>
+</ol>
+
+<h2>Fluxo de trace (caminho canônico)</h2>
+<div class="note">
+  <code>Agente → AgentGateway → kagent → Go ADK → AgentGateway /v1/chat/completions → SGLang</code><br>
+  Export in-cluster: <code>http://otel-collector.otel.svc.cluster.local:4317</code> · inspeção: Grafana Explore / Tempo TraceQL.
+</div>
+
+<h2>Namespaces</h2>
+<table>
+  <tr><th>Namespace</th><th>Conteúdo</th></tr>
+  <tr><td><code>ate-system</code></td><td>Agent Substrate: ATE API, controller, atelet, atenet, worker pools gVisor, postgres/valkey, snapshots (rustfs)</td></tr>
+  <tr><td><code>kagent</code></td><td>Controller, UI, runtime Go ADK, CRDs de agentes, worker pool <code>kagent-default</code></td></tr>
+  <tr><td><code>agentgateway-system</code></td><td>AgentGateway (LLM + A2A + MCP), analytics postgres</td></tr>
+  <tr><td><code>kgateway</code> / <code>agentregistry</code></td><td>Gateway API local · discovery de agentes e MCP</td></tr>
+  <tr><td><code>sglang</code></td><td>SGLang/vLLM GPU Deployment (RTX 5090)</td></tr>
+  <tr><td><code>otel</code> · <code>grafana</code> · <code>prometheus</code> · <code>loki</code> · <code>tempo</code></td><td>Observabilidade completa</td></tr>
+  <tr><td><code>argocd</code> · <code>gitea</code> · <code>registry</code></td><td>GitOps, git local e registry OCI in-cluster</td></tr>
+</table>
+
+</div>
+</body>
+</html>
