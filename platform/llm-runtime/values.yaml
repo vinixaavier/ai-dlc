@@ -1,0 +1,52 @@
+runtime: sglang
+model: gittensor-model-hub/Qwen3.8-27B-NVFP4-RTX5090
+servedModelName: qwen3.8-27b-nvfp4
+otelTracesEndpoint: otel-collector.otel.svc.cluster.local:4317
+replicas: 1
+nodeSelector:
+  nvidia.com/gpu.present: "true"
+# Path as seen from the Kind node. nvkind mounts the host cache here.
+cacheHostPath: /root/.cache/huggingface
+images:
+  sglang: lmsysorg/sglang:qwen38-27b
+  vllm: vllm/vllm-openai:v0.10.2
+imagePullPolicy: IfNotPresent
+service:
+  name: llm
+  port: 8000
+resources:
+  limits:
+    nvidia.com/gpu: "1"
+  requests:
+    nvidia.com/gpu: "1"
+sglangArgs:
+  - --trust-remote-code
+  - --tp-size=1
+  - --kv-cache-dtype=fp8_e4m3
+  - --attention-backend=flashinfer
+  - --context-length=262144
+  - --chunked-prefill-size=2048
+  - --mamba-radix-cache-strategy=extra_buffer_lazy
+  - --mamba-ssm-dtype=bfloat16
+  - --max-mamba-cache-size=8
+  - --mem-fraction-static=0.92
+  - --max-running-requests=1
+  - --speculative-algorithm=DSPARK
+  - --speculative-draft-model-path=gittensor-model-hub/Qwen3.8-27B-DSpark-NVFP4
+  - --speculative-dspark-block-size=7
+  - --speculative-draft-model-quantization=modelopt_fp4
+  - --reasoning-parser=qwen3
+  - --tool-call-parser=qwen3_coder
+  - --mm-feature-transport=cpu
+  - --language-only
+  - --enable-metrics
+  - --enable-cache-report
+  - --enable-trace
+  - --trace-modules=request
+vllmArgs:
+  - --trust-remote-code
+  - --host=0.0.0.0
+  - --port=8000
+  - --gpu-memory-utilization=0.92
+  - --max-model-len=262144
+  - --enable-prefix-caching

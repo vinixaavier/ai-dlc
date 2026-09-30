@@ -1,0 +1,87 @@
+# AgentRegistry artifacts are persisted through its /v0/apply API rather than
+# Kubernetes CRDs. Apply this stream after installing AgentRegistry:
+# curl --data-binary @platform/agentregistry/kagent-catalog.yaml \
+#   -H 'Content-Type: application/yaml' http://agentregistry.localhost/v0/apply
+#
+# These entries describe the running kagent A2A agents; deployment ownership
+# remains with the kagent Helm release.
+apiVersion: ar.dev/v1alpha1
+kind: Agent
+metadata:
+  name: argo-rollouts-conversion-agent
+spec:
+  title: Argo Rollouts Conversion Agent
+  description: "A2A agent exposed at aigw.localhost/argo-rollouts-conversion-agent; converts Deployments to Argo Rollouts."
+  source: {image: registry.registry.svc.cluster.local:5000/kagent-dev/kagent/golang-adk:0.10.1-otel, protocol: A2A}
+---
+apiVersion: ar.dev/v1alpha1
+kind: Agent
+metadata:
+  name: cilium-crd-agent
+spec:
+  title: Cilium CRD Agent
+  description: "A2A agent exposed at aigw.localhost/cilium-crd-agent; authors and troubleshoots Cilium policy resources."
+  source: {image: registry.registry.svc.cluster.local:5000/kagent-dev/kagent/golang-adk:0.10.1-otel, protocol: A2A}
+---
+apiVersion: ar.dev/v1alpha1
+kind: Agent
+metadata:
+  name: helm-agent
+spec:
+  title: Helm Agent
+  description: "A2A agent exposed at aigw.localhost/helm-agent; manages Helm workloads."
+  source: {image: registry.registry.svc.cluster.local:5000/kagent-dev/kagent/golang-adk:0.10.1-otel, protocol: A2A}
+---
+apiVersion: ar.dev/v1alpha1
+kind: Agent
+metadata:
+  name: istio-agent
+spec:
+  title: Istio Agent
+  description: "A2A agent exposed at aigw.localhost/istio-agent; operates Istio."
+  source: {image: registry.registry.svc.cluster.local:5000/kagent-dev/kagent/golang-adk:0.10.1-otel, protocol: A2A}
+---
+apiVersion: ar.dev/v1alpha1
+kind: Agent
+metadata:
+  name: k8s-agent
+spec:
+  title: Kubernetes Agent
+  description: "A2A agent exposed at aigw.localhost/k8s-agent; investigates and operates Kubernetes resources."
+  source: {image: registry.registry.svc.cluster.local:5000/kagent-dev/kagent/golang-adk:0.10.1-otel, protocol: A2A}
+---
+apiVersion: ar.dev/v1alpha1
+kind: Agent
+metadata:
+  name: kgateway-agent
+spec:
+  title: kgateway Agent
+  description: "A2A agent exposed at aigw.localhost/kgateway-agent; configures and troubleshoots kgateway."
+  source: {image: registry.registry.svc.cluster.local:5000/kagent-dev/kagent/golang-adk:0.10.1-otel, protocol: A2A}
+---
+apiVersion: ar.dev/v1alpha1
+kind: Agent
+metadata:
+  name: observability-agent
+spec:
+  title: Observability Agent
+  description: "A2A agent exposed at aigw.localhost/observability-agent; works with Prometheus, Grafana, and Kubernetes telemetry."
+  source: {image: registry.registry.svc.cluster.local:5000/kagent-dev/kagent/golang-adk:0.10.1-otel, protocol: A2A}
+---
+apiVersion: ar.dev/v1alpha1
+kind: Agent
+metadata:
+  name: promql-agent
+spec:
+  title: PromQL Agent
+  description: "A2A agent exposed at aigw.localhost/promql-agent; generates and explains PromQL."
+  source: {image: registry.registry.svc.cluster.local:5000/kagent-dev/kagent/golang-adk:0.10.1-otel, protocol: A2A}
+---
+apiVersion: ar.dev/v1alpha1
+kind: Agent
+metadata:
+  name: hello-substrate
+spec:
+  title: Hello Substrate Agent
+  description: "Substrate sandbox agent exposed at aigw.localhost/hello-substrate; runs inside a gVisor actor."
+  source: {image: ghcr.io/kagent-dev/substrate/ateom-gvisor:v0.0.9, protocol: A2A}

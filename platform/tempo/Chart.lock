@@ -1,0 +1,6 @@
+dependencies:
+- name: tempo
+  repository: file://charts/tempo
+  version: 3.0.0
+digest: sha256:f7fb698c80b589f80007e896a522f3cc7c4c7d806c490a43939299029b153e45
+generated: "2026-09-20T16:00:05.240970517-03:00"

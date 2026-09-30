@@ -1,0 +1,9 @@
+apiVersion: v2
+name: ai-dlc-otel-collector-platform
+description: OpenTelemetry Collector managed from the GitOps repository
+type: application
+version: 0.1.0
+dependencies:
+  - name: opentelemetry-collector
+    version: 0.173.1
+    repository: file://charts/opentelemetry-collector

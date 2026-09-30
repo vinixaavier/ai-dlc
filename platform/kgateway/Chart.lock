@@ -1,0 +1,9 @@
+dependencies:
+- name: kgateway-crds
+  repository: file://charts/kgateway-crds
+  version: v2.5.0-beta.1
+- name: kgateway
+  repository: file://charts/kgateway
+  version: v2.5.0-beta.1
+digest: sha256:e95362043ad9b41b7f70b4c3c8558af8bde6d0c916e5bef3b4ef3679add48556
+generated: "2026-09-22T20:33:25.974731591-03:00"

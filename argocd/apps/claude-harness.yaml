@@ -1,0 +1,55 @@
+apiVersion: kagent.dev/v1alpha3
+kind: ModelConfig
+metadata:
+  name: claude-agentgateway
+  namespace: kagent
+spec:
+  provider: Anthropic
+  # Claude Code validates this field before sending the request. Use a Claude
+  # alias; AgentGateway/SGLang still receives the Anthropic-compatible call.
+  model: sonnet
+  apiKeySecret: kagent-sglang
+  apiKeySecretKey: API_KEY
+  anthropic:
+    # The Anthropic SDK appends /v1/messages to this API root.
+    baseUrl: http://agentgateway-api.agentgateway-system.svc.cluster.local
+---
+apiVersion: kagent.dev/v1alpha3
+kind: Harness
+metadata:
+  name: claude
+  namespace: kagent
+spec:
+  claude: {}
+  workload:
+    image: localhost:5001/kagent-dev/kagent/claude-harness@sha256:eef90e6369dccc61f1a01545801f2d547cfbee2eb389f3c1ee3a50cf2835b5a0
+  env:
+    - name: CLAUDE_CODE_EFFORT_LEVEL
+      value: medium
+    # The kagent controller owns Claude telemetry switches/export endpoints
+    # and compiles them into each immutable Claude revision. Keep only the
+    # service identity here; do not override controller-owned OTEL variables.
+    - name: OTEL_SERVICE_NAME
+      value: claude
+  substrate:
+    workerPoolRef:
+      name: kagent-default
+    snapshotPolicy:
+      location: gs://ate-snapshots/kagent/claude-harness-v3
+  allowedAgentTemplates:
+    selector:
+      matchLabels:
+        kagent.dev/runtime: claude
+---
+apiVersion: kagent.dev/v1alpha3
+kind: AgentTemplate
+metadata:
+  name: claude-default
+  namespace: kagent
+  labels:
+    kagent.dev/runtime: claude
+spec:
+  description: Claude Code agent through the AgentGateway.
+  modelConfig:
+    name: claude-agentgateway
+  systemPrompt: You are a helpful Claude coding agent.

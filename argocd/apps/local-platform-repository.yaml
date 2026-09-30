@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: repo-local-platform
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+type: Opaque
+stringData:
+  name: local-platform
+  type: helm
+  enableOCI: "true"
+  insecureOCIForceHttp: "true"
+  url: registry.registry.svc.cluster.local:5000/charts
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: repo-local-kgateway-platform
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+type: Opaque
+stringData:
+  name: local-platform
+  type: helm
+  enableOCI: "true"
+  insecureOCIForceHttp: "true"
+  url: registry.registry.svc.cluster.local:5000/charts
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: repo-local-agentregistry-platform
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+type: Opaque
+stringData:
+  name: local-platform
+  type: helm
+  enableOCI: "true"
+  insecureOCIForceHttp: "true"
+  url: registry.registry.svc.cluster.local:5000/charts

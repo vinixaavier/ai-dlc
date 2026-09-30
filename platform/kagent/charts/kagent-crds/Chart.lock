@@ -1,0 +1,9 @@
+dependencies:
+- name: kmcp-crds
+  repository: oci://ghcr.io/kagent-dev/kmcp/helm
+  version: 0.0.0-main.8f26f04
+- name: substrate-crds
+  repository: oci://ghcr.io/kagent-dev/substrate/helm
+  version: 0.0.29
+digest: sha256:694abd37b0c551d44ea0a98ad7273d27ae0288b1a13d21d9fe41ea2f3952c1bf
+generated: "2026-09-14T19:19:09.349038296-03:00"

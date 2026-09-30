@@ -1,0 +1,141 @@
+# Default values for kmcp.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: ""
+
+# -- Override the namespace
+# @default -- `.Release.Namespace`
+namespaceOverride: ""
+
+# Image configuration
+# Values under `global` are visible to this chart and every subchart. A parent chart
+# (or an operator) sets one value here instead of one per chart.
+global:
+  # -- Registry that overrides image.registry when set. This is the air-gap
+  # mirror knob: one value redirects the image. image.repository stays untouched,
+  # so a mirror serves the image under its existing kagent-dev/kmcp/controller
+  # path. For control without the override, leave this unset and set
+  # image.registry.
+  imageRegistry: ""
+  # -- Pull secrets merged (union) into the pod's own imagePullSecrets list.
+  imagePullSecrets: []
+  # -- Fallback imagePullPolicy when image.pullPolicy is unset.
+  imagePullPolicy: ""
+  # -- Namespace scope fallback. rbac.namespaces overrides it when the key is
+  # present. A non-empty resolved list replaces ClusterRoles with Roles and
+  # scopes the controller's watch.
+  watchNamespaces: []
+
+image:
+  # -- Registry host for the image, and nothing else. To change environments (a
+  # private mirror, an air-gapped registry), change only this value or
+  # global.imageRegistry, which overrides it. A host inside `repository` fails
+  # the render, and the error names this split.
+  registry: ghcr.io
+  # -- Image path under the registry. The path is identical on every registry
+  # that serves the image. A mirror copies the image under this same path.
+  repository: kagent-dev/kmcp/controller
+  # -- Pull policy. Empty falls back to global.imagePullPolicy, then IfNotPresent.
+  pullPolicy: ""
+  # Overrides the image tag whose default is the chart's appVersion.
+  # Set to a specific version (e.g., "v0.1.7") to pin to that version.
+  # tag: ""
+
+# Image pull secrets for private registries
+imagePullSecrets: []
+
+# Controller configuration
+controller:
+  # Number of replicas
+  replicaCount: 1
+  
+  # Leader election settings
+  leaderElection:
+    enabled: true
+  
+  # Health probe configuration
+  healthProbe:
+    bindAddress: ":8081"
+    livenessProbe:
+      initialDelaySeconds: 15
+      periodSeconds: 20
+    readinessProbe:
+      initialDelaySeconds: 5
+      periodSeconds: 10
+  
+  # Metrics configuration
+  metrics:
+    enabled: true
+    bindAddress: ":8443"
+    secureServing: true
+  
+  env: []
+
+# Pod annotations
+podAnnotations: {}
+
+# Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+# Container security context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - "ALL"
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: 500m
+    memory: 128Mi
+  requests:
+    cpu: 10m
+    memory: 64Mi
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Service account configuration
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# RBAC configuration
+rbac:
+  # Specifies whether RBAC resources should be created
+  create: true
+
+  # -- Namespaces in which to create Role and RoleBinding resources.
+  # If empty (default), the chart creates cluster-scoped ClusterRole and ClusterRoleBinding
+  # resources and the controller watches all namespaces.
+  # If set, the chart creates a Role + RoleBinding per listed namespace and the controller
+  # receives the same list as its --watch-namespaces flag, so RBAC scope and watch scope
+  # cannot disagree. Left unset, the scope falls back to global.watchNamespaces.
+  # An explicit empty list forces cluster-scoped RBAC, even under a parent that
+  # sets the global. This is why the key ships commented out: a declared default
+  # [] would make every install look explicitly cluster-scoped, and the fallback
+  # would be unreachable.
+  # namespaces: []
+
+# Service configuration for metrics
+service:
+  type: ClusterIP
+  port: 8443
+  targetPort: 8443

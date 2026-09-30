@@ -1,0 +1,271 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: gitea
+  namespace: gitea
+spec:
+  parentRefs:
+    - name: localhost
+      group: gateway.networking.k8s.io
+      kind: Gateway
+      namespace: kgateway-system
+      sectionName: http
+  hostnames: [gitea.localhost]
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: gitea-http
+          port: 3000
+          weight: 1
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: agentgateway-analytics
+  namespace: agentgateway-system
+spec:
+  parentRefs:
+    - name: localhost
+      group: gateway.networking.k8s.io
+      kind: Gateway
+      namespace: kgateway-system
+      sectionName: http
+  hostnames: [agentgateway.localhost]
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: agentgateway-api-admin
+          port: 15000
+          weight: 1
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: agentgateway
+  namespace: agentgateway-system
+spec:
+  parentRefs:
+    - name: localhost
+      group: gateway.networking.k8s.io
+      kind: Gateway
+      namespace: kgateway-system
+      sectionName: http
+  hostnames: [aigw.localhost, localhost]
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: agentgateway-api
+          port: 80
+          weight: 1
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: grafana
+  namespace: grafana
+spec:
+  parentRefs:
+    - name: localhost
+      group: gateway.networking.k8s.io
+      kind: Gateway
+      namespace: kgateway-system
+      sectionName: http
+  # Browser-friendly hostname plus the WSL-safe host used by Go CLIs such as
+  # gcx (which does not resolve *.localhost through the Windows resolver).
+  hostnames: [grafana.localhost]
+  rules:
+    # `localhost` is reserved for WSL CLI access (gcx). Scope that alias to
+    # Grafana's APIs so it cannot capture AgentGateway's /v1, /mcp or A2A
+    # routes on the same host. grafana.localhost remains the browser UI URL.
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: grafana
+          port: 3000
+          weight: 1
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /apis
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: grafana
+          port: 3000
+          weight: 1
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: grafana
+          port: 3000
+          weight: 1
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: grafana-localhost-api
+  namespace: grafana
+spec:
+  parentRefs:
+    - name: localhost
+      group: gateway.networking.k8s.io
+      kind: Gateway
+      namespace: kgateway-system
+      sectionName: http
+  hostnames: [localhost]
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: grafana
+          port: 3000
+          weight: 1
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /apis
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: grafana
+          port: 3000
+          weight: 1
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: kagent
+  namespace: kagent
+spec:
+  parentRefs:
+    - name: localhost
+      group: gateway.networking.k8s.io
+      kind: Gateway
+      namespace: kgateway-system
+      sectionName: http
+  hostnames: [kagent.localhost]
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: kagent-ui
+          port: 8080
+          weight: 1
+      # A2A/gRPC-Web responses are long-lived streams. Without an explicit
+      # timeout Envoy's route default is 15s, which closes the response before
+      # the gRPC-Web trailers arrive and surfaces as ERR_INCOMPLETE_CHUNKED_ENCODING.
+      timeouts:
+        request: 30m
+        backendRequest: 30m
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: a2a-kagent
+  namespace: kagent
+spec:
+  parentRefs:
+    - name: localhost
+      group: gateway.networking.k8s.io
+      kind: Gateway
+      namespace: kgateway-system
+      sectionName: http
+  hostnames: [a2a-kagent.localhost]
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: kagent-controller
+          port: 8083
+          weight: 1
+      # A2A runs over gRPC / gRPC-Web: long-lived streams. Without an explicit
+      # timeout Envoy's route default is 15s, which closes the response before
+      # the gRPC-Web trailers arrive (same issue the kagent UI route documents).
+      timeouts:
+        request: 30m
+        backendRequest: 30m
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: agentregistry
+  namespace: agentregistry
+spec:
+  parentRefs:
+    - name: localhost
+      group: gateway.networking.k8s.io
+      kind: Gateway
+      namespace: kgateway-system
+      sectionName: http
+  hostnames: [agentregistry.localhost]
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: agentregistry
+          port: 12121
+          weight: 1
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  parentRefs:
+    - name: localhost
+      group: gateway.networking.k8s.io
+      kind: Gateway
+      namespace: kgateway-system
+      sectionName: http
+  hostnames: [argocd.localhost]
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: argocd-server
+          port: 80
+          weight: 1

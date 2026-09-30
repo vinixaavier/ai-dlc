@@ -1,0 +1,32 @@
+annotations:
+  artifacthub.io/images: |
+    - name: agentregistry
+      image: ghcr.io/agentregistry-dev/agentregistry/server:v0.4.0
+    - name: postgresql
+      image: docker.io/library/postgres:18
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: Documentation
+      url: https://github.com/agentregistry-dev/agentregistry
+apiVersion: v2
+appVersion: v0.4.0
+description: Production-grade Helm chart for Agent Registry -- deploy, secure, and
+  scale the open-source platform for curating and managing AI agents, MCP servers,
+  and skills on Kubernetes with bundled PostgreSQL
+home: https://github.com/agentregistry-dev/agentregistry
+keywords:
+- agentregistry
+- agents
+- mcp
+- registry
+- ai
+- llm
+kubeVersion: '>=1.19.0-0'
+maintainers:
+- name: agentregistry-dev
+  url: https://github.com/agentregistry-dev
+name: agentregistry
+sources:
+- https://github.com/agentregistry-dev/agentregistry
+type: application
+version: 0.4.0

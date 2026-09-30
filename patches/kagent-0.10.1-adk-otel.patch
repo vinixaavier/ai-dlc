@@ -1,0 +1,18 @@
+diff --git a/adk/pkg/models/base.go b/adk/pkg/models/base.go
+index 0000000..0000000 100644
+--- a/adk/pkg/models/base.go
++++ b/adk/pkg/models/base.go
+@@
+ 	"time"
+ 
++	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+ 	"google.golang.org/genai"
+@@
+ 	if len(tc.Headers) > 0 {
+ 		transport = &headerTransport{base: transport, headers: tc.Headers}
+ 	}
++
++	// Inject W3C trace context into outbound model-provider requests.
++	transport = otelhttp.NewTransport(transport)
+ 
+ 	timeout := defaultTimeout

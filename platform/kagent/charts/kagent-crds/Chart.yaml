@@ -1,0 +1,16 @@
+apiVersion: v2
+name: kagent-crds
+description: CRDs for kagent
+type: application
+version: 0.0.0-main.20260920
+annotations:
+  "org.opencontainers.image.source": "https://github.com/kagent-dev/kagent"
+dependencies:
+  - name: kmcp-crds
+    version: 0.0.0-main.8f26f04
+    repository: oci://ghcr.io/kagent-dev/kmcp/helm
+    condition: kmcp.enabled
+  - name: substrate-crds
+    version: 0.0.29
+    repository: oci://ghcr.io/kagent-dev/substrate/helm
+    condition: substrate.enabled

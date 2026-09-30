@@ -1,0 +1,9 @@
+dependencies:
+- name: substrate-crds
+  repository: file://charts/substrate-crds
+  version: 0.0.0-main.20260920
+- name: substrate
+  repository: file://charts/substrate
+  version: 0.0.0-main.20260920
+digest: sha256:bd0228f29754bed765c628653aaef1bd01fdaed5d83e4c207a3bec54db00a5b7
+generated: "2026-09-20T15:59:54.002233983-03:00"

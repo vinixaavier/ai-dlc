@@ -1,0 +1,15 @@
+{{- if index .Values "oauth2-proxy" "enabled" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kagent-oauth2-proxy-templates
+  namespace: {{ include "kagent.namespace" . }}
+  labels:
+    {{- include "kagent.labels" . | nindent 4 }}
+data:
+  # The body lives in the kagent.oauth2ProxySignInHTML named template
+  # (_helpers.tpl) so oauth2-proxy.extraEnv in values.yaml can hash the content to
+  # force a rollout when it changes.
+  sign_in.html: |
+    {{- include "kagent.oauth2ProxySignInHTML" . | nindent 4 }}
+{{- end }}

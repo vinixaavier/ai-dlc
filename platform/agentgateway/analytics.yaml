@@ -1,0 +1,135 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: agentgateway-postgresql
+  namespace: agentgateway-system
+type: Opaque
+stringData:
+  POSTGRES_PASSWORD: ai-dlc-local
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agentgateway-postgresql
+  namespace: agentgateway-system
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agentgateway-postgresql
+  namespace: agentgateway-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: agentgateway-postgresql
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: agentgateway-postgresql
+    spec:
+      containers:
+        - name: postgresql
+          image: docker.io/library/postgres:18
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgresql
+              containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: agentgateway
+            - name: POSTGRES_USER
+              value: agentgateway
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: agentgateway-postgresql
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: agentgateway-postgresql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agentgateway-postgresql
+  namespace: agentgateway-system
+spec:
+  selector:
+    app.kubernetes.io/name: agentgateway-postgresql
+  ports:
+    - name: postgresql
+      port: 5432
+      targetPort: postgresql
+---
+apiVersion: agentgateway.dev/v1alpha1
+kind: AgentgatewayParameters
+metadata:
+  name: agentgateway-analytics
+  namespace: agentgateway-system
+spec:
+  env:
+    - name: ADMIN_ADDR
+      value: 0.0.0.0:15000
+    - name: POSTGRES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: agentgateway-postgresql
+          key: POSTGRES_PASSWORD
+    - name: DATABASE_URL
+      value: postgresql://agentgateway:$(POSTGRES_PASSWORD)@agentgateway-postgresql.agentgateway-system.svc.cluster.local:5432/agentgateway?sslmode=disable
+  rawConfig:
+    config:
+      database:
+        url: $DATABASE_URL
+        maxConnections: 5
+  # Expose the AgentGateway data plane directly for WSL/CLI clients.
+  # The kgateway entrypoint remains available on port 80; Pi can use the
+  # control-plane node IP on this NodePort and skip kgateway entirely.
+  service:
+    spec:
+      type: NodePort
+      ports:
+        - name: http
+          port: 80
+          targetPort: 80
+          nodePort: 30081
+
+---
+apiVersion: agentgateway.dev/v1alpha1
+kind: AgentgatewayPolicy
+metadata:
+  name: agentgateway-otel
+  namespace: agentgateway-system
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: agentgateway-api
+  frontend:
+    tracing:
+      backendRef:
+        name: otel-collector
+        namespace: otel
+        port: 4317
+      protocol: GRPC
+      randomSampling: "true"
+      clientSampling: "true"
+    accessLog:
+      otlp:
+        backendRef:
+          name: otel-collector
+          namespace: otel
+          port: 4317
+        protocol: GRPC

@@ -1,0 +1,13 @@
+apiVersion: v2
+name: ai-dlc-kgateway-platform
+description: Declarative kgateway platform resources for ai-dlc
+type: application
+version: 0.1.7
+appVersion: "1.0"
+dependencies:
+  - name: kgateway-crds
+    version: v2.5.0-beta.1
+    repository: file://charts/kgateway-crds
+  - name: kgateway
+    version: v2.5.0-beta.1
+    repository: file://charts/kgateway

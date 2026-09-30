@@ -1,0 +1,20 @@
+gpu-operator:
+  driver:
+    enabled: false
+  toolkit:
+    enabled: false
+  cdi:
+    enabled: true
+  operator:
+    runtimeClass: nvidia
+  nfd:
+    enabled: false
+  gfd:
+    enabled: false
+  validator:
+    driver:
+      env:
+        - name: DISABLE_DEV_CHAR_SYMLINK_CREATION
+          value: "true"
+  dcgmExporter:
+    enabled: true

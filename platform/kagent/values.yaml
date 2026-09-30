@@ -1,0 +1,79 @@
+kagent:
+  providers:
+    default: openAI
+    openAI:
+      provider: OpenAI
+      model: qwen3.8-27b-nvfp4
+      apiKeySecretRef: kagent-sglang
+      apiKeySecretKey: API_KEY
+      apiKey: sglang-local
+      config:
+        baseUrl: http://agentgateway-api.agentgateway-system.svc.cluster.local/v1
+        apiFormat: chatCompletions
+  ui:
+    image:
+      registry: registry.registry.svc.cluster.local:5000
+      repository: kagent-dev/kagent/ui
+      tag: main-20260916-90151e98
+      pullPolicy: IfNotPresent
+  controller:
+    replicas: 1
+    image:
+      registry: registry.registry.svc.cluster.local:5000
+      repository: kagent-dev/kagent/controller
+      tag: main-20260916-90151e98
+      pullPolicy: IfNotPresent
+    agentImage:
+      registry: registry.registry.svc.cluster.local:5000
+      repository: kagent-dev/kagent/golang-adk
+      tag: main-20260916-90151e98
+      pullPolicy: IfNotPresent
+    substrate:
+      enabled: true
+      ateApiEndpoint: "dns:///api.ate-system.svc:443"
+      atenetRouterURL: "http://atenet-router.ate-system.svc:80"
+      ateApiInsecure: true
+      defaultWorkerPool:
+        name: kagent-default
+  substrateWorkerPool:
+    create: true
+    name: kagent-default
+    replicas: 6
+    workerImage: registry.registry.svc.cluster.local:5000/kagent-dev/substrate/ateom-gvisor:main-85ce8ed5
+  proxy:
+    url: http://agentgateway-api.agentgateway-system.svc.cluster.local
+  grafana-mcp:
+    serverUrl: "http://agentgateway-api.agentgateway-system:80/mcp"
+    args:
+      - --allowed-hosts
+      - "*"
+    grafana:
+      url: "http://grafana.grafana:3000"
+      secretRef: kagent-grafana-mcp-auth
+  kmcp:
+    image:
+      registry: registry.registry.svc.cluster.local:5000
+      repository: kagent-dev/kmcp/controller
+      tag: main-8f26f04
+      pullPolicy: IfNotPresent
+  kagent-tools:
+    tools:
+      image:
+        registry: registry.registry.svc.cluster.local:5000
+        repository: kagent-dev/kagent/tools
+        tag: main-bd6e49d
+        pullPolicy: IfNotPresent
+  otel:
+    tracing:
+      enabled: true
+      exporter:
+        otlp:
+          endpoint: http://otel-collector.otel.svc.cluster.local:4317
+          protocol: grpc
+          insecure: true
+    logging:
+      enabled: true
+      exporter:
+        otlp:
+          endpoint: http://otel-collector.otel.svc.cluster.local:4317
+          insecure: true

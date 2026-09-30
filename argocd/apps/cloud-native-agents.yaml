@@ -1,0 +1,368 @@
+apiVersion: kagent.dev/v1alpha3
+kind: AgentTemplate
+metadata:
+  name: argo-rollouts-conversion-agent
+  namespace: kagent
+  labels:
+    kagent.dev/runtime: hello-substrate
+spec:
+  description: Converts Kubernetes Deployments to Argo Rollouts and explains the required migration.
+  modelConfig:
+    name: default-model-config
+  systemPrompt: |
+    You are the Argo Rollouts Conversion Agent.
+
+    Help users inspect Kubernetes Deployments and produce safe Argo Rollout
+    migration manifests. Preserve selectors, labels, replicas, pod templates,
+    probes, resources, services, and rollout intent. Explain every material
+    change and distinguish observed cluster state from generated YAML.
+
+    You are read-only. Generate manifests and recommendations, but never apply
+    or delete resources. Ask for the namespace and workload when ambiguous.
+  tools:
+    - mcp:
+        server:
+          kind: RemoteMCPServer
+          name: kagent-tool-server
+        tools:
+          - k8s_get_resources
+          - k8s_get_resource_yaml
+          - k8s_describe_resource
+          - k8s_generate_resource
+          - argo_rollouts_list
+          - argo_verify_argo_rollouts_controller_install
+---
+apiVersion: kagent.dev/v1alpha3
+kind: AgentTemplate
+metadata:
+  name: cilium-crd-agent
+  namespace: kagent
+  labels:
+    kagent.dev/runtime: hello-substrate
+spec:
+  description: Creates, validates, and troubleshoots Cilium network policy resources.
+  modelConfig:
+    name: default-model-config
+  systemPrompt: |
+    You are the Cilium CRD Agent.
+
+    Help users inspect Cilium state and author CiliumNetworkPolicy or
+    CiliumClusterwideNetworkPolicy resources. Prefer narrow, least-privilege
+    policies. Validate selectors, ports, entities, DNS rules, and intended
+    traffic before proposing a change. Never invent cluster state.
+
+    Read operations may run normally. Before any write, explain the exact
+    resource and impact and wait for the explicit tool approval provided by the
+    platform. Ask for namespace, direction, peers, and ports when ambiguous.
+  tools:
+    - mcp:
+        server:
+          kind: RemoteMCPServer
+          name: kagent-tool-server
+        tools:
+          - cilium_status_and_version
+          - cilium_validate_cilium_network_policies
+          - cilium_display_selectors
+          - cilium_list_cluster_nodes
+          - cilium_get_endpoints_list
+          - cilium_get_endpoint_details
+          - k8s_get_resources
+          - k8s_get_resource_yaml
+          - k8s_describe_resource
+          - k8s_generate_resource
+    - mcp:
+        server:
+          kind: RemoteMCPServer
+          name: kagent-tool-server
+        requireApproval: true
+        tools:
+          - k8s_apply_manifest
+          - k8s_create_resource
+          - k8s_patch_resource
+          - k8s_delete_resource
+---
+apiVersion: kagent.dev/v1alpha3
+kind: AgentTemplate
+metadata:
+  name: helm-agent
+  namespace: kagent
+  labels:
+    kagent.dev/runtime: hello-substrate
+spec:
+  description: Manages Helm releases and troubleshoots Helm workloads.
+  modelConfig:
+    name: default-model-config
+  systemPrompt: |
+    You are the Helm Agent.
+
+    Inspect Helm releases, repositories, revisions, and workload symptoms.
+    State the namespace, release, chart, revision, and exact command-like
+    operation you intend to perform. Do not upgrade, uninstall, or change a
+    repository without explicit approval. Ask for the namespace and release
+    when ambiguous.
+  tools:
+    - mcp:
+        server:
+          kind: RemoteMCPServer
+          name: kagent-tool-server
+        tools:
+          - helm_list_releases
+          - helm_get_release
+          - k8s_get_resources
+          - k8s_describe_resource
+          - k8s_get_events
+          - k8s_get_pod_logs
+    - mcp:
+        server:
+          kind: RemoteMCPServer
+          name: kagent-tool-server
+        requireApproval: true
+        tools:
+          - helm_repo_add
+          - helm_repo_update
+          - helm_upgrade
+          - helm_uninstall
+---
+apiVersion: kagent.dev/v1alpha3
+kind: AgentTemplate
+metadata:
+  name: istio-agent
+  namespace: kagent
+  labels:
+    kagent.dev/runtime: hello-substrate
+spec:
+  description: Operates, diagnoses, and troubleshoots Istio service meshes.
+  modelConfig:
+    name: default-model-config
+  systemPrompt: |
+    You are the Istio Agent.
+
+    Diagnose Istio control-plane, proxy, waypoint, ztunnel, routing, and
+    configuration issues. Begin with read-only inspection and identify the
+    cluster, namespace, workload, and revision involved. Explain the evidence
+    and commands/tools used. Generate manifests when useful.
+
+    Installation, deletion, and waypoint application are destructive or
+    cluster-wide operations. Describe the exact impact and wait for explicit
+    tool approval before performing them.
+  tools:
+    - mcp:
+        server:
+          kind: RemoteMCPServer
+          name: kagent-tool-server
+        tools:
+          - istio_version
+          - istio_proxy_status
+          - istio_proxy_config
+          - istio_analyze_cluster_configuration
+          - istio_remote_clusters
+          - istio_waypoint_status
+          - istio_list_waypoints
+          - istio_ztunnel_config
+          - istio_generate_manifest
+          - istio_generate_waypoint
+          - k8s_get_resources
+          - k8s_describe_resource
+          - k8s_get_events
+          - k8s_get_pod_logs
+    - mcp:
+        server:
+          kind: RemoteMCPServer
+          name: kagent-tool-server
+        requireApproval: true
+        tools:
+          - istio_install_istio
+          - istio_apply_waypoint
+          - istio_delete_waypoint
+---
+apiVersion: kagent.dev/v1alpha3
+kind: AgentTemplate
+metadata:
+  name: k8s-agent
+  namespace: kagent
+  labels:
+    kagent.dev/runtime: hello-substrate
+spec:
+  description: Investigates and operates Kubernetes resources safely.
+  modelConfig:
+    name: default-model-config
+  systemPrompt: |
+    You are the Kubernetes Agent.
+
+    Investigate cluster resources, events, logs, rollout state, and
+    connectivity. Use read-only tools first, cite the namespace and resource
+    names, and separate observed facts from hypotheses. For mutations, explain
+    the exact objects and blast radius and wait for explicit tool approval.
+    Never delete or patch a resource merely to test a hypothesis.
+  tools:
+    - mcp:
+        server:
+          kind: RemoteMCPServer
+          name: kagent-tool-server
+        tools:
+          - k8s_get_available_api_resources
+          - k8s_get_cluster_configuration
+          - k8s_get_resources
+          - k8s_get_resource_yaml
+          - k8s_describe_resource
+          - k8s_get_events
+          - k8s_get_pod_logs
+          - k8s_check_service_connectivity
+          - k8s_rollout
+    - mcp:
+        server:
+          kind: RemoteMCPServer
+          name: kagent-tool-server
+        requireApproval: true
+        tools:
+          - k8s_apply_manifest
+          - k8s_create_resource
+          - k8s_patch_resource
+          - k8s_patch_status
+          - k8s_scale
+          - k8s_annotate_resource
+          - k8s_label_resource
+          - k8s_delete_resource
+---
+apiVersion: kagent.dev/v1alpha3
+kind: AgentTemplate
+metadata:
+  name: kgateway-agent
+  namespace: kagent
+  labels:
+    kagent.dev/runtime: hello-substrate
+spec:
+  description: Configures and troubleshoots kgateway and Gateway API resources.
+  modelConfig:
+    name: default-model-config
+  systemPrompt: |
+    You are the kgateway Agent.
+
+    Help users inspect and troubleshoot kgateway, Gateway API, HTTPRoute,
+    backend, listener, and related Kubernetes resources. Use the Kubernetes
+    tools to inspect actual status and events. Produce manifests for proposed
+    changes, explain routing and security consequences, and require approval
+    before applying or deleting anything.
+  tools:
+    - mcp:
+        server:
+          kind: RemoteMCPServer
+          name: kagent-tool-server
+        tools:
+          - k8s_get_available_api_resources
+          - k8s_get_resources
+          - k8s_get_resource_yaml
+          - k8s_describe_resource
+          - k8s_get_events
+          - k8s_check_service_connectivity
+          - k8s_generate_resource
+    - mcp:
+        server:
+          kind: RemoteMCPServer
+          name: kagent-tool-server
+        requireApproval: true
+        tools:
+          - k8s_apply_manifest
+          - k8s_create_resource
+          - k8s_patch_resource
+          - k8s_delete_resource
+---
+apiVersion: kagent.dev/v1alpha3
+kind: AgentTemplate
+metadata:
+  name: observability-agent
+  namespace: kagent
+  labels:
+    kagent.dev/runtime: hello-substrate
+spec:
+  description: Investigates Prometheus, Grafana, Loki, and Kubernetes telemetry.
+  modelConfig:
+    name: default-model-config
+  systemPrompt: |
+    You are the Observability Agent.
+
+    Investigate metrics, logs, dashboards, targets, labels, alerts, and
+    telemetry health using the attached read-only tools. State the exact
+    PromQL or LogQL, datasource, time range, filters, and whether each result
+    is observed or inferred. Keep queries narrow and ask for missing context.
+    Do not mutate dashboards, alerts, datasources, workloads, or cluster
+    resources.
+  tools:
+    - mcp:
+        server:
+          kind: RemoteMCPServer
+          name: kagent-grafana-mcp
+        tools:
+          - kagent-grafana_check_datasources_health
+          - kagent-grafana_list_prometheus_metric_names
+          - kagent-grafana_list_prometheus_metric_metadata
+          - kagent-grafana_list_prometheus_label_names
+          - kagent-grafana_list_prometheus_label_values
+          - kagent-grafana_query_prometheus
+          - kagent-grafana_query_prometheus_histogram
+          - kagent-grafana_list_loki_label_names
+          - kagent-grafana_list_loki_label_values
+          - kagent-grafana_query_loki_logs
+          - kagent-grafana_query_loki_patterns
+          - kagent-grafana_query_loki_stats
+          - kagent-grafana_search_dashboards
+          - kagent-grafana_get_dashboard_summary
+          - kagent-grafana_get_dashboard_panel_queries
+          - kagent-grafana_find_slow_requests
+          - kagent-grafana_find_error_pattern_logs
+    - mcp:
+        server:
+          kind: RemoteMCPServer
+          name: kagent-tool-server
+        tools:
+          - prometheus_label_names_tool
+          - prometheus_promql_tool
+          - prometheus_query_range_tool
+          - prometheus_query_tool
+          - prometheus_targets_tool
+          - k8s_get_resources
+          - k8s_get_events
+          - k8s_get_pod_logs
+---
+apiVersion: kagent.dev/v1alpha3
+kind: AgentTemplate
+metadata:
+  name: promql-agent
+  namespace: kagent
+  labels:
+    kagent.dev/runtime: hello-substrate
+spec:
+  description: Generates, validates, and explains PromQL queries from natural language.
+  modelConfig:
+    name: default-model-config
+  systemPrompt: |
+    You are the PromQL Agent.
+
+    Translate natural-language monitoring questions into precise PromQL. First
+    discover metric names and labels when needed, then validate and execute the
+    smallest useful query. Always show the final PromQL, time range, filters,
+    aggregation, and limitations. Never fabricate metric names or values.
+    This agent is strictly read-only.
+  tools:
+    - mcp:
+        server:
+          kind: RemoteMCPServer
+          name: kagent-tool-server
+        tools:
+          - prometheus_label_names_tool
+          - prometheus_promql_tool
+          - prometheus_query_range_tool
+          - prometheus_query_tool
+          - prometheus_targets_tool
+          - k8s_get_resources
+    - mcp:
+        server:
+          kind: RemoteMCPServer
+          name: kagent-grafana-mcp
+        tools:
+          - kagent-grafana_list_prometheus_metric_names
+          - kagent-grafana_list_prometheus_metric_metadata
+          - kagent-grafana_list_prometheus_label_names
+          - kagent-grafana_list_prometheus_label_values
+          - kagent-grafana_query_prometheus
+          - kagent-grafana_query_prometheus_histogram

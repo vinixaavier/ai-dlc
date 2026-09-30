@@ -1,0 +1,961 @@
+{
+  "apiVersion": "dashboard.grafana.app/v1beta1",
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "agentic-call-flow"
+  },
+  "spec": {
+    "title": "Agentic Call Flow: pi / kagent \u2192 AgentGateway \u2192 SGLang",
+    "description": "Top-to-bottom view of the agentic call path: agentic clients (pi, kagent MCP clients) call AgentGateway (A2A/MCP/OpenAI routing), which serves MCP tool routes and proxies LLM traffic to the external SGLang backend (qwen3.8-27b-nvfp4). Read top-down: client traffic first, then gateway internals, then the LLM backend.",
+    "tags": [
+      "ai-dlc",
+      "agentic",
+      "agentgateway",
+      "sglang"
+    ],
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "schemaVersion": 36,
+    "templating": {
+      "list": []
+    },
+    "panels": [
+      {
+        "id": 1,
+        "type": "stat",
+        "title": "Gateway request rate (all routes)",
+        "description": "All client requests hitting AgentGateway.",
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 0,
+          "y": 0
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps"
+          },
+          "overrides": []
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ]
+          }
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(agentgateway_requests_total[5m]))",
+            "legendFormat": "rps",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "type": "stat",
+        "title": "MCP tool calls/s",
+        "description": "MCP client\u2192gateway calls served by kagent MCP servers (kagent-tools, kagent-grafana-mcp).",
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 4,
+          "y": 0
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps"
+          },
+          "overrides": []
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ]
+          }
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(agentgateway_mcp_requests_total[5m]))",
+            "legendFormat": "calls/s",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "type": "stat",
+        "title": "LLM requests/s (\u2192 SGLang)",
+        "description": "Gen-AI chat requests routed from AgentGateway to the SGLang model backend.",
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 8,
+          "y": 0
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps"
+          },
+          "overrides": []
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ]
+          }
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(agentgateway_gen_ai_server_request_duration_count[5m]))",
+            "legendFormat": "llm req/s",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "type": "stat",
+        "title": "Tokens/s (in + out + cache)",
+        "description": "Gen-AI token throughput measured at the gateway.",
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 12,
+          "y": 0
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ]
+          }
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(agentgateway_gen_ai_client_token_usage_sum[5m]))",
+            "legendFormat": "tokens/s",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "type": "stat",
+        "title": "LLM TTFT p95",
+        "description": "95th percentile time-to-first-token on LLM requests.",
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 16,
+          "y": 0
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          },
+          "overrides": []
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ]
+          }
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(agentgateway_gen_ai_server_time_to_first_token_bucket[5m])) by (le))",
+            "legendFormat": "p95",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "type": "stat",
+        "title": "Shed requests/s",
+        "description": "Load-shed requests + shed downstream connections. Healthy state is flat 0.",
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 20,
+          "y": 0
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps"
+          },
+          "overrides": []
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ]
+          }
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(agentgateway_requests_shed_total[5m])) + sum(rate(agentgateway_downstream_connections_shed_total[5m]))",
+            "legendFormat": "shed/s",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "type": "row",
+        "title": "1 \u00b7 Clients (pi / kagent) \u2192 AgentGateway",
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 4
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "panels": []
+      },
+      {
+        "id": 20,
+        "type": "timeseries",
+        "title": "Request rate by route (backend)",
+        "description": "Where client traffic lands: MCP tool routes (kagent) vs the LLM route to SGLang.",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 5
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "custom": {
+              "fillOpacity": 10
+            }
+          },
+          "overrides": []
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": [
+              "mean",
+              "max"
+            ]
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "expr": "sum by (backend) (rate(agentgateway_requests_total[5m]))",
+            "legendFormat": "{{backend}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 21,
+        "type": "timeseries",
+        "title": "MCP tool calls by server",
+        "description": "MCP calls per server (kagent-tools, kagent-grafana-mcp) \u2014 tool usage by clients.",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 5
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "custom": {
+              "fillOpacity": 10
+            }
+          },
+          "overrides": []
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": [
+              "mean",
+              "max"
+            ]
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "expr": "sum by (server) (rate(agentgateway_mcp_requests_total[5m]))",
+            "legendFormat": "{{server}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 22,
+        "type": "timeseries",
+        "title": "Downstream throughput (clients \u21c4 gateway)",
+        "description": "Bytes received from and sent to downstream clients.",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 13
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "Bps",
+            "custom": {
+              "fillOpacity": 10
+            }
+          },
+          "overrides": []
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": [
+              "mean"
+            ]
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(agentgateway_downstream_received_bytes_total[5m]))",
+            "legendFormat": "received (client \u2192 gw)",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate(agentgateway_downstream_sent_bytes_total[5m]))",
+            "legendFormat": "sent (gw \u2192 client)",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "id": 23,
+        "type": "timeseries",
+        "title": "Client \u2192 Gateway request latency",
+        "description": "p50/p95/p99 end-to-end request duration observed on the gateway.",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 13
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "fillOpacity": 10
+            }
+          },
+          "overrides": []
+        },
+        "options": {
+          "legend": {
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, sum(rate(agentgateway_request_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(agentgateway_request_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p95",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(agentgateway_request_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p99",
+            "refId": "C"
+          }
+        ]
+      },
+      {
+        "id": 24,
+        "type": "timeseries",
+        "title": "Shed load (requests + connections)",
+        "description": "Requests and downstream connections shed by the gateway. Flat 0 = no load shedding.",
+        "gridPos": {
+          "h": 6,
+          "w": 24,
+          "x": 0,
+          "y": 21
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "custom": {
+              "fillOpacity": 10
+            }
+          },
+          "overrides": []
+        },
+        "options": {
+          "legend": {
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(agentgateway_requests_shed_total[5m]))",
+            "legendFormat": "requests shed",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate(agentgateway_downstream_connections_shed_total[5m]))",
+            "legendFormat": "connections shed",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "id": 30,
+        "type": "row",
+        "title": "2 \u00b7 AgentGateway (routing, processing, upstream)",
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 27
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "panels": []
+      },
+      {
+        "id": 31,
+        "type": "timeseries",
+        "title": "Request processing time",
+        "description": "Time spent processing the request itself (p50/p95).",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 28
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "fillOpacity": 10
+            }
+          },
+          "overrides": []
+        },
+        "options": {
+          "legend": {
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, sum(rate(agentgateway_request_processing_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(agentgateway_request_processing_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p95",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "id": 32,
+        "type": "timeseries",
+        "title": "Response processing time",
+        "description": "Time spent producing the response (p50/p95).",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 28
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "fillOpacity": 10
+            }
+          },
+          "overrides": []
+        },
+        "options": {
+          "legend": {
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, sum(rate(agentgateway_response_processing_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(agentgateway_response_processing_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p95",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "id": 33,
+        "type": "timeseries",
+        "title": "Upstream connect time (gw \u2192 SGLang)",
+        "description": "Time to establish upstream connections, including to the external SGLang backend.",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 36
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "fillOpacity": 10
+            }
+          },
+          "overrides": []
+        },
+        "options": {
+          "legend": {
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, sum(rate(agentgateway_upstream_connect_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(agentgateway_upstream_connect_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p95",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "id": 34,
+        "type": "timeseries",
+        "title": "Tokio scheduler",
+        "description": "Gateway runtime health: alive tasks, global queue depth, workers.",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 36
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "fillOpacity": 10
+            }
+          },
+          "overrides": []
+        },
+        "options": {
+          "legend": {
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "expr": "sum(agentgateway_tokio_num_alive_tasks)",
+            "legendFormat": "alive tasks",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(agentgateway_tokio_global_queue_depth)",
+            "legendFormat": "queue depth",
+            "refId": "B"
+          },
+          {
+            "expr": "sum(agentgateway_tokio_num_workers)",
+            "legendFormat": "workers",
+            "refId": "C"
+          }
+        ]
+      },
+      {
+        "id": 40,
+        "type": "row",
+        "title": "3 \u00b7 AgentGateway \u2192 SGLang (qwen3.8-27b-nvfp4)",
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 44
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "panels": []
+      },
+      {
+        "id": 41,
+        "type": "timeseries",
+        "title": "LLM requests/s by model",
+        "description": "Chat requests the gateway proxies to SGLang, by requested model.",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 45
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "custom": {
+              "fillOpacity": 10
+            }
+          },
+          "overrides": []
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": [
+              "mean",
+              "max"
+            ]
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "expr": "sum by (gen_ai_request_model) (rate(agentgateway_gen_ai_server_request_duration_count[5m]))",
+            "legendFormat": "{{gen_ai_request_model}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 42,
+        "type": "timeseries",
+        "title": "LLM end-to-end request duration",
+        "description": "Full LLM chat completion duration as seen by the gateway (p50/p95).",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 45
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "fillOpacity": 10
+            }
+          },
+          "overrides": []
+        },
+        "options": {
+          "legend": {
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, sum(rate(agentgateway_gen_ai_server_request_duration_bucket[5m])) by (le))",
+            "legendFormat": "p50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(agentgateway_gen_ai_server_request_duration_bucket[5m])) by (le))",
+            "legendFormat": "p95",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "id": 43,
+        "type": "timeseries",
+        "title": "Time to first token (TTFT)",
+        "description": "First-token latency on LLM requests (p50/p95).",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 53
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "fillOpacity": 10
+            }
+          },
+          "overrides": []
+        },
+        "options": {
+          "legend": {
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, sum(rate(agentgateway_gen_ai_server_time_to_first_token_bucket[5m])) by (le))",
+            "legendFormat": "p50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(agentgateway_gen_ai_server_time_to_first_token_bucket[5m])) by (le))",
+            "legendFormat": "p95",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "id": 44,
+        "type": "timeseries",
+        "title": "Time per output token (TPOT)",
+        "description": "Per-output-token latency on LLM requests (p50/p95).",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 53
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "custom": {
+              "fillOpacity": 10
+            }
+          },
+          "overrides": []
+        },
+        "options": {
+          "legend": {
+            "displayMode": "list",
+            "placement": "bottom"
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, sum(rate(agentgateway_gen_ai_server_time_per_output_token_bucket[5m])) by (le))",
+            "legendFormat": "p50",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(agentgateway_gen_ai_server_time_per_output_token_bucket[5m])) by (le))",
+            "legendFormat": "p95",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "id": 45,
+        "type": "timeseries",
+        "title": "Token throughput by type",
+        "description": "Tokens/s flowing through the gateway, by type: input, output, cache read.",
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 61
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "fillOpacity": 10
+            }
+          },
+          "overrides": []
+        },
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "bottom",
+            "calcs": [
+              "mean",
+              "max"
+            ]
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "targets": [
+          {
+            "expr": "sum by (gen_ai_token_type) (rate(agentgateway_gen_ai_client_token_usage_sum[5m]))",
+            "legendFormat": "{{gen_ai_token_type}}",
+            "refId": "A"
+          }
+        ]
+      }
+    ]
+  }
+}

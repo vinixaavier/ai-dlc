@@ -1,0 +1,4 @@
+# Track the upstream nightly produced from agentgateway/main.
+agentgateway:
+  image:
+    tag: latest-dev

@@ -1,0 +1,9 @@
+substrate:
+  image:
+    registry: registry.registry.svc.cluster.local:5000/kagent-dev/substrate
+    tag: main-85ce8ed5
+  otel:
+    endpoint: http://otel-collector.otel.svc.cluster.local:4317
+  atelet:
+    extraArgs:
+      - --localhost-registry-replacement=registry.registry.svc.cluster.local:5000

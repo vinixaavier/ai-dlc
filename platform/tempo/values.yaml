@@ -1,0 +1,44 @@
+tempo:
+  tempo:
+    tag: "2.10.0"
+    extraVolumeMounts:
+      - name: data
+        mountPath: /data
+  persistence:
+    enabled: false
+  extraVolumes:
+    - name: data
+      emptyDir: {}
+  config: |
+    server:
+      http_listen_port: 3200
+      grpc_listen_port: 9095
+    distributor:
+      receivers:
+        otlp:
+          protocols:
+            grpc:
+              endpoint: 0.0.0.0:4317
+    ingester:
+      trace_idle_period: 10s
+    compactor:
+      compaction:
+        block_retention: 168h
+    metrics_generator:
+      registry: {}
+      storage:
+        path: /tmp/tempo/generator
+        remote_write: []
+      traces_storage:
+        path: /tmp/tempo/generator/wal
+    storage:
+      trace:
+        backend: local
+        wal:
+          path: /data/tempo/wal
+        local:
+          path: /data/tempo/blocks
+    overrides:
+      defaults:
+        metrics_generator:
+          processors: [span-metrics, local-blocks]

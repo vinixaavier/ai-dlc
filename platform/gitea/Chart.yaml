@@ -1,0 +1,10 @@
+apiVersion: v2
+name: ai-dlc-gitea-platform
+description: Local Git server for ai-dlc GitOps repositories
+type: application
+version: 0.1.0
+appVersion: "1.27.0"
+dependencies:
+  - name: gitea
+    version: 12.7.0
+    repository: file://charts/gitea

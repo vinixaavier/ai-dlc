@@ -1,0 +1,6 @@
+/vendor/
+/repos/
+**/.git/
+kagent-a2a/kagent-a2a
+.env
+**/.env

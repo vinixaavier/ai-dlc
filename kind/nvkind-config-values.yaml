@@ -1,0 +1,4 @@
+name: ai-dlc
+workers:
+  - devices: all
+  - {}

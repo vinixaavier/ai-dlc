@@ -1,0 +1,84 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: substrate
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: http://gitea-http.gitea.svc.cluster.local:3000/admin/ai-dlc.git
+    targetRevision: main
+    path: platform/substrate
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ate-system
+  # The chart bootstraps these credentials with Helm lookup. Keep the live
+  # generated material stable across Argo render/sync cycles.
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: ateapi-tls
+      namespace: ate-system
+      jsonPointers:
+        - /data
+    - group: ""
+      kind: Secret
+      name: session-id-ca-pool
+      namespace: ate-system
+      jsonPointers:
+        - /data
+    - group: ""
+      kind: Secret
+      name: session-id-jwt-pool
+      namespace: ate-system
+      jsonPointers:
+        - /data
+    - group: ""
+      kind: ConfigMap
+      name: ateapi-ca
+      namespace: ate-system
+      jsonPointers:
+        - /data
+    - group: ""
+      kind: PersistentVolumeClaim
+      name: rustfs-data
+      namespace: ate-system
+      jsonPointers:
+        # The existing Kind volume is bound to the standard StorageClass;
+        # Substrate beta2 renders the field unset and Kubernetes forbids
+        # changing it after binding.
+        - /spec/storageClassName
+    - group: apps
+      kind: StatefulSet
+      name: valkey-cluster
+      namespace: ate-system
+      jsonPointers:
+        # Kubernetes injects/defaults StatefulSet fields that substrate
+        # does not render. Preserve the live StatefulSet and its PVCs.
+        - /spec
+    - group: apps
+      kind: StatefulSet
+      name: postgres
+      namespace: ate-system
+      jsonPointers:
+        # The chart intentionally leaves Kubernetes-defaulted StatefulSet
+        # fields live; ignore those defaults while retaining the fresh DB.
+        - /spec
+    - group: apps
+      kind: Deployment
+      name: atenet-egress
+      namespace: ate-system
+      jsonPointers:
+        # Substrate main binds ext_proc to loopback by default, while the
+        # beta2 chart probes the sidecar through the Pod IP. Keep the main
+        # runtime reachable by that probe until the upstream chart is updated.
+        - /spec/template/spec/containers/1/args
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - ApplyOutOfSyncOnly=true
+      - RespectIgnoreDifferences=true

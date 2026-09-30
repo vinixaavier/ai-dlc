@@ -1,0 +1,998 @@
+# Default values for kagent
+
+# ==============================================================================
+# GLOBAL CONFIGURATION
+# ==============================================================================
+
+# -- Enable IPv6/dual-stack support.
+# When true, configures all components for dual-stack (IPv4+IPv6) networking:
+#   - nginx listens on both IPv4 and IPv6 (adds `listen [::]:8080`)
+#   - Next.js binds to `::` instead of `0.0.0.0`
+#   - Agent pods bind to `::` for dual-stack reachability
+# Leave disabled on clusters where IPv6 is disabled at the kernel level.
+# @default -- false
+ipv6:
+  enabled: false
+
+# Values under `global` are visible to this chart and to every subchart. A parent
+# chart or an operator sets one value here instead of one value per chart.
+global:
+  # -- Registry that overrides every per-image registry when set. This is the
+  # air-gap mirror knob: one value redirects all images. Repository and tag stay
+  # per-image. For per-image control, leave this unset and set the per-image
+  # registry keys. Covers this chart's own images: controller, ui, bundled
+  # postgres, grafana-mcp, and substrateWorkerPool.workerImage. The vendored
+  # subcharts (kagent-tools, kmcp, substrate) adopt it when their pinned
+  # versions bump.
+  imageRegistry: ""
+  # -- Pull secrets for every pod. The chart merges this list (union) into each
+  # pod's own imagePullSecrets, so a local secret is never removed. Coverage
+  # matches imageRegistry above.
+  imagePullSecrets: []
+  # -- Fallback imagePullPolicy where neither a component nor the top-level
+  # imagePullPolicy sets one.
+  imagePullPolicy: ""
+  # -- Namespace scope for the whole install. A non-empty list replaces
+  # ClusterRoles with Roles and scopes the controller's watch. Both derive from
+  # this one value, so they cannot disagree. Prefer this value over the
+  # per-surface keys. rbac.namespaces overrides it when the key is present. An
+  # explicit empty rbac.namespaces restores cluster-scoped RBAC. Mixing in
+  # controller.watchNamespaces is validated: the watch must stay inside the RBAC
+  # scope. A watched namespace without a Role is a permanent Forbidden loop at
+  # runtime.
+  watchNamespaces: []
+
+tag: ""
+registry: "ghcr.io"
+
+imagePullSecrets: []
+# -- Pull policy for all containers. Empty falls back to global.imagePullPolicy,
+# then IfNotPresent.
+imagePullPolicy: ""
+
+nameOverride: ""
+fullnameOverride: ""
+
+# -- Override the namespace
+# @default -- `.Release.Namespace`
+namespaceOverride: ""
+
+# -- Additional annotations to add to all Kubernetes deployment resources
+annotations: {}
+
+podAnnotations: {}
+
+# -- Additional labels to add to all pod templates (merged into pod labels of
+# the controller and UI Deployments; can be overridden per component).
+# Useful for admission policies that require specific labels on pods.
+podLabels: {}
+
+# -- Additional labels to add to all Kubernetes resources
+labels: {}
+  # environment: production
+  # team: platform
+
+# -- Security context for all pods
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+# fsGroup: 2000
+
+# -- Security context for all containers
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+# runAsUser: 1000
+
+# ==============================================================================
+# CORE KAGENT COMPONENTS
+# ==============================================================================
+
+# -- Node taints which will be tolerated for `Pod` [scheduling](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/).
+tolerations: []
+
+# -- Node labels to match for `Pod` [scheduling](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/).
+nodeSelector: {}
+
+# ==============================================================================
+# DATABASE CONFIGURATION
+# ==============================================================================
+
+database:
+  postgres:
+    # -- External PostgreSQL connection string.
+    # Is always used if set regardless of the `.bundled.enabled` field.
+    url: ""
+    # -- Path to a file containing the database URL. Takes precedence over url when set.
+    # Is always used if set regardless of the `.bundled.enabled` field.
+    urlFile: ""
+    # -- Enable the pgvector migration
+    # Required to use features that depend on database vector capability. (e.g. long-term memory)
+    # Set to true when using an external PostgreSQL that has the pgvector extension installed.
+    vectorEnabled: false
+    # -- Skip running database migrations at controller startup.
+    # The controller instead verifies the database is already migrated and fails if it is not.
+    # Migrations must be applied out-of-band (e.g. from a CI/CD pipeline) before install/upgrade.
+    skipMigrations: false
+    # -- Optional pgxpool settings. Leave unset/null to keep pgx library defaults
+    # (MaxConns≈max(4,NumCPU), MinConns=0, MaxConnIdleTime=30m, MaxConnLifetime=1h).
+    pool:
+      maxConns: null
+      minConns: null
+      maxConnIdleTime: ""
+      maxConnLifetime: ""
+    # -- Bundled PostgreSQL instance — for development and evaluation only.
+    # Not suitable for production. Deployed when enabled is true and url/urlFile are not set.
+    bundled:
+      # -- Set to false to disable the bundled database and provide your own via url or urlFile.
+      enabled: true
+      image:
+        # -- Bundled PostgreSQL image registry
+        registry: docker.io
+        # -- Bundled PostgreSQL image repository (org/namespace)
+        repository: library
+        # -- Bundled PostgreSQL image name
+        name: postgres
+        # -- Bundled PostgreSQL image tag
+        tag: "18.6-alpine3.23"
+        # -- Bundled PostgreSQL image pull policy. Empty falls back to the
+        # top-level imagePullPolicy, then global.imagePullPolicy, then
+        # IfNotPresent. A declared default here would shadow both fallbacks.
+        pullPolicy: ""
+      # -- PersistentVolumeClaim size for demo PostgreSQL data
+      storage: 500Mi
+      # -- StorageClass for the PostgreSQL PVC. Defaults to the cluster default when empty.
+      storageClassName: ""
+      # The database name, user, and password are hardcoded for the bundled instance (all: "kagent").
+      # This is intentional for a dev/eval setup. Switch to an external database for production.
+      # -- Resource requests/limits for the demo PostgreSQL container
+      resources:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+      # -- Node taints which will be tolerated for `Pod` [scheduling](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/).
+      tolerations: []
+
+      # -- Node labels to match for `Pod` [scheduling](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/).
+      nodeSelector: {}
+
+      # -- [Affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity) rules for the bundled PostgreSQL pod.
+      affinity: {}
+
+      # -- Pod-level security context for the bundled PostgreSQL deployment.
+      podSecurityContext:
+        fsGroup: 999
+        runAsUser: 999
+        runAsGroup: 999
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      # -- Container-level security context for the bundled PostgreSQL container.
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+
+      # -- Additional labels for the bundled PostgreSQL pod template, merged over the
+      # global `podLabels` (per-key; component keys win). Selector labels can
+      # never be overridden.
+      podLabels: {}
+
+# ==============================================================================
+# RBAC CONFIGURATION
+# ==============================================================================
+
+rbac:
+  # -- Namespaces in which to create Role and RoleBinding resources.
+  # Left unset (the default), the scope falls back to global.watchNamespaces.
+  # If that is also unset, the chart creates cluster-scoped ClusterRole and
+  # ClusterRoleBinding resources, and the controller watches all namespaces.
+  # If set, the chart creates a Role and a RoleBinding per listed namespace.
+  # The controller's WATCH_NAMESPACES derives from the same list, unless
+  # controller.watchNamespaces overrides it.
+  # An explicit empty list forces cluster-scoped RBAC, even under a parent that
+  # sets global.watchNamespaces. This is why the key ships commented out: a
+  # declared default [] would make every install look explicitly cluster-scoped,
+  # and the global fallback would be unreachable.
+  # namespaces: []
+  {}
+
+# ==============================================================================
+# CONTROLLER CONFIGURATION
+# ==============================================================================
+
+controller:
+  # -- ServiceAccount settings for the controller pod
+  serviceAccount:
+    # -- Annotations to add to the controller ServiceAccount.
+    # Useful for GCP Workload Identity, AWS IRSA, or Azure Workload Identity.
+    # @default -- {} (no extra annotations)
+    annotations: {}
+  replicas: 1
+  loglevel: "info"
+  # Authentication mode: "unsecure" (default) or "trusted-proxy"
+  # - unsecure: uses X-User-Id header/query param or defaults to admin@kagent.dev
+  # - trusted-proxy: trusts JWT token from Authorization header (set by oauth2-proxy)
+  auth:
+    mode: unsecure
+    # JWT claim for user identity (default: "sub")
+    # Override only if your OIDC provider uses a different claim
+    userIdClaim: ""
+  # -- Public gRPC URL advertised by AgentInstance Agent Cards.
+  # @default -- `http://<fullname>-controller.<namespace>.svc:<grpc-port>`
+  a2aGatewayUrl: ""
+  # -- The image used for declarative agents.
+  agentImage:
+    registry: ""
+    repository: kagent-dev/kagent/golang-adk
+    tag: "" # Will default to global, then Chart version
+  # -- @deprecated Removed in 0.10.0. The A2A SDK now handles SSE buffering and timeouts
+  # internally. These values have no effect and will be removed in a future release.
+  streaming: null
+
+  # -- HTTP client timeout for A2A requests from the controller to agent pods.
+  # 0 (the default) means no timeout, which is correct for SSE-based streaming agents
+  # that can run for an arbitrarily long time. The previous implicit default was 3m
+  # (inherited from the a2a-go SDK), which caused `context deadline exceeded` errors
+  # for agents that take longer than 3 minutes to complete.
+  # Set a positive Go duration string (e.g. "30m", "1h") only if you need a hard
+  # upper bound on individual A2A calls.
+  # @default -- "" (no timeout)
+  a2aClientTimeout: ""
+
+  # -- Namespaces the controller should watch.
+  # If empty, the controller will watch ALL available namespaces.
+  # @default -- [] (watches all available namespaces)
+  watchNamespaces: []
+  #  - watch-ns-1
+  #  - watch-ns-2
+
+  # -- Rewrite RemoteMCPServer tool URLs and the controller's tool-discovery
+  # dial from `https://host[:port]` to `http://host:<port-or-443>` so MCP
+  # traffic egresses in plaintext to a proxy that originates TLS upstream
+  # off by default.
+  mcpEgressPlaintext: false
+
+  # -- Additional annotations to add to the controller Deployment metadata
+  annotations: {}
+
+  podAnnotations: {}
+
+  # -- Additional labels for the controller pod template, merged over the
+  # global `podLabels` (per-key; component keys win). Selector labels can
+  # never be overridden.
+  podLabels: {}
+
+  # -- Node taints which will be tolerated for `Pod` [scheduling](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/).
+  tolerations: []
+
+  # -- Node labels to match for `Pod` [scheduling](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/).
+  nodeSelector: {}
+
+  # -- [Affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity) rules for the controller pod.
+  affinity: {}
+
+  # -- [Topology spread constraints](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#pod-topology-spread-constraints) for the controller pod.
+  topologySpreadConstraints: []
+
+  # -- [PodDisruptionBudget](https://kubernetes.io/docs/tasks/run-application/configure-pdb/)
+  # for the controller pods. Disabled by default: `controller.replicas` is 1, and a
+  # `minAvailable: 1` budget on a single-replica Deployment blocks every voluntary
+  # eviction, so node drains and cluster upgrades hang indefinitely. Raise
+  # `controller.replicas` before switching to `minAvailable`.
+  pdb:
+    # -- Set to true to create the PodDisruptionBudget.
+    enabled: false
+    # -- Minimum number of pods that must remain available. Int or percentage string
+    # (e.g. `1` or `"50%"`). Mutually exclusive with `maxUnavailable`.
+    # @default -- unset (`maxUnavailable` is used instead)
+    minAvailable: null
+    # -- Maximum number of pods that may be unavailable. Int or percentage string
+    # (e.g. `1` or `"50%"`). Mutually exclusive with `minAvailable`.
+    maxUnavailable: 1
+    # -- `spec.unhealthyPodEvictionPolicy`, one of `IfHealthyBudget` (the Kubernetes
+    # default) or `AlwaysAllow`. `AlwaysAllow` lets unhealthy pods be evicted even when
+    # the budget is exhausted, which avoids drains wedging on a crash-looping pod.
+    # Requires Kubernetes >= 1.27. Omitted from the manifest when empty.
+    # @default -- "" (defer to the Kubernetes default)
+    unhealthyPodEvictionPolicy: ""
+    # -- Additional labels for the controller PodDisruptionBudget.
+    labels: {}
+    # -- Annotations for the controller PodDisruptionBudget.
+    annotations: {}
+
+  image:
+    registry: ""
+    repository: kagent-dev/kagent/controller
+    tag: "" # Will default to global, then Chart version
+    pullPolicy: ""
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 2
+      memory: 512Mi
+  service:
+    type: ClusterIP
+    ports:
+      port: 8083
+      targetPort: 8083
+    annotations: {}
+  # -- Prometheus-style /metrics endpoint for the controller manager.
+  # When enabled, provisions a dedicated metrics Service plus the
+  # ClusterRoles required for authenticated scrapes. Bind
+  # `<fullname>-metrics-reader` to your Prometheus ServiceAccount to grant
+  # scrape access. Use `bindAddress` for any port change: the Service
+  # `targetPort` and the pod `containerPort` are derived from it at
+  # template time, so overriding `METRICS_BIND_ADDRESS` via
+  # `controller.env` shifts only the runtime listener and leaves the
+  # rendered Service pointing at the chart-time port. Setting
+  # `bindAddress: "0"` (or empty) is treated as a disable signal —
+  # equivalent to `enabled: false` — to keep faith with the controller
+  # binary's documented contract for `--metrics-bind-address`.
+  # @default -- disabled
+  metrics:
+    enabled: false
+    bindAddress: ":8443"
+    secureServing: true
+    service:
+      type: ClusterIP
+      port: 8443
+    # -- Prometheus Operator `ServiceMonitor` for the metrics `Service`.
+    # Requires `controller.metrics.enabled` and the
+    # `monitoring.coreos.com/v1` CRDs; the chart only renders it when the
+    # target cluster serves that API, so enabling it on a cluster without
+    # the Prometheus Operator is a no-op rather than a failed install
+    # (`helm template` needs `--api-versions monitoring.coreos.com/v1`).
+    # The endpoint follows
+    # `secureServing`: port name, scheme, bearer token and TLS settings are
+    # all derived from it, so flipping `secureServing` alone keeps the
+    # scrape working. With `secureServing` enabled the scrape is also
+    # authorized only once `<fullname>-metrics-reader` is bound to the
+    # Prometheus ServiceAccount; set `prometheusServiceAccount` below and
+    # the chart renders that binding for you.
+    # @default -- disabled
+    serviceMonitor:
+      enabled: false
+      # -- ServiceAccount Prometheus scrapes with. When `name` is set and
+      # `secureServing` is enabled, the chart binds
+      # `<fullname>-metrics-reader` to it with a `ClusterRoleBinding` so
+      # the scrape does not fail with 403. Leave `name` empty to manage
+      # the binding yourself.
+      prometheusServiceAccount:
+        name: ""
+        # -- Namespace of the Prometheus ServiceAccount.
+        # @default -- `serviceMonitor.namespace`, then the release namespace
+        namespace: ""
+      # -- Namespace to create the `ServiceMonitor` in. The scrape target
+      # stays the release namespace either way.
+      # @default -- the release namespace
+      namespace: ""
+      # -- Extra labels for the `ServiceMonitor` (merged with the chart
+      # labels). Set whatever label your Prometheus
+      # `serviceMonitorSelector` matches on.
+      labels: {}
+      # -- Annotations for the `ServiceMonitor`.
+      annotations: {}
+      # -- Scrape interval. Prometheus' global default when empty.
+      interval: ""
+      # -- Scrape timeout. Prometheus' global default when empty.
+      scrapeTimeout: ""
+      # -- Keep the scraped labels when they collide with server-side ones.
+      honorLabels: false
+      # -- `relabelings` applied to the scrape targets.
+      relabelings: []
+      # -- `metricRelabelings` applied to the scraped samples.
+      metricRelabelings: []
+      # -- Token presented to the authenticated metrics endpoint. Only used
+      # when `secureServing` is enabled; set to `""` to omit it.
+      bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+      # -- `tlsConfig` for the scrape. Only used when `secureServing` is
+      # enabled, where the controller serves a self-signed certificate.
+      # @default -- insecureSkipVerify: true
+      tlsConfig: {}
+  # -- gRPC application API settings. Native gRPC, gRPC-Web, MCP, and health
+  # share the controller service port.
+  grpc:
+    maxMessageBytes: 16777216
+    reflection: false
+    tlsCertFile: ""
+    tlsKeyFile: ""
+
+  # Extra controller env (mapped to flags via SUBSTRATE_* env names).
+  env: []
+
+  # Agent Substrate. Requires ate-system installed. kagent creates ate-api
+  # ActorTemplates and references an existing Kubernetes WorkerPool.
+  substrate:
+    enabled: false
+    ateApiEndpoint: ""
+    atenetRouterURL: ""
+    defaultWorkerPool:
+      namespace: ""
+      name: ""
+    # Example when enabled:
+    #   enabled: true
+    #   ateApiEndpoint: "dns:///api.ate-system.svc:443"
+    #   atenetRouterURL: "http://atenet-router.ate-system.svc:80"
+    #   defaultWorkerPool:
+    #     name: "kagent-default"
+  envFrom: []
+
+  # Additional volumes on the output Deployment definition.
+  volumes: []
+  # - name: foo
+  #   secret:
+  #     secretName: mysecret
+  #     optional: false
+
+  # Additional volumeMounts on the output Deployment definition.
+  volumeMounts: []
+  # - name: foo
+  #   mountPath: "/etc/foo"
+  #   readOnly: true
+
+  # -- Custom startup probe for the controller container.
+  # Setting a value replaces the default probe entirely — include a handler
+  # (httpGet / exec / tcpSocket / grpc) when overriding.
+  # @default -- httpGet /health on port http, periodSeconds=15, initialDelaySeconds=15
+  startupProbe: {}
+
+  # -- Custom readiness probe for the controller container.
+  # Setting a value replaces the default probe entirely — include a handler
+  # (httpGet / exec / tcpSocket / grpc) when overriding.
+  # @default -- httpGet /health on port http, periodSeconds=30
+  readinessProbe: {}
+
+# -- Optional Agent Substrate WorkerPool installed by this chart. This is platform
+# capacity and is not owned by individual agents.
+substrateWorkerPool:
+  create: false
+  name: kagent-default
+  replicas: 1
+  workerImage: ""
+  # sandboxClass selects the sandbox runtime family (gvisor|microvm). kagent-generated
+  # ActorTemplates currently hardcode gvisor; set this to gvisor until microvm is supported.
+  sandboxClass: gvisor
+  # Extra labels merged onto the WorkerPool metadata (in addition to the
+  # kagent.dev/worker-pool label used by generated ActorTemplates to select this pool).
+  labels: {}
+  # Optional pod scheduling/resources for worker pods (WorkerPool.spec.template).
+  # nodeSelector / tolerations / priorityClassName / nodeAffinity / resources.
+  template: {}
+
+# ==============================================================================
+# UI CONFIGURATION
+# ==============================================================================
+
+ui:
+  # -- ServiceAccount settings for the UI pod
+  serviceAccount:
+    # -- Annotations to add to the UI ServiceAccount.
+    # Useful for GCP Workload Identity, AWS IRSA, or Azure Workload Identity.
+    # @default -- {} (no extra annotations)
+    annotations: {}
+  # -- Additional annotations to add to the UI Deployment metadata
+  annotations: {}
+
+  # -- Public-facing base URL of the UI (e.g. https://kagent.example.com).
+  # When set, the controller injects KAGENT_UI_URL into agent pods so that
+  # share link tools return full clickable URLs instead of relative paths.
+  # @default -- "" (share tools return paths only)
+  externalUrl: ""
+  replicas: 1
+  image:
+    registry: ""
+    repository: kagent-dev/kagent/ui
+    tag: ""
+    pullPolicy: ""
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  service:
+    type: ClusterIP
+    ports:
+      port: 8080
+      targetPort: 8080
+    annotations: {}
+  # Authentication redirect configuration
+  # Change this if using a different auth proxy (e.g., Pomerium, Authelia)
+  auth:
+    # Path to redirect users to when they click "Sign in with SSO" on the login page
+    # Default: /oauth2/start (oauth2-proxy's authentication start endpoint)
+    ssoRedirectPath: "/oauth2/start"
+  # -- Client-side chat stream inactivity timeout (seconds). The browser aborts a
+  # streaming response if no event is received within this window. Should be >=
+  # ui.nginx.proxyReadTimeout so nginx isn't the silent limit. Default 1800 (30m).
+  streamTimeoutSeconds: 1800
+  # -- Nginx proxy timeout configuration for the UI sidecar (values are passed
+  # directly to the corresponding nginx directives, e.g. "1800s").
+  nginx:
+    # -- proxy_read_timeout: max time between two successive reads from the upstream.
+    proxyReadTimeout: 1800s
+    # -- proxy_send_timeout: max time between two successive writes to the upstream.
+    proxySendTimeout: 1800s
+  # -- Extra environment variables for the UI container: a list of `{name, value}`
+  # entries, spliced into its `env:` verbatim. An installed app extension's own
+  # settings go here, named `EXTENSION_*`; the container's startup script copies
+  # those onto `window.environmentVariables` for the browser to read.
+  env: []
+  # -- Identity headers the UI's nginx proxy will forward to the backend on
+  # /api/ and /a2a/. Names are case-insensitive. Authorization is always
+  # forwarded; the auth-proxy identity headers (x-auth-request-*, x-forwarded-user,
+  # x-forwarded-email, x-forwarded-groups, x-forwarded-preferred-username) are
+  # stripped from client requests unless listed here, so a caller cannot spoof
+  # an identity the backend trusts. Headers outside that set are forwarded by
+  # nginx as normal.
+  additionalForwardedHeaders: []
+  # Example:
+  #   additionalForwardedHeaders:
+  #     - X-Forwarded-User
+  #     - X-Forwarded-Email
+  # -- Base URL the browser calls the controller API on. Reaches the browser at
+  # runtime as the `apiBaseUrl` key of /config.json, which the app fetches on
+  # startup — it is deliberately not baked into the bundle, so changing it here
+  # takes effect on pod restart rather than requiring an image rebuild.
+  # The default is a path on the UI's own hostname, which nginx proxies to the
+  # controller; set an absolute URL only if the browser must reach the API
+  # somewhere other than the UI origin.
+  publicBackendUrl: "/api"
+  # -- Pod-level security context for the UI pod. Overrides the global podSecurityContext.
+  # @default -- (uses global podSecurityContext)
+  podSecurityContext: {}
+  # fsGroup: 2000
+  # -- Container-level security context for the UI container. Overrides the global securityContext.
+  # @default -- (uses global securityContext)
+  securityContext: {}
+  #   readOnlyRootFilesystem: true
+  # -- EmptyDir volume sizes for the UI workload (typically used when enabling readOnlyRootFilesystem)
+  volumes:
+    # -- Size limit for temporary files (/tmp). Holds the nginx temp directories
+    # and the generated config.json. Default 50Mi is ample for both.
+    tmp: 50Mi
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+  podAnnotations: {}
+
+  # -- Additional labels for the UI pod template, merged over the
+  # global `podLabels` (per-key; component keys win). Selector labels can
+  # never be overridden.
+  podLabels: {}
+
+  # -- Node taints which will be tolerated for `Pod` [scheduling](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/).
+  tolerations: []
+
+  # -- Node labels to match for `Pod` [scheduling](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/).
+  nodeSelector: {}
+
+  # -- [Affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity) rules for the UI pod.
+  affinity: {}
+
+  # -- [Topology spread constraints](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#pod-topology-spread-constraints) for the UI pod.
+  topologySpreadConstraints: []
+
+  # -- [PodDisruptionBudget](https://kubernetes.io/docs/tasks/run-application/configure-pdb/)
+  # for the UI pods. Disabled by default: `ui.replicas` is 1, and a `minAvailable: 1`
+  # budget on a single-replica Deployment blocks every voluntary eviction, so node
+  # drains and cluster upgrades hang indefinitely. Raise `ui.replicas` before
+  # switching to `minAvailable`.
+  pdb:
+    # -- Set to true to create the PodDisruptionBudget.
+    enabled: false
+    # -- Minimum number of pods that must remain available. Int or percentage string
+    # (e.g. `1` or `"50%"`). Mutually exclusive with `maxUnavailable`.
+    # @default -- unset (`maxUnavailable` is used instead)
+    minAvailable: null
+    # -- Maximum number of pods that may be unavailable. Int or percentage string
+    # (e.g. `1` or `"50%"`). Mutually exclusive with `minAvailable`.
+    maxUnavailable: 1
+    # -- `spec.unhealthyPodEvictionPolicy`, one of `IfHealthyBudget` (the Kubernetes
+    # default) or `AlwaysAllow`. `AlwaysAllow` lets unhealthy pods be evicted even when
+    # the budget is exhausted, which avoids drains wedging on a crash-looping pod.
+    # Requires Kubernetes >= 1.27. Omitted from the manifest when empty.
+    # @default -- "" (defer to the Kubernetes default)
+    unhealthyPodEvictionPolicy: ""
+    # -- Additional labels for the UI PodDisruptionBudget.
+    labels: {}
+    # -- Annotations for the UI PodDisruptionBudget.
+    annotations: {}
+
+  # -- Custom startup probe for the UI container.
+  # Override to adjust thresholds, use exec-based probes, or change the health path.
+  # @default -- httpGet /health on port http, periodSeconds=1, initialDelaySeconds=1
+  startupProbe: {}
+  # Example:
+  #   startupProbe:
+  #     httpGet:
+  #       path: /health
+  #       port: http
+  #     initialDelaySeconds: 10
+  #     periodSeconds: 5
+  #     failureThreshold: 20
+  # -- Custom readiness probe for the UI container.
+  # Override to adjust thresholds, use exec-based probes, or change the health path.
+  # @default -- httpGet /health on port http, periodSeconds=30
+  readinessProbe: {}
+  # Example:
+  #   readinessProbe:
+  #     httpGet:
+  #       path: /health
+  #       port: http
+  #     periodSeconds: 15
+  # -- Gates the OpenShift `Route` for the UI. Additionally conditional on the
+  # `route.openshift.io/v1` API being present, so it is a no-op off-OpenShift.
+  # Set to `false` to front the UI with your own Route/ingress or the bundled
+  # oauth2-proxy instead of the chart's edge-terminated Route.
+  route:
+    enabled: true
+
+  # OpenShift Route only (when route.openshift.io/v1 exists). Long timeouts are required
+  # for A2A/SSE streaming through the cluster router; defaults are often ~60s and cause
+  # net::ERR_INCOMPLETE_CHUNKED_ENCODING in the browser.
+  openshiftRoute:
+    annotations:
+      haproxy.router.openshift.io/timeout: 120m
+
+  # -- Gateway API `HTTPRoute` for the UI. Requires the Gateway API CRDs
+  # (`gateway.networking.k8s.io/v1`) and an existing `Gateway` to attach to via
+  # `parentRefs`. Disabled by default; enable to front the UI with a Gateway API
+  # implementation (kgateway, Istio, Envoy Gateway, etc.) instead of the
+  # OpenShift Route or bundled oauth2-proxy.
+  httpRoute:
+    enabled: false
+    # -- Extra labels to add to the `HTTPRoute` (merged with the chart labels).
+    labels: {}
+    # -- Annotations to add to the `HTTPRoute`.
+    annotations: {}
+    # -- Gateways this route attaches to. Required when `enabled` is `true`.
+    parentRefs: []
+    #   - name: my-gateway
+    #     namespace: gateway-system
+    #     sectionName: https
+    # -- Hostnames matched by the route.
+    hostnames: []
+    #   - kagent.example.com
+    # -- Routing rules. When a rule omits `backendRefs`, it defaults to the UI
+    # `Service` on `ui.service.ports.port`. Each rule may also set `matches`,
+    # `filters`, and `timeouts`.
+    rules: []
+    #   - matches:
+    #       - path:
+    #           type: PathPrefix
+    #           value: /
+    #     filters:
+    #       - type: RequestHeaderModifier
+    #         requestHeaderModifier:
+    #           set:
+    #             - name: X-Forwarded-Proto
+    #               value: https
+    #     timeouts:
+    #       request: "0s"
+    #       backendRequest: "0s"
+
+# ==============================================================================
+# LLM PROVIDERS CONFIGURATION
+# ==============================================================================
+# https://kagent.dev/docs/getting-started/configuring-providers
+
+providers:
+  default: openAI
+  # -- Annotations added to the metadata of the generated default ModelConfig
+  # (the one derived from `providers.default`). Omitted from the resource when empty.
+  annotations: {}
+  openAI:
+    provider: OpenAI
+    model: "gpt-4.1-mini"
+    apiKeySecretRef: kagent-openai
+    apiKeySecretKey: OPENAI_API_KEY
+    # apiKey: ""
+    # Optional TLS settings for the generated ModelConfig.
+    # This same block can be used under any provider.
+    # tls:
+    #   disableVerify: false
+    #   caCertSecretRef: ""
+    #   caCertSecretKey: ""
+    #   disableSystemCAs: false
+  ollama:
+    provider: Ollama
+    model: "llama3.2"
+    config:
+      host: host.docker.internal:11434
+      options:
+        num_ctx: "64000"
+
+  anthropic:
+    provider: Anthropic
+    model: "claude-haiku-4-5"
+    apiKeySecretRef: kagent-anthropic
+    apiKeySecretKey: ANTHROPIC_API_KEY
+    # apiKey: ""
+  azureOpenAI:
+    provider: AzureOpenAI
+    model: "gpt-4.1-mini"
+    apiKeySecretRef: kagent-azure-openai
+    apiKeySecretKey: AZUREOPENAI_API_KEY
+    # apiKey: ""
+    config:
+      apiVersion: "2023-05-15"
+      azureAdToken: ""
+      azureDeployment: ""
+      azureEndpoint: ""
+  gemini:
+    provider: Gemini
+    model: "gemini-2.5-flash-lite"
+    apiKeySecretRef: kagent-gemini
+    apiKeySecretKey: GOOGLE_API_KEY
+    # apiKey: ""
+
+# ==============================================================================
+# KMCP
+# ==============================================================================
+
+kmcp:
+  enabled: true
+  nameOverride: "kmcp"
+  fullnameOverride: "" # Override if desired
+  namespaceOverride: "" # Override if desired (in conjunction with fullnameOverride to drop the `kagent-` prefix if you want)
+
+# ==============================================================================
+# SUBSTRATE
+# ==============================================================================
+
+substrate:
+  enabled: false
+  # Grant each agent atespace access to its credential namespace explicitly.
+  # HTTPS also requires the egress-mitm-ca-pool Secret in Substrate's namespace.
+  credentialProvider:
+    namespacePolicies: []
+    # - atespace: kagent
+    #   allowedNamespaces: [kagent]
+  ateApi:
+    extraArgs:
+      # Minimum supported interval for discovering and reconciling actor templates.
+      - --template-resync-interval=250ms
+
+# ==============================================================================
+# BUILT-IN TOOLS
+# ==============================================================================
+
+kagent-tools:
+  enabled: true
+  nameOverride: tools
+  replicaCount: 1
+  # -- Node taints which will be tolerated for `Pod` [scheduling](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/).
+  tolerations: []
+  # -- Node labels to match for `Pod` [scheduling](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/).
+  nodeSelector: {}
+  podSecurityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+  tools:
+    loglevel: "debug"
+    metrics:
+      port: 8085 # Use a different port than the controller service port to avoid duplicate port definitions
+
+# ==============================================================================
+# PROXY CONFIGURATION
+# ==============================================================================
+# Global proxy configuration for the controller
+# This proxy applies to all internally-built k8s URLs:
+# - Agents as tools (agent -> agent traffic)
+# - Services as MCP Tools
+# - MCPServer resources and RemoteMCPServer resources with internal k8s URLs
+# Set this once and the controller will apply it to all agents automatically
+# Note: RemoteMCPServer resources use user-supplied URLs and do not use this proxy unless the URL is an internal k8s URL.
+proxy:
+  # Proxy URL for internally-built k8s URLs
+  # Example: "http://proxy.kagent.svc.cluster.local:8080"
+  url: ""
+
+# ==============================================================================
+# MCP TOOLS
+# ==============================================================================
+
+grafana-mcp:
+  enabled: true
+  grafana:
+    url: "grafana.kagent:3000/api"
+    serviceAccountToken: ""
+    # apiKey: "" # Deprecated - use serviceAccountToken instead.
+    # secretRef: ""  # Name of Secret to reference (contains GRAFANA_SERVICE_ACCOUNT_TOKEN or GRAFANA_API_KEY)
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# ==============================================================================
+# OAUTH2-PROXY CONFIGURATION (Optional)
+# ==============================================================================
+# Enable oauth2-proxy subchart for OIDC authentication
+# Requires controller.auth.mode: trusted-proxy
+
+oauth2-proxy:
+  enabled: false
+
+  # Cookie-based sessions (the redis-ha sub-chart is disabled by default;
+  # enable `redis-ha.enabled` + `sessionStorage.type: redis` to switch)
+  sessionStorage:
+    type: cookie
+
+  # Mount custom templates for branded login redirect
+  # The ConfigMap is created by templates/oauth2-proxy-templates.yaml
+  extraVolumes:
+    - name: custom-templates
+      configMap:
+        name: kagent-oauth2-proxy-templates
+
+  extraVolumeMounts:
+    - name: custom-templates
+      mountPath: /templates
+      readOnly: true
+
+  # Mount custom CA certificate for TLS verification (if needed)
+  # Add to extraVolumes:
+  #   - name: custom-ca-cert
+  #     secret:
+  #       secretName: my-ca-cert
+  #       items:
+  #         - key: ca.crt
+  #           path: ca.crt
+  # Add to extraVolumeMounts:
+  #   - name: custom-ca-cert
+  #     mountPath: /etc/ssl/certs/custom-ca.crt
+  #     subPath: ca.crt
+  #     readOnly: true
+  # Add to extraEnv:
+  #   - name: SSL_CERT_FILE
+  #     value: /etc/ssl/certs/custom-ca.crt
+
+  config:
+    # Option 1: Reference existing secret (recommended for production)
+    # Secret must contain: client-id, client-secret, cookie-secret
+    existingSecret: ""
+
+    # Option 2: Inline values (for dev/testing only, chart creates secret)
+    clientID: ""
+    clientSecret: ""
+    cookieSecret: ""
+
+  # Cluster-specific OIDC settings - override these per deployment
+  # These are set as env vars and referenced in args for easy patching
+  extraEnv:
+    # Forces a rollout whenever the sign_in.html ConfigMap's content changes.
+    - name: KAGENT_OAUTH2_PROXY_SIGNIN_TEMPLATE_CHECKSUM
+      value: '{{ include "kagent.oauth2ProxySignInHTML" . | sha256sum }}'
+    - name: OIDC_ISSUER_URL
+      value: ""
+    - name: OIDC_REDIRECT_URL
+      value: ""
+    # IMPORTANT: This must match the UI service name, which is templated as
+    # "<release-name>-ui" (or "<fullnameOverride>-ui"). Override this value
+    # if your release name is not "kagent" or you set fullnameOverride.
+    - name: UPSTREAM_URL
+      value: "http://kagent-ui:8080"
+
+  # extraArgs as a map - each key becomes --key=value in container args
+  # Uses $(VAR_NAME) syntax to reference env vars set above
+  extraArgs:
+    provider: oidc
+    oidc-issuer-url: "$(OIDC_ISSUER_URL)"
+    redirect-url: "$(OIDC_REDIRECT_URL)"
+    upstream: "$(UPSTREAM_URL)"
+    email-domain: "*"
+    pass-authorization-header: true
+    set-authorization-header: true
+    approval-prompt: "auto"
+    scope: "openid profile email groups"
+    # Cookie security settings
+    cookie-secure: true
+    cookie-samesite: "lax"
+    # Allow API clients with valid JWT tokens to bypass OIDC flow
+    skip-jwt-bearer-tokens: true
+    # Skip authentication for kagent's branded login page, health checks, and static assets
+    # This allows unauthenticated users to see the landing page and k8s probes to work
+    skip-auth-route: "^/(health|login)$"
+    # The single-page app serves /login from index.html and loads its bundle from
+    # /assets/ with env-config.js ahead of it, so all three have to be reachable
+    # unauthenticated or the branded login page renders blank. The Next.js paths
+    # this replaces (_next/static, _next/image, login-bg) no longer exist.
+    skip-auth-regex: "^/(login|assets/|env-config\\.js|logo-.*\\.png|favicon\\.ico).*$"
+    # Use custom templates that redirect to kagent's branded /login page
+    custom-templates-dir: "/templates"
+
+  service:
+    type: ClusterIP
+    portNumber: 4180
+
+# ==============================================================================
+# OBSERVABILITY
+# ==============================================================================
+
+otel:
+  # -- Include prompts, tool details, and assistant responses in agent telemetry.
+  # This may expose sensitive user or model content.
+  captureSensitiveContent: false
+  tracing:
+    enabled: false
+    exporter:
+      otlp:
+        endpoint: ""
+        protocol: "grpc"
+        timeout: 15000 # milliseconds
+        insecure: true
+  logging:
+    enabled: false
+    # -- Include complete provider API request and response bodies in Claude logs.
+    # This is more verbose than captureSensitiveContent.
+    captureRawApiBodies: false
+    exporter:
+      otlp:
+        endpoint: ""
+        protocol: "grpc"
+        timeout: 15000 # milliseconds
+        insecure: true
+
+# ==============================================================================
+# EXTRA OBJECTS
+# ==============================================================================
+
+# -- Additional arbitrary Kubernetes manifests to deploy alongside the chart.
+# Each list entry is rendered through `tpl`, so values may reference the release
+# context (e.g. `{{ include "kagent.fullname" . }}`, `{{ .Release.Namespace }}`).
+# Both map and multi-line string entries are supported. Use this to manage
+# resources such as ExternalSecret, HTTPRoute, or NetworkPolicy within the same
+# chart lifecycle without maintaining a separate chart.
+#
+# To use, replace the empty list below with your manifests, e.g.:
+#   extraObjects:
+#     - apiVersion: external-secrets.io/v1
+#       kind: ExternalSecret
+#       metadata:
+#         name: '{{ include "kagent.fullname" . }}-openai'
+#         namespace: '{{ .Release.Namespace }}'
+#       spec:
+#         secretStoreRef:
+#           name: aws-secretsmanager
+#           kind: ClusterSecretStore
+#         target:
+#           name: kagent-openai
+#         data:
+#           - secretKey: OPENAI_API_KEY
+#             remoteRef:
+#               key: prod/kagent/openai
+#               property: api_key
+# @default -- []
+extraObjects: []

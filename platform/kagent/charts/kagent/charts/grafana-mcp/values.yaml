@@ -1,0 +1,81 @@
+replicas: 1
+
+grafana:
+  url: "grafana.kagent:3000/api"
+  serviceAccountToken: ""
+  # apiKey: "" # Deprecated - use serviceAccountToken instead.
+  # secretRef: ""  # Name of Secret to reference (contains GRAFANA_SERVICE_ACCOUNT_TOKEN or GRAFANA_API_KEY)
+
+image:
+  registry: docker.io
+  repository: grafana/mcp-grafana
+  pullPolicy: Always
+  tag: "1.5.1" # docker.io/mcp/grafana (Docker's MCP Catalog mirror) only ever ships "latest";
+               # pin to the upstream grafana/mcp-grafana image instead, which tags releases.
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsUser: 1000
+  runAsGroup: 999
+
+tolerations: []
+
+nodeSelector: {}
+
+service:
+  type: ClusterIP
+  port: 8000
+
+# Endpoint used by agents. The federated AgentGateway route is reachable from
+# Substrate actors; the Grafana MCP service DNS name is not.
+serverUrl: "http://agentgateway-api.agentgateway-system:80/mcp"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# Additional Arguments for the mcp server
+args: []
+
+# Host header values the MCP server answers to, comma separated. Empty means the service's
+# own in-cluster names and loopback, which is what the RemoteMCPServer URL uses. Set "*"
+# only behind a proxy that rewrites Host.
+allowedHosts: ""
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+# Deployment configuration - used to populate the ConfigMap template.
+# Add custom configuration values here as needed.
+config:

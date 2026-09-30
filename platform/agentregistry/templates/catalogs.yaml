@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agentregistry-catalogs
+data:
+  kagent-catalog.yaml: |-
+{{ .Files.Get "kagent-catalog.yaml" | nindent 4 }}
+  mcp-servers.yaml: |-
+{{ .Files.Get "mcp-servers.yaml" | nindent 4 }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: agentregistry-catalog-sync
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+spec:
+  backoffLimit: 6
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: catalog-sync
+          image: curlimages/curl:8.10.1
+          command: ["sh", "-ec"]
+          args:
+            - |
+              until curl --fail --silent http://agentregistry:12121/v0/health; do
+                sleep 2
+              done
+              for catalog in /catalogs/kagent-catalog.yaml /catalogs/mcp-servers.yaml; do
+                curl --fail --show-error --retry 20 --retry-delay 2 \
+                  --data-binary "@${catalog}" \
+                  -H 'Content-Type: application/yaml' \
+                  http://agentregistry:12121/v0/apply
+              done
+          volumeMounts:
+            - name: catalogs
+              mountPath: /catalogs
+              readOnly: true
+      volumes:
+        - name: catalogs
+          configMap:
+            name: agentregistry-catalogs

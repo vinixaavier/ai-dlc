@@ -1,0 +1,9 @@
+apiVersion: v2
+name: ai-dlc-grafana-platform
+description: Grafana managed from the GitOps repository
+type: application
+version: 0.1.0
+dependencies:
+  - name: grafana
+    version: 13.2.5
+    repository: file://charts/grafana

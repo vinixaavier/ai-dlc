@@ -1,0 +1,95 @@
+prometheus:
+  server:
+    enabled: true
+    image:
+      repository: prom/prometheus
+    global:
+      scrape_interval: 15s
+    service:
+      servicePort: 9090
+    persistentVolume:
+      enabled: false
+  scrapeConfigs:
+    prometheus: {enabled: false}
+    kubernetes-api-servers: {enabled: false}
+    kubernetes-nodes: {enabled: false}
+    kubernetes-nodes-cadvisor: {enabled: false}
+    kubernetes-service-endpoints: {enabled: false}
+    kubernetes-service-endpoints-slow: {enabled: false}
+    prometheus-pushgateway: {enabled: false}
+    kubernetes-services: {enabled: false}
+    kubernetes-pods: {enabled: false}
+    kubernetes-pods-slow: {enabled: false}
+    local-prometheus:
+      static_configs: [{targets: [prometheus-server:9090]}]
+    otel-collector:
+      static_configs: [{targets: [otel-collector.otel.svc:8889]}]
+    grafana:
+      static_configs: [{targets: [grafana.grafana.svc:3000]}]
+  extraScrapeConfigs: |
+    - job_name: agentgateway-controller
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_namespace]
+          action: keep
+          regex: agentgateway-system
+        - source_labels: [__meta_kubernetes_pod_label_agentgateway]
+          action: keep
+          regex: agentgateway
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+          action: keep
+          regex: "true"
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+          action: replace
+          target_label: __metrics_path__
+          regex: (.+)
+        - source_labels: [__meta_kubernetes_pod_container_port_name]
+          action: keep
+          regex: metrics
+    - job_name: agentgateway-data-plane
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_namespace]
+          action: keep
+          regex: agentgateway-system
+        - source_labels: [__meta_kubernetes_pod_label_gateway_networking_k8s_io_gateway_name]
+          action: keep
+          regex: agentgateway-api
+    - job_name: substrate
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_namespace]
+          action: keep
+          regex: ate-system
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+          action: keep
+          regex: "true"
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]
+          action: keep
+          regex: "9090"
+        - source_labels: [__meta_kubernetes_pod_container_port_number]
+          action: keep
+          regex: "9090"
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+          action: replace
+          target_label: __metrics_path__
+          regex: (.+)
+        - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+          action: replace
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $$1:$$2
+          target_label: __address__
+    - job_name: dcgm-exporter
+      static_configs:
+        - targets: [nvidia-dcgm-exporter.gpu-operator.svc.cluster.local:9400]
+  alertmanager:
+    enabled: false
+  kube-state-metrics:
+    enabled: false
+  prometheus-node-exporter:
+    enabled: false
+  prometheus-pushgateway:
+    enabled: false

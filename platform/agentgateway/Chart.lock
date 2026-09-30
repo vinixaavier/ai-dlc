@@ -1,0 +1,9 @@
+dependencies:
+- name: agentgateway
+  repository: file://charts/agentgateway
+  version: 0.0.0-latest-dev
+- name: agentgateway-crds
+  repository: file://charts/agentgateway-crds
+  version: 0.0.0-latest-dev
+digest: sha256:7a700b82f26b3132acd36caa24ea8b5368223f7067ee8d560766e4e27b7fa673
+generated: "2026-09-24T16:08:53.218427674-03:00"

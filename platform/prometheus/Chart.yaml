@@ -1,0 +1,9 @@
+apiVersion: v2
+name: ai-dlc-prometheus-platform
+description: Prometheus managed from the GitOps repository
+type: application
+version: 0.1.1
+dependencies:
+  - name: prometheus
+    version: 29.31.1
+    repository: file://charts/prometheus

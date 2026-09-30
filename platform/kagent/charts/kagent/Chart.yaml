@@ -1,0 +1,28 @@
+apiVersion: v2
+name: kagent
+description: A Helm chart for kagent, built with Google ADK
+type: application
+version: 0.0.0-main.20260920
+annotations:
+  "org.opencontainers.image.source": "https://github.com/kagent-dev/kagent"
+dependencies:
+  - name: kmcp
+    version: 0.0.0-main.8f26f04
+    repository: oci://ghcr.io/kagent-dev/kmcp/helm
+    condition: kmcp.enabled
+  - name: substrate
+    version: 0.0.29
+    repository: oci://ghcr.io/kagent-dev/substrate/helm
+    condition: substrate.enabled
+  - name: kagent-tools
+    version: 0.2.1
+    repository: oci://ghcr.io/kagent-dev/tools/helm
+    condition: kagent-tools.enabled
+  - name: grafana-mcp
+    version: 0.0.0-main.20260920
+    repository: file://../tools/grafana-mcp
+    condition: grafana-mcp.enabled
+  - name: oauth2-proxy
+    version: "~10.7.0"
+    repository: "https://oauth2-proxy.github.io/manifests"
+    condition: oauth2-proxy.enabled

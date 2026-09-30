@@ -1,0 +1,54 @@
+apiVersion: kagent.dev/v1alpha3
+kind: ModelConfig
+metadata:
+  name: codex-agentgateway
+  namespace: kagent
+spec:
+  provider: OpenAI
+  model: qwen3.8-27b-nvfp4
+  apiKeySecret: kagent-sglang
+  apiKeySecretKey: API_KEY
+  openAI:
+    apiFormat: responses
+    baseUrl: http://agentgateway-api.agentgateway-system.svc.cluster.local/v1
+---
+apiVersion: kagent.dev/v1alpha3
+kind: Harness
+metadata:
+  name: codex
+  namespace: kagent
+spec:
+  codex: {}
+  workload:
+    image: localhost:5001/kagent-dev/kagent/codex-harness@sha256:374feeba2dfa8889a8b1463ffec5e1e4eef1f99964e62be0cac9f66d4a34876f
+  env:
+    - name: CODEX_CONFIG_JSON
+      value: >-
+        {"version":1,"codex_executable":"codex","expected_codex_version":"0.148.0","strict_version":true,"model":"qwen3.8-27b-nvfp4","provider":{"name":"openai","base_url":"http://agentgateway-api.agentgateway-system.svc.cluster.local/v1"},"max_frame_bytes":1048576,"max_stderr_bytes":65536,"interrupt_grace_millis":2000}
+    - name: CODEX_AGENT_CARD_JSON
+      value: >-
+        {"name":"codex","description":"OpenAI Codex App Server through AgentGateway","version":"0.148.0","capabilities":{"streaming":true},"defaultInputModes":["text"],"defaultOutputModes":["text"]}
+    - name: PORT
+      value: "80"
+  substrate:
+    workerPoolRef:
+      name: kagent-default
+    snapshotPolicy:
+      location: gs://ate-snapshots/kagent/codex-harness-v3
+  allowedAgentTemplates:
+    selector:
+      matchLabels:
+        kagent.dev/runtime: codex
+---
+apiVersion: kagent.dev/v1alpha3
+kind: AgentTemplate
+metadata:
+  name: codex-default
+  namespace: kagent
+  labels:
+    kagent.dev/runtime: codex
+spec:
+  description: Codex agent through the AgentGateway.
+  modelConfig:
+    name: codex-agentgateway
+  systemPrompt: You are a helpful Codex coding agent.

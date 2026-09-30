@@ -1,0 +1,50 @@
+apiVersion: kagent.dev/v1alpha3
+kind: Harness
+metadata:
+  name: adk
+  namespace: kagent
+spec:
+  byo: {}
+  workload:
+    # atelet treats localhost registry references as plain HTTP and rewrites
+    # them to the in-cluster registry endpoint before pulling the image.
+    # Keep the Substrate actor on the same main-built ADK image as the
+    # controller-generated agent image. A stale digest here bypasses
+    # platform/kagent/values.yaml and can silently drop MCP support.
+    image: localhost:5000/kagent-dev/kagent/golang-adk@sha256:f3a274d23d843fe30acaa3c1fca775644aea414722788fcb8f1c77ab1d3b4ec8
+    command: ["/app"]
+  env:
+    - name: OTEL_TRACING_ENABLED
+      value: "true"
+    - name: OTEL_LOGGING_ENABLED
+      value: "true"
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: http://otel-collector.otel.svc.cluster.local:4317
+    - name: OTEL_SERVICE_NAME
+      value: adk
+    - name: PORT
+      value: "80"
+  substrate:
+    workerPoolRef:
+      name: kagent-default
+    # Keep the existing snapshot location so renaming the Harness does not
+    # discard the initialized ADK sandbox state.
+    snapshotPolicy:
+      location: gs://ate-snapshots/kagent/hello-substrate-v3
+  allowedAgentTemplates:
+    selector:
+      matchLabels:
+        kagent.dev/runtime: hello-substrate
+---
+apiVersion: kagent.dev/v1alpha3
+kind: AgentTemplate
+metadata:
+  name: hello-substrate-default
+  namespace: kagent
+  labels:
+    kagent.dev/runtime: hello-substrate
+spec:
+  description: Friendly agent running inside a Substrate sandbox.
+  modelConfig:
+    name: default-model-config
+  systemPrompt: Say that you are hello-substrate, a Go ADK agent running inside a gVisor actor.

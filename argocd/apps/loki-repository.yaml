@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: repo-local-loki
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+type: Opaque
+stringData:
+  name: local-loki
+  type: helm
+  enableOCI: "true"
+  # The local Kind registry presents its development CA.
+  insecureOCIForceHttp: "true"
+  url: oci://registry.registry.svc.cluster.local:5000/charts/loki

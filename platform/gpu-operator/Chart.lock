@@ -1,0 +1,6 @@
+dependencies:
+- name: gpu-operator
+  repository: file://charts/gpu-operator
+  version: v26.7.1
+digest: sha256:5cf219e141097ee65c008b11c2fa151cfd6d82226e7ab650cd39474811c2835b
+generated: "2026-09-24T16:08:56.098094508-03:00"

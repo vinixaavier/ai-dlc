@@ -1,0 +1,48 @@
+# AgentRegistry artifacts are persisted through its /v0/apply API rather than
+# Kubernetes CRDs. Apply this stream after installing AgentRegistry:
+# curl --data-binary @platform/agentregistry/mcp-servers.yaml \
+#   -H 'Content-Type: application/yaml' http://agentregistry.localhost/v0/apply
+#
+# These entries describe the remote MCP servers fronted by AgentGateway
+# (aigw.localhost/mcp, NodePort 30081). The gateway exposes a single virtual
+# MCP endpoint at /mcp that multiplexes every kagent MCP server. Tool and
+# prompt names are namespaced with the target name so all three servers' tools
+# coexist without collisions:
+#   - kagent-tools_*    -> K8s/Argo/rollout and kagent session tooling
+#   - kagent-grafana_*  -> Grafana tooling
+#   - kagent-actor_*    -> controller /mcp: AgentInstance listing, invocation,
+#                          checkpoints and forks (MCP Tasks extension)
+# No routing header is required: one streamable-http connection to /mcp yields
+# the federated toolset.
+apiVersion: ar.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: kagent-tools
+spec:
+  title: KAgent Tools MCP
+  description: "Federated virtual MCP at aigw.localhost/mcp. The kagent-tools target serves K8s/Argo/rollout and kagent session tools as kagent-tools_* names; the same /mcp endpoint also exposes kagent-grafana_* and kagent-actor_* (AgentInstance) tools."
+  remote:
+    type: streamable-http
+    url: http://aigw.localhost/mcp
+---
+apiVersion: ar.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: kagent-grafana-mcp
+spec:
+  title: KAgent Grafana MCP
+  description: "Grafana tooling served by kagent-grafana-mcp.kagent:8000, federated through the single virtual MCP endpoint aigw.localhost/mcp as kagent-grafana_* names."
+  remote:
+    type: streamable-http
+    url: http://aigw.localhost/mcp
+---
+apiVersion: ar.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: kagent-actor
+spec:
+  title: KAgent AgentInstance MCP
+  description: "Kagent controller /mcp exposing AgentInstance listing, invocation, checkpoint and fork tools, federated through aigw.localhost/mcp as kagent-actor_* names."
+  remote:
+    type: streamable-http
+    url: http://aigw.localhost/mcp

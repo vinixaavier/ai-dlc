@@ -1,0 +1,9 @@
+apiVersion: v2
+name: ai-dlc-loki-platform
+description: Loki managed from the GitOps repository
+type: application
+version: 0.1.0
+dependencies:
+  - name: loki
+    version: 18.13.4
+    repository: file://charts/loki

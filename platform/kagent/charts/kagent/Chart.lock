@@ -1,0 +1,18 @@
+dependencies:
+- name: kmcp
+  repository: oci://ghcr.io/kagent-dev/kmcp/helm
+  version: 0.0.0-main.8f26f04
+- name: substrate
+  repository: oci://ghcr.io/kagent-dev/substrate/helm
+  version: 0.0.29
+- name: kagent-tools
+  repository: oci://ghcr.io/kagent-dev/tools/helm
+  version: 0.2.1
+- name: grafana-mcp
+  repository: file://../tools/grafana-mcp
+  version: 0.0.0-main.20260919
+- name: oauth2-proxy
+  repository: https://oauth2-proxy.github.io/manifests
+  version: 10.7.0
+digest: sha256:f7c54aa1b38924b79915bf90a5a00ae6ec5e73614d3c93ddb76afc47a894e6ed
+generated: "2026-09-19T00:57:15.173090454-03:00"

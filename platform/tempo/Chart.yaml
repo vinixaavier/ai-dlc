@@ -1,0 +1,9 @@
+apiVersion: v2
+name: ai-dlc-tempo-platform
+description: Tempo managed from the GitOps repository
+type: application
+version: 0.1.0
+dependencies:
+  - name: tempo
+    version: 3.0.0
+    repository: file://charts/tempo

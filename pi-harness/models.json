@@ -1,0 +1,20 @@
+{
+  "providers": {
+    "agentgateway": {
+      "name": "AgentGateway",
+      "baseUrl": "http://agentgateway-api.agentgateway-system.svc.cluster.local/v1",
+      "api": "openai-completions",
+      "apiKey": "sglang-local",
+      "models": [
+        {
+          "id": "qwen3.8-27b-nvfp4",
+          "name": "Qwen 3.8 27B NVFP4 via AgentGateway",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 180000,
+          "maxTokens": 8192
+        }
+      ]
+    }
+  }
+}

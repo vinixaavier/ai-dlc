@@ -1,0 +1,33 @@
+grafana:
+  adminUser: admin
+  adminPassword: admin
+  persistence:
+    enabled: true
+    size: 10Gi
+    accessModes: [ReadWriteOnce]
+  initChownData:
+    enabled: false
+  service:
+    port: 3000
+    targetPort: 3000
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Tempo
+          uid: tempo
+          type: tempo
+          access: proxy
+          url: http://tempo.tempo.svc:3200
+          isDefault: false
+        - name: Prometheus
+          uid: prometheus
+          type: prometheus
+          access: proxy
+          url: http://prometheus-server.prometheus.svc:9090
+          isDefault: true
+        - name: Loki
+          uid: loki
+          type: loki
+          access: proxy
+          url: http://loki-gateway.loki.svc:80

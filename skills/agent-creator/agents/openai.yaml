@@ -1,0 +1,4 @@
+interface:
+  display_name: Agent Creator
+  short_description: Create specialized kagent ADK agents with kubectl
+  default_prompt: Create a specialized kagent ADK AgentTemplate directly in Kubernetes with kubectl apply.

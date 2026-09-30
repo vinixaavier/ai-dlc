@@ -1,0 +1,41 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: ai-dlc
+featureGates:
+  ClusterTrustBundle: true
+  ClusterTrustBundleProjection: true
+  PodCertificateRequest: true
+runtimeConfig:
+  "certificates.k8s.io/v1beta1": "true"
+networking:
+  apiServerAddress: "127.0.0.1"
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      # kgateway's NodePort listener for HTTP. Kept on loopback so it is
+      # available to Windows through WSL but is not exposed to the LAN.
+      - containerPort: 30080
+        hostPort: 80
+        listenAddress: "127.0.0.1"
+        protocol: TCP
+      - containerPort: 30443
+        hostPort: 443
+        listenAddress: "127.0.0.1"
+        protocol: TCP
+      # Bootstrap publishing endpoint for the in-cluster registry. Workloads
+      # use the registry Service; this port is only for host-side helm pushes.
+      - containerPort: 30500
+        hostPort: 5002
+        listenAddress: "127.0.0.1"
+        protocol: TCP
+  # GPU worker: the host NVIDIA runtime injects GPU 0 when this mount is
+  # present. Keep the control-plane and the second worker CPU-only.
+  - role: worker
+    labels:
+      nvidia.com/gpu.present: "true"
+    extraMounts:
+      - hostPath: /dev/null
+        containerPath: /var/run/nvidia-container-devices/0
+      - hostPath: /home/vinic/.cache/huggingface
+        containerPath: /root/.cache/huggingface
+  - role: worker

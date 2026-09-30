@@ -1,0 +1,49 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+{{- if hasKey $ "name" }}
+name: {{ $.name }}
+{{- end }}
+featureGates:
+  ClusterTrustBundle: true
+  ClusterTrustBundleProjection: true
+  PodCertificateRequest: true
+runtimeConfig:
+  "certificates.k8s.io/v1beta1": "true"
+networking:
+  apiServerAddress: "127.0.0.1"
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 30080
+        hostPort: 80
+        listenAddress: "127.0.0.1"
+        protocol: TCP
+      - containerPort: 30443
+        hostPort: 443
+        listenAddress: "127.0.0.1"
+        protocol: TCP
+      - containerPort: 30500
+        hostPort: 5002
+        listenAddress: "127.0.0.1"
+        protocol: TCP
+      - containerPort: 30081
+        hostPort: 30081
+        listenAddress: "127.0.0.1"
+        protocol: TCP
+{{- range $.workers }}
+  - role: worker
+{{- if hasKey . "devices" }}
+    labels:
+      nvidia.com/gpu.present: "true"
+      feature.node.kubernetes.io/system-os_release.ID: "ubuntu"
+      feature.node.kubernetes.io/system-os_release.VERSION_ID: "24.04"
+      # WSL hides the NVIDIA PCI device from NFD; this is the equivalent
+      # feature label that GPU Operator uses to retain the GPU node labels.
+      feature.node.kubernetes.io/pci-10de.present: "true"
+    extraMounts:
+      - hostPath: /dev/null
+        containerPath: /var/run/nvidia-container-devices/all
+      - hostPath: /home/vinic/.cache/huggingface
+        containerPath: /root/.cache/huggingface
+{{- end }}
+{{- end }}

@@ -1,0 +1,14 @@
+{
+  "packages": ["npm:pi-otel@0.3.0"],
+  "otel": {
+    "enabled": true,
+    "endpoint": "http://agentgateway-api.agentgateway-system.svc.cluster.local:80",
+    "protocol": "http/protobuf",
+    "serviceName": "pi",
+    "captureContent": "metadata_only",
+    "spanNaming": "genai",
+    "sampleRatio": 1.0,
+    "propagateToShell": true,
+    "signals": { "traces": true, "metrics": false, "logs": false }
+  }
+}

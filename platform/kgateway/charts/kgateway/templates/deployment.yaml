@@ -1,0 +1,223 @@
+{{- $controllerPodAnnotations := ternary .Values.controller.podAnnotations .Values.podAnnotations (not (kindIs "invalid" .Values.controller.podAnnotations)) }}
+{{- /* The template owns prometheus.io/scrape|path|port whether they are enabled or disabled; strip them from user-provided annotations either way to avoid duplicate keys. */}}
+{{- $controllerPodAnnotations = omit $controllerPodAnnotations "prometheus.io/scrape" "prometheus.io/path" "prometheus.io/port" }}
+{{- $controllerPodSecurityContext := ternary .Values.controller.podSecurityContext .Values.podSecurityContext (not (kindIs "invalid" .Values.controller.podSecurityContext)) }}
+{{- $controllerSecurityContext := ternary .Values.controller.securityContext .Values.securityContext (not (kindIs "invalid" .Values.controller.securityContext)) }}
+{{- $controllerResources := ternary .Values.controller.resources .Values.resources (not (kindIs "invalid" .Values.controller.resources)) }}
+{{- $rawGoMemLimitPercent := .Values.controller.goMemLimitPercent }}
+{{- if kindIs "invalid" $rawGoMemLimitPercent }}
+{{- $rawGoMemLimitPercent = 0 }}
+{{- end }}
+{{- $invalidGoMemLimitPercent := printf "controller.goMemLimitPercent must be 0 or an integer between 1 and 100, got %v" $rawGoMemLimitPercent }}
+{{- if not (regexMatch "^(0|[1-9][0-9]?|100)$" (printf "%v" $rawGoMemLimitPercent)) }}
+{{- fail $invalidGoMemLimitPercent }}
+{{- end }}
+{{- $goMemLimitPercent := int $rawGoMemLimitPercent }}
+{{- $hasCustomGoMemLimit := and .Values.controller.extraEnv (hasKey .Values.controller.extraEnv "GOMEMLIMIT") }}
+{{- $hasCustomAutoMemoryLimit := and .Values.controller.extraEnv (hasKey .Values.controller.extraEnv "AUTOMEMLIMIT") }}
+{{- if and (ne $goMemLimitPercent 0) $hasCustomGoMemLimit }}
+{{- fail "controller.goMemLimitPercent and controller.extraEnv.GOMEMLIMIT cannot both be set; use one or the other" }}
+{{- end }}
+{{- if and (ne $goMemLimitPercent 0) $hasCustomAutoMemoryLimit }}
+{{- fail "controller.goMemLimitPercent and controller.extraEnv.AUTOMEMLIMIT cannot both be set; use one or the other" }}
+{{- end }}
+{{- $controllerNodeSelector := ternary .Values.controller.nodeSelector .Values.nodeSelector (not (kindIs "invalid" .Values.controller.nodeSelector)) }}
+{{- $controllerAffinity := ternary .Values.controller.affinity .Values.affinity (not (kindIs "invalid" .Values.controller.affinity)) }}
+{{- $controllerTolerations := ternary .Values.controller.tolerations .Values.tolerations (not (kindIs "invalid" .Values.controller.tolerations)) }}
+{{- $controllerTopologySpreadConstraints := ternary .Values.controller.topologySpreadConstraints .Values.topologySpreadConstraints (not (kindIs "invalid" .Values.controller.topologySpreadConstraints)) }}
+{{- $defaultReadinessProbe := dict "httpGet" (dict "path" "/readyz" "port" .Values.controller.service.ports.health) "initialDelaySeconds" 1 "periodSeconds" 10 }}
+{{- $readinessProbeDefaults := deepCopy $defaultReadinessProbe }}
+{{- $controllerReadinessProbe := deepCopy (.Values.controller.readinessProbe | default dict) }}
+{{- if or (hasKey $controllerReadinessProbe "exec") (hasKey $controllerReadinessProbe "tcpSocket") (hasKey $controllerReadinessProbe "grpc") }}
+{{- $readinessProbeDefaults = omit $readinessProbeDefaults "httpGet" }}
+{{- end }}
+{{- $controllerReadinessProbe = merge $controllerReadinessProbe $readinessProbeDefaults }}
+{{- $defaultStartupProbe := dict "httpGet" (dict "path" "/readyz" "port" .Values.controller.service.ports.health) "initialDelaySeconds" 0 "periodSeconds" 1 "failureThreshold" 600 }}
+{{- $startupProbeDefaults := deepCopy $defaultStartupProbe }}
+{{- $controllerStartupProbe := deepCopy (.Values.controller.startupProbe | default dict) }}
+{{- if or (hasKey $controllerStartupProbe "exec") (hasKey $controllerStartupProbe "tcpSocket") (hasKey $controllerStartupProbe "grpc") }}
+{{- $startupProbeDefaults = omit $startupProbeDefaults "httpGet" }}
+{{- end }}
+{{- $controllerStartupProbe = merge $controllerStartupProbe $startupProbeDefaults }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kgateway.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "kgateway.labels" . | nindent 4 }}
+  {{- with .Values.deploymentAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if and (empty .Values.controller.horizontalPodAutoscaler) (not (kindIs "invalid" .Values.controller.replicaCount)) }}
+  replicas: {{ .Values.controller.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "kgateway.selectorLabels" . | nindent 6 }}
+  {{- with .Values.controller.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      {{- if or .Values.controller.prometheusAnnotations $controllerPodAnnotations }}
+      annotations:
+        {{- if .Values.controller.prometheusAnnotations }}
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: {{ .Values.controller.service.ports.metrics | default 9092 | quote}}
+        prometheus.io/scrape: "true"
+        {{- end }}
+        {{- with $controllerPodAnnotations }}
+        {{- toYaml $controllerPodAnnotations | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      labels:
+        {{- include "kgateway.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: controller
+        {{- with .Values.commonLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.controller.priorityClassName }}
+      priorityClassName: {{ .Values.controller.priorityClassName | quote }}
+      {{- end }}
+      serviceAccountName: {{ include "kgateway.serviceAccountName" . }}
+      {{- with $controllerPodSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: controller
+          {{- with $controllerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.controller.image.registry | default .Values.image.registry }}/{{ .Values.controller.image.repository }}:{{ include "kgateway.imageTag" (.Values.controller.image.tag | default .Values.image.tag | default .Chart.AppVersion) }}"
+          imagePullPolicy: {{ .Values.controller.image.pullPolicy | default .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.controller.service.ports.grpc }}
+              name: grpc-xds
+              protocol: TCP
+            - containerPort: {{ .Values.controller.service.ports.health }}
+              name: health
+              protocol: TCP
+            - containerPort: {{ .Values.controller.service.ports.metrics }}
+              name: metrics
+              protocol: TCP
+          readinessProbe:
+            {{- toYaml $controllerReadinessProbe | nindent 12 }}
+          startupProbe:
+            {{- toYaml $controllerStartupProbe | nindent 12 }}
+          env:
+            {{- if ne $goMemLimitPercent 0 }}
+            - name: AUTOMEMLIMIT
+              value: {{ printf "%.2f" (divf (float64 $goMemLimitPercent) 100.0) | quote }}
+            {{- else if and (not $hasCustomGoMemLimit) (not $hasCustomAutoMemoryLimit) }}
+            - name: GOMEMLIMIT
+              valueFrom:
+                resourceFieldRef:
+                  divisor: "1"
+                  resource: limits.memory
+            {{- end }}
+            - name: GOMAXPROCS
+              valueFrom:
+                resourceFieldRef:
+                  divisor: "1"
+                  resource: limits.cpu
+            - name: KGW_LOG_LEVEL
+              value: {{ .Values.controller.logLevel | quote }}
+            - name: KGW_ADMIN_BIND_ADDRESS
+              value: {{ .Values.controller.admin.bindAddress | quote }}
+            - name: KGW_XDS_SERVICE_NAME
+              value: {{ include "kgateway.fullname" . }}
+            - name: KGW_XDS_SERVICE_PORT
+              value: {{ .Values.controller.service.ports.grpc | quote }}
+            - name: KGW_DEFAULT_IMAGE_REGISTRY
+              value: {{ .Values.image.registry }}
+            - name: KGW_DEFAULT_IMAGE_TAG
+              value: {{ include "kgateway.imageTag" (.Values.image.tag | default .Chart.AppVersion) }}
+            - name: KGW_DEFAULT_IMAGE_PULL_POLICY
+              value: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+            - name: KGW_DISCOVERY_NAMESPACE_SELECTORS
+              value: {{ .Values.discoveryNamespaceSelectors | toJson | quote }}
+            - name: KGW_SERVICE_ENTRIES_EXCLUSION_LABEL_SELECTORS
+              value: {{ .Values.serviceEntriesExclusionLabelSelectors | toJson | quote }}
+            - name: KGW_POLICY_MERGE
+              value: {{ .Values.policyMerge | toJson | quote }}
+            - name: KGW_VALIDATION_MODE
+              value: {{ include "kgateway.validationLevel" . | quote }}
+            {{- if .Values.enableRouteSourceMetadata }}
+            - name: KGW_ENABLE_ROUTE_SOURCE_METADATA
+              value: "true"
+            {{- end }}
+            - name: KGW_ENABLE_AWS_EC2_DISCOVERY
+              value: {{ .Values.controller.enableAwsEc2Discovery | quote }}
+            - name: KGW_AWS_EC2_REFRESH_INTERVAL
+              value: {{ .Values.controller.awsEc2RefreshInterval | quote }}
+            {{- if .Values.controller.extraEnv }}
+            {{- range $key, $value := .Values.controller.extraEnv }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- end }}
+            - name: KGW_GATEWAY_CLASS_PARAMETERS_REFS
+              value: {{ .Values.gatewayClassParametersRefs | toJson | quote }}
+            {{- if .Values.waypoint.enabled }}
+            - name: KGW_ENABLE_WAYPOINT
+              value: "true"
+            {{- end }}
+            {{- if and .Values.controller.xds.tls.enabled (not (and .Values.controller.extraEnv (hasKey .Values.controller.extraEnv "KGW_XDS_TLS"))) }}
+            - name: KGW_XDS_TLS
+              value: "true"
+            {{- end }}
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          resources:
+            {{- toYaml $controllerResources | nindent 12 }}
+          {{- if .Values.controller.xds.tls.enabled }}
+          volumeMounts:
+            - name: xds-tls
+              mountPath: /etc/xds-tls
+              readOnly: true
+          {{- end }}
+      {{- if .Values.controller.xds.tls.enabled }}
+      volumes:
+        - name: xds-tls
+          secret:
+            secretName: kgateway-xds-cert
+      {{- end }}
+      {{- with $controllerNodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $controllerAffinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $controllerTolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $controllerTopologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- if .Values.gatewayClassParametersRefs }}
+{{- range $className, $ref := .Values.gatewayClassParametersRefs }}
+{{- if not $ref.name }}
+{{ fail (printf "gatewayClassParametersRefs.%s.name must be set" $className) }}
+{{- end }}
+{{- if not $ref.namespace }}
+{{ fail (printf "gatewayClassParametersRefs.%s.namespace must be set" $className) }}
+{{- end }}
+{{- end }}
+{{- end }}

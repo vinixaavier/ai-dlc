@@ -1,0 +1,13 @@
+apiVersion: v2
+name: ai-dlc-agentgateway-platform
+description: Declarative AgentGateway platform resources for ai-dlc
+type: application
+version: 0.1.21
+appVersion: "1.0"
+dependencies:
+  - name: agentgateway
+    version: 0.0.0-latest-dev
+    repository: file://charts/agentgateway
+  - name: agentgateway-crds
+    version: 0.0.0-latest-dev
+    repository: file://charts/agentgateway-crds

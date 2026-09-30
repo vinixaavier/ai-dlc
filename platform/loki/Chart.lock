@@ -1,0 +1,6 @@
+dependencies:
+- name: loki
+  repository: file://charts/loki
+  version: 18.13.4
+digest: sha256:307e495b7e0ea6ea2998c9103835f3d4a64dec851c42cd17e37cc769b80b8490
+generated: "2026-09-20T16:00:31.835636613-03:00"

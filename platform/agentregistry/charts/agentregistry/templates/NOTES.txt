@@ -1,0 +1,46 @@
+{{- $fullName := include "agentregistry.fullname" . -}}
+{{- $httpPort := .Values.service.ports.http -}}
+{{- $mcpPort := .Values.service.ports.mcp -}}
+
+========================================================================
+  Agent Registry has been deployed!
+========================================================================
+
+Chart:     {{ include "agentregistry.chart" . }}
+Release:   {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+To access the Agent Registry UI and API:
+
+1. Port-forward (quickest):
+
+   kubectl -n {{ .Release.Namespace }} port-forward svc/{{ $fullName }} {{ $httpPort }}:{{ $httpPort }}
+
+   Then open: http://localhost:{{ $httpPort }}
+
+Useful endpoints (after port-forward):
+  - Interactive docs:    http://localhost:{{ $httpPort }}/docs
+  - OpenAPI spec (JSON): http://localhost:{{ $httpPort }}/openapi.json
+  - Deployments list:    http://localhost:{{ $httpPort }}/v0/deployments?limit=200
+
+Built-in MCP Server (for AI Clients / Chatbots):
+  - kubectl -n {{ .Release.Namespace }} port-forward svc/{{ $fullName }} {{ $mcpPort }}:{{ $mcpPort }}
+
+{{- if eq .Values.database.postgres.type "bundled" }}
+################################################################################
+# WARNING: BUNDLED DATABASE IN USE                                             #
+################################################################################
+  The bundled PostgreSQL instance is enabled. It is intended for development
+  and evaluation only — not suitable for production use. Data may be lost if
+  the pod is restarted or rescheduled.
+
+  To use an external database, set:
+    database.postgres.type=external
+    database.postgres.external.url=<your-connection-string>
+  Or source the connection string from a Secret:
+    database.postgres.type=external
+    database.postgres.external.secretRef.name=<your-secret>
+################################################################################
+{{- end }}
+
+{{ include "agentregistry.validateValues" . }}

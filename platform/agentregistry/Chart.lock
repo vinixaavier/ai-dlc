@@ -1,0 +1,6 @@
+dependencies:
+- name: agentregistry
+  repository: file://charts/agentregistry
+  version: 0.4.0
+digest: sha256:b6f8439783bb5d4f0b1cb5ca698ba175467102f5fa94b2f5516c9904b269639c
+generated: "2026-09-19T00:21:16.346822747-03:00"
