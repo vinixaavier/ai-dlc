@@ -1,8 +1,0 @@
-apiVersion: v2
-description: MCP server for grafana
-name: grafana-mcp
-type: application
-version: 0.0.0-main.1eb89fb
-annotations:
-  "org.opencontainers.image.source": "https://github.com/kagent-dev/kagent"
-  "org.opencontainers.image.revision": "1eb89fb1b670571e25d17e9f55551c567a28f500"

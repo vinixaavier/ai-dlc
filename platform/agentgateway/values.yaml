@@ -1,8 +1,8 @@
-# Controller, dataplane and vendored charts share the same frozen source.
+# Controller and dataplane images follow the pinned upstream release.
 agentgateway:
   image:
     registry: registry.registry.svc.cluster.local:5000
-    tag: main-61dd06b4
+    tag: v1.5.0
   controller:
     image:
       repository: agentgateway-controller

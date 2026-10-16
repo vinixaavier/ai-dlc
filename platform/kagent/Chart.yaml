@@ -6,8 +6,15 @@ version: 0.1.4
 appVersion: "main-1eb89fb"
 dependencies:
   - name: kagent-crds
-    version: 0.0.0-main.1eb89fb
-    repository: file://charts/kagent-crds
+    version: 0.0.0-alpha.g1eb89fb1b670
+    repository: oci://ghcr.io/kagent-dev/kagent/helm
+  - name: kmcp-crds
+    version: 0.4.0
+    repository: oci://ghcr.io/kagent-dev/kmcp/helm
   - name: kagent
-    version: 0.0.0-main.1eb89fb
-    repository: file://charts/kagent
+    version: 0.0.0-alpha.g1eb89fb1b670
+    repository: oci://ghcr.io/kagent-dev/kagent/helm
+  - name: kmcp
+    version: 0.4.0
+    repository: oci://ghcr.io/kagent-dev/kmcp/helm
+    condition: kmcp.enabled

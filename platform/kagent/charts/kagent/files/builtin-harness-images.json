@@ -1,6 +1,0 @@
-{
-  "release": "main-1eb89fb-clis-20261016",
-  "kagent": "registry.registry.svc.cluster.local:5000/kagent-dev/kagent/golang-adk@sha256:5dd9ce986070a8f3a91180596e6d0866027c4e86c526ec74afd95d00f9dc66af",
-  "claude": "registry.registry.svc.cluster.local:5000/kagent-dev/kagent/claude-harness@sha256:88b317548bbb641ff7e320bc8a2cb626f7f922bbe603a73ca875f6ce1ee6975c",
-  "codex": "registry.registry.svc.cluster.local:5000/kagent-dev/kagent/codex-harness@sha256:94d1a64912339a9da806199e0e6989383ebbcdd06fb160bd76f9ad83e041a7e3"
-}
