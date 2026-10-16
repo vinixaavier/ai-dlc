@@ -1,22 +1,31 @@
-// kagent-a2a: tool A2A sobre gRPC-Web, exposto no kgateway como
-// a2a-kagent.localhost. Sem port-forward: todo o trafego passa pelo
-// HTTPRoute a2a-kagent (kgateway -> kagent-controller:8083).
+// kagent-a2a: tool A2A sobre o kgateway (a2a-kagent.localhost) para
+// invocar agentes do kagent sem port-forward.
+//
+// Nova API do kagent (controller >= main-bf8afa56): AgentInstanceService
+// virou SessionService e o A2A e o JSON-RPC por agente em
+// POST /agents/{namespace}/{name} (a2a-go v2, metodos PascalCase).
 //
 // Fluxo (conversa nova por invocacao, nunca reutiliza instancia):
-//  1. CreateAgentInstance  (gRPC-Web POST /kagent.api.v1alpha1.AgentInstanceService/CreateAgentInstance)
-//  2. A2A SendMessage      (gRPC-Web POST /lf.a2a.v1.A2AService/SendMessage)
-//  3. DeleteAgentInstance  (gRPC-Web POST /kagent.api.v1alpha1.AgentInstanceService/DeleteAgentInstance)
+//  1. A2A SendMessage  (JSON-RPC "SendMessage" em /agents/{ns}/{agent};
+//                       a gateway cria a sessao automaticamente, dedup por
+//                       message id)
+//  2. SessionService/DeleteSession (gRPC-Web, evita sessao zumbi)
 //
 // Uso:
-//   kagent-a2a [template] [harness] "task..."
+//   kagent-a2a [agent] [harness] "task..."
 //   kagent-a2a loki-specialist adk "ping"
-//   kagent-a2a --keep pi-default pi "que horas sao?"   (nao descarta a instancia)
+//   kagent-a2a --keep pi-default pi "que horas sao?"   (nao descarta a sessao;
+//                                   reporta o contextId para retomar com --context)
+//
+// Obs.: o argumento "harness" e aceito por compatibilidade com a CLI antiga,
+// mas ignorado: no novo modelo o Agent (template+harness) e um unico
+// recurso, e o harness ja vem embutido na definicao do Agent.
 package main
 
 import (
 	"bytes"
 	"encoding/binary"
-	"errors"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -24,19 +33,79 @@ import (
 	"strings"
 	"time"
 
-	a2apb "github.com/a2aproject/a2a-go/v2/a2apb/v1"
-	apiv1alpha1 "github.com/kagent-dev/kagent/go/api/gen/kagent/api/v1alpha1"
 	"github.com/google/uuid"
-	"google.golang.org/protobuf/proto"
 )
 
 var (
-	flagKeep    bool
-	flagHost    = "http://127.0.0.1"
-	flagHostHdr = "a2a-kagent.localhost"
-	flagUser    = "admin@kagent.dev"
-	flagQuiet   bool
+	flagKeep      bool
+	flagHost      = "http://127.0.0.1"
+	flagHostHdr   = "a2a-kagent.localhost"
+	flagUser      = "admin@kagent.dev"
+	flagContext   = ""
+	flagQuiet     bool
 )
+
+// --- DTOs A2A JSON-RPC (a2a-go v2: metodo "SendMessage", role ROLE_USER) ---
+
+type jsonrpcReq struct {
+	JSONRPC string      `json:"jsonrpc"`
+	ID      string      `json:"id"`
+	Method  string      `json:"method"`
+	Params  sendParams  `json:"params"`
+}
+
+type sendParams struct {
+	Message a2aMsg `json:"message"`
+}
+
+type a2aMsg struct {
+	Role      string   `json:"role"`
+	MessageID string   `json:"messageId"`
+	ContextID string   `json:"contextId,omitempty"`
+	Parts     []a2aPt `json:"parts"`
+}
+
+type a2aPt struct {
+	Kind string `json:"kind"`
+	Text string `json:"text"`
+}
+
+type jsonrpcResp struct {
+	JSONRPC string          `json:"jsonrpc"`
+	ID      string          `json:"id"`
+	Result  json.RawMessage `json:"result"`
+	Error   *jsonrpcErr     `json:"error"`
+}
+
+type jsonrpcErr struct {
+	Code int    `json:"code"`
+	Msg  string `json:"message"`
+}
+
+type a2aResult struct {
+	Task    *a2aTask    `json:"task"`
+	Message *a2aResultM `json:"message"`
+}
+
+type a2aTask struct {
+	ID        string    `json:"id"`
+	ContextID string    `json:"contextId"`
+	Status    a2aStatus `json:"status"`
+	Artifacts []a2aArt  `json:"artifacts"`
+}
+
+type a2aStatus struct {
+	State string `json:"state"`
+}
+
+type a2aArt struct {
+	Parts []a2aPt `json:"parts"`
+}
+
+type a2aResultM struct {
+	ContextID string  `json:"contextId"`
+	Parts     []a2aPt `json:"parts"`
+}
 
 func main() {
 	args := os.Args[1:]
@@ -62,124 +131,179 @@ func main() {
 			if i < len(args) {
 				flagUser = args[i]
 			}
+		case args[i] == "--context":
+			i++
+			if i < len(args) {
+				flagContext = args[i]
+			}
 		default:
 			positional = append(positional, args[i])
 		}
 	}
 
-	template := "loki-specialist"
-	harness := "adk"
+	agent := "loki-specialist"
 	task := "ping"
 	if len(positional) >= 1 {
-		template = positional[0]
+		agent = positional[0]
 	}
-	if len(positional) >= 2 {
-		harness = positional[1]
-	}
+	// positional[1] era o harness; mantido por compatibilidade, agora ignorado
 	if len(positional) >= 3 {
 		task = strings.Join(positional[2:], " ")
+	} else if len(positional) == 2 && positional[1] != "adk" {
+		// ambiguidade resolvida: sem harness explicito o 2o argumento e a task
+		task = positional[1]
+	}
+
+	// agente pode vir como "ns/name"; padrao do namespace e kagent
+	namespace, name := "kagent", agent
+	if i := strings.IndexByte(agent, '/'); i > 0 {
+		namespace, name = agent[:i], agent[i+1:]
 	}
 
 	client := &http.Client{Timeout: 30 * time.Minute}
 
-	// 1) cria conversa nova
-	created, err := callUnary(client, flagHost,
-		"/kagent.api.v1alpha1.AgentInstanceService/CreateAgentInstance",
-		&apiv1alpha1.CreateAgentInstanceRequest{
-			AgentTemplate: &apiv1alpha1.ResourceReference{Namespace: "kagent", Name: template},
-			Harness:       &apiv1alpha1.ResourceReference{Namespace: "kagent", Name: harness},
-			RequestId:     uuid.NewString(),
-		},
-		&apiv1alpha1.CreateAgentInstanceResponse{},
-		headerUser(flagUser))
+	// 1) A2A SendMessage (JSON-RPC); sessao nova por invocacao
+	resp, raw, err := callSendMessage(client, namespace, name, flagContext, task)
 	if err != nil {
-		fatal("CreateAgentInstance: %v", err)
-	}
-	createdResp := created.(*apiv1alpha1.CreateAgentInstanceResponse)
-	inst := createdResp.GetAgentInstance()
-	if inst == nil {
-		fatal("CreateAgentInstance nao retornou instancia")
-	}
-	instanceID := inst.GetId()
-	if !flagQuiet {
-		fmt.Printf("instancia: %s (%s via %s)\n", instanceID, template, harness)
-	}
-
-	// 2) A2A SendMessage roteado por instancia
-	sendResp, err := callUnary(client, flagHost,
-		"/lf.a2a.v1.A2AService/SendMessage",
-		&a2apb.SendMessageRequest{
-			Message: &a2apb.Message{
-				MessageId: uuid.NewString(),
-				Role:     a2apb.Role_ROLE_USER,
-				Parts: []*a2apb.Part{{
-					Content: &a2apb.Part_Text{Text: task},
-				}},
-			},
-		},
-		&a2apb.SendMessageResponse{},
-		headerUserInstance(flagUser, instanceID))
-	if err != nil {
-		if !flagKeep {
-			_, _ = callUnary(client, flagHost,
-				"/kagent.api.v1alpha1.AgentInstanceService/DeleteAgentInstance",
-				&apiv1alpha1.DeleteAgentInstanceRequest{AgentInstanceId: instanceID},
-				&apiv1alpha1.DeleteAgentInstanceResponse{},
-				headerUser(flagUser))
-		}
 		fatal("A2A SendMessage: %v", err)
 	}
-	fmt.Println()
-	fmt.Println("=== resposta A2A ===")
-	printSendResponse(sendResp.(*a2apb.SendMessageResponse))
+	contextID := ""
+	if raw != nil {
+		printA2AResponse(raw)
+		contextID = raw.ContextID()
+	}
 
-	// 3) descarta a conversa (nao virar instancia zumbi)
+	// 2) descarta a sessao (nao virar zumbi) ou reporta o contextId
+	if contextID == "" {
+		contextID = flagContext
+	}
 	if !flagKeep {
-		deleted, err := callUnary(client, flagHost,
-			"/kagent.api.v1alpha1.AgentInstanceService/DeleteAgentInstance",
-			&apiv1alpha1.DeleteAgentInstanceRequest{AgentInstanceId: instanceID},
-			&apiv1alpha1.DeleteAgentInstanceResponse{},
-			headerUser(flagUser))
-		if err != nil {
-			fmt.Printf("\naviso: DeleteAgentInstance: %v (instancia %s pode virar zumbi)\n", err, instanceID)
-		} else if !flagQuiet {
-			delResp := deleted.(*apiv1alpha1.DeleteAgentInstanceResponse)
-			delID := delResp.GetAgentInstance().GetId()
-			if delID == "" {
-				delID = instanceID
+		if contextID != "" {
+			if err := deleteSession(client, contextID); err != nil {
+				fmt.Printf("\naviso: DeleteSession: %v (sessao %s pode virar zumbi)\n", err, contextID)
+			} else if !flagQuiet {
+				fmt.Printf("\nsessao descartada (%s)\n", contextID)
 			}
-			fmt.Printf("\ninstancia descartada (%s) ✅\n", delID)
 		}
-	} else if !flagQuiet {
-		fmt.Printf("\n--keep: instancia %s mantida\n", instanceID)
+	} else {
+		if !flagQuiet {
+			fmt.Printf("\n--keep: sessao %s mantida (retome com --context %s)\n", contextID, contextID)
+		}
+	}
+	_ = resp
+}
+
+// --- A2A JSON-RPC (transporte HTTP) ---
+
+func callSendMessage(client *http.Client, namespace, agent, contextID, task string) (*a2aResult, *a2aResultFull, error) {
+	reqBody := jsonrpcReq{
+		JSONRPC: "2.0",
+		ID:      uuid.NewString(),
+		Method:  "SendMessage",
+		Params: sendParams{Message: a2aMsg{
+			Role:      "ROLE_USER",
+			MessageID: uuid.NewString(),
+			ContextID: contextID,
+			Parts:     []a2aPt{{Kind: "text", Text: task}},
+		}},
+	}
+	body, err := json.Marshal(reqBody)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	httpReq, err := http.NewRequest(http.MethodPost,
+		fmt.Sprintf("%s/agents/%s/%s", flagHost, namespace, agent), bytes.NewReader(body))
+	if err != nil {
+		return nil, nil, err
+	}
+	if flagHostHdr != "" {
+		httpReq.Host = flagHostHdr
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Accept", "application/json")
+	httpReq.Header.Set("x-user-id", flagUser)
+
+	if os.Getenv("KAGENT_A2A_DEBUG") != "" {
+		fmt.Fprintf(os.Stderr, "[debug] POST /agents/%s/%s\n", namespace, agent)
+	}
+
+	httpResp, err := client.Do(httpReq)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer httpResp.Body.Close()
+	raw, err := io.ReadAll(httpResp.Body)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if os.Getenv("KAGENT_A2A_DEBUG") != "" {
+		fmt.Fprintf(os.Stderr, "[debug] %s (%d bytes)\n", httpResp.Status, len(raw))
+	}
+
+	if httpResp.StatusCode >= 500 {
+		preview, _ := io.ReadAll(io.LimitReader(bytes.NewReader(raw), 512))
+		return nil, nil, fmt.Errorf("HTTP %s: %s", httpResp.Status, strings.TrimSpace(string(preview)))
+	}
+
+	var parsed jsonrpcResp
+	if err := json.Unmarshal(raw, &parsed); err != nil {
+		// resposta nao-JSON: mostra como text
+		parsed = jsonrpcResp{}
+		if !flagQuiet {
+			fmt.Printf("%s\n", strings.TrimSpace(string(raw)))
+		}
+		return nil, nil, nil
+	}
+	if parsed.Error != nil {
+		return nil, nil, fmt.Errorf("JSON-RPC %d: %s", parsed.Error.Code, parsed.Error.Msg)
+	}
+	var result a2aResult
+	if len(parsed.Result) == 0 {
+		return &result, nil, nil
+	}
+	if err := json.Unmarshal(parsed.Result, &result); err != nil {
+		return nil, nil, fmt.Errorf("unmarshal result: %w", err)
+	}
+	full := &a2aResultFull{task: result.Task, message: result.Message}
+	return &result, full, nil
+}
+
+// a2aResultFull carrega o contextId para limpeza, independente do shape
+type a2aResultFull struct {
+	task    *a2aTask
+	message *a2aResultM
+}
+
+func (r *a2aResultFull) ContextID() string {
+	switch {
+	case r.task != nil:
+		return r.task.ContextID
+	case r.message != nil:
+		return r.message.ContextID
+	default:
+		return ""
 	}
 }
 
-func printSendResponse(resp *a2apb.SendMessageResponse) {
-	switch payload := resp.GetPayload().(type) {
-	case *a2apb.SendMessageResponse_Message:
-		for _, part := range payload.Message.GetParts() {
-			if text := part.GetText(); text != "" {
-				fmt.Println(text)
-			}
-		}
-	case *a2apb.SendMessageResponse_Task:
-		task := payload.Task
-		if status := task.GetStatus(); status != nil {
-			if msg := status.GetMessage(); msg != nil {
-				for _, part := range msg.GetParts() {
-					if text := part.GetText(); text != "" {
-						fmt.Println(text)
-					}
+func printA2AResponse(resp *a2aResultFull) {
+	switch {
+	case resp.task != nil:
+		for _, art := range resp.task.Artifacts {
+			for _, part := range art.Parts {
+				if part.Text != "" {
+					fmt.Println(part.Text)
 				}
 			}
-			fmt.Printf("\n[task %s: %s]\n", task.GetId(), status.GetState().String())
 		}
-		for _, artifact := range task.GetArtifacts() {
-			for _, part := range artifact.GetParts() {
-				if text := part.GetText(); text != "" {
-					fmt.Println(text)
-				}
+		if st := resp.task.Status.State; st != "" {
+			fmt.Printf("\n[task %s: %s]\n", resp.task.ID, st)
+		}
+	case resp.message != nil:
+		for _, part := range resp.message.Parts {
+			if part.Text != "" {
+				fmt.Println(part.Text)
 			}
 		}
 	default:
@@ -187,23 +311,21 @@ func printSendResponse(resp *a2apb.SendMessageResponse) {
 	}
 }
 
-// --- cliente gRPC-Web minimo (framing binario) ---
+// --- gRPC-Web: SessionService/DeleteSession (protobuf manual, field 1) ---
 
-func callUnary(client *http.Client, host, path string, req, resp proto.Message, headers map[string]string) (proto.Message, error) {
-	body, err := proto.Marshal(req)
-	if err != nil {
-		return nil, err
-	}
+func deleteSession(client *http.Client, sessionID string) error {
+	inner := append([]byte{0x0a, byte(len(sessionID))}, sessionID...)
 	var buf bytes.Buffer
 	buf.WriteByte(0) // flag: uncompressed
 	var lenBuf [4]byte
-	binary.BigEndian.PutUint32(lenBuf[:], uint32(len(body)))
+	binary.BigEndian.PutUint32(lenBuf[:], uint32(len(inner)))
 	buf.Write(lenBuf[:])
-	buf.Write(body)
+	buf.Write(inner)
 
-	httpReq, err := http.NewRequest(http.MethodPost, host+path, &buf)
+	httpReq, err := http.NewRequest(http.MethodPost,
+		flagHost+"/kagent.api.v1alpha1.SessionService/DeleteSession", &buf)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if flagHostHdr != "" {
 		httpReq.Host = flagHostHdr
@@ -211,65 +333,31 @@ func callUnary(client *http.Client, host, path string, req, resp proto.Message, 
 	httpReq.Header.Set("x-grpc-web", "1")
 	httpReq.Header.Set("Content-Type", "application/grpc-web+proto")
 	httpReq.Header.Set("Accept", "application/grpc-web+proto")
-	for k, v := range headers {
-		httpReq.Header.Set(k, v)
-	}
+	httpReq.Header.Set("x-user-id", flagUser)
 
 	httpResp, err := client.Do(httpReq)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer httpResp.Body.Close()
+	raw, _ := io.ReadAll(httpResp.Body)
 
 	if os.Getenv("KAGENT_A2A_DEBUG") != "" {
-		fmt.Fprintf(os.Stderr, "[debug] %s %s -> HTTP %s\n", httpReq.Method, path, httpResp.Status)
+		fmt.Fprintf(os.Stderr, "[debug] DeleteSession -> HTTP %s (%d bytes)\n", httpResp.Status, len(raw))
 	}
 
-	if httpResp.StatusCode >= 500 {
-		preview, _ := io.ReadAll(io.LimitReader(httpResp.Body, 512))
-		return nil, fmt.Errorf("HTTP %s: %s", httpResp.Status, strings.TrimSpace(string(preview)))
-	}
-
-	raw, err := io.ReadAll(httpResp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	if os.Getenv("KAGENT_A2A_DEBUG") != "" {
-		fmt.Fprintf(os.Stderr, "[debug] corpo (%d bytes): %x\n", len(raw), raw)
-	}
-
-	statusCode, statusMsg, err := parseGrpcWebResponse(raw, resp)
-	if err != nil {
-		return nil, err
-	}
-	if statusCode != 0 {
-		return nil, fmt.Errorf("grpc-status %d: %s", statusCode, statusMsg)
-	}
-	return resp, nil
-}
-
-// parseGrpcWebResponse decoda os frames do corpo gRPC-Web:
-// frames de mensagem (flag 0x00) + frame de trailers (flag 0x80).
-func parseGrpcWebResponse(raw []byte, resp proto.Message) (int, string, error) {
-	var status int
-	var statusMsg string
-
+	// trailing frame gRPC-Web: flag 0x80 + trailers
 	for len(raw) > 0 {
 		if len(raw) < 5 {
 			break
 		}
-		flag := raw[0]
-		length := int(binary.BigEndian.Uint32(raw[1:5]))
-		raw = raw[5:]
-		if length > len(raw) {
-			return status, statusMsg, errors.New("frame truncado na resposta gRPC-Web")
+		flag, length := raw[0], int(binary.BigEndian.Uint32(raw[1:5]))
+		if 5+length > len(raw) {
+			break
 		}
-		payload := raw[:length]
-		raw = raw[length:]
-
-		switch {
-		case flag&0x80 != 0: // frame de trailers: chave:valor separados por \n
+		payload := raw[5 : 5+length]
+		raw = raw[5+length:]
+		if flag&0x80 != 0 { // frame de trailers: chave:valor separados por \n
 			for _, kv := range strings.Split(string(payload), "\n") {
 				k, v, found := strings.Cut(kv, ":")
 				if !found {
@@ -277,37 +365,16 @@ func parseGrpcWebResponse(raw []byte, resp proto.Message) (int, string, error) {
 				}
 				switch k {
 				case "grpc-status":
-					fmt.Sscanf(v, "%d", &status)
-				case "grpc-message":
-					statusMsg = v
+					var code int
+					fmt.Sscanf(v, "%d", &code)
+					if code != 0 {
+						return fmt.Errorf("grpc-status %d", code)
+					}
 				}
-			}
-		default: // frame de mensagem (unary: exatamente um)
-			if err := proto.Unmarshal(payload, resp); err != nil {
-				return status, statusMsg, fmt.Errorf("unmarshal resposta: %w", err)
 			}
 		}
 	}
-
-	// HTTP 200 sem trailers explicitos = sucesso implicito
-	if status == 0 && statusMsg == "" {
-		return 0, "", nil
-	}
-	if status == 0 && statusMsg != "" {
-		return 0, statusMsg, errors.New("grpc reportou status mas sem grpc-status")
-	}
-	return status, statusMsg, nil
-}
-
-func headerUser(userID string) map[string]string {
-	return map[string]string{"x-user-id": userID}
-}
-
-func headerUserInstance(userID, instanceID string) map[string]string {
-	return map[string]string{
-		"x-user-id":                   userID,
-		"x-kagent-agent-instance-id": instanceID,
-	}
+	return nil
 }
 
 func fatal(format string, args ...any) {

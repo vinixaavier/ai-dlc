@@ -4,9 +4,13 @@ kagent:
     openAI:
       provider: OpenAI
       model: qwen3.8-27b-nvfp4
-      apiKeySecretRef: kagent-sglang
-      apiKeySecretKey: API_KEY
-      apiKey: sglang-local
+      # LLM local (SGLang via AgentGateway) nao exige autenticacao.
+      # Mantemos as refs vazias para o ModelConfig default nao enviar Authorization.
+      # O provider ate-secret://k8s.io esta ativo no egress Substrate; ModelConfigs
+      # autenticados, como o Claude Harness, referenciam seu Secret explicitamente.
+      # Nao habilitar chave neste provider local sem necessidade do backend.
+      apiKeySecretRef: ""
+      apiKeySecretKey: ""
       config:
         baseUrl: http://agentgateway-api.agentgateway-system.svc.cluster.local/v1
         apiFormat: chatCompletions
@@ -14,43 +18,50 @@ kagent:
     image:
       registry: registry.registry.svc.cluster.local:5000
       repository: kagent-dev/kagent/ui
-      tag: main-20260916-90151e98
+      tag: main-1eb89fb
       pullPolicy: IfNotPresent
   controller:
     replicas: 1
+    substrateClientCertificate:
+      enabled: true
     image:
       registry: registry.registry.svc.cluster.local:5000
       repository: kagent-dev/kagent/controller
-      tag: main-20260916-90151e98
+      tag: main-1eb89fb-clis-20261016
       pullPolicy: IfNotPresent
     agentImage:
       registry: registry.registry.svc.cluster.local:5000
       repository: kagent-dev/kagent/golang-adk
-      tag: main-20260916-90151e98
+      tag: main-1eb89fb
       pullPolicy: IfNotPresent
+    sandbox:
+      guestImage:
+        registry: localhost:5000
+        repository: kagent-dev/kagent/sandbox-guest
     substrate:
       enabled: true
       ateApiEndpoint: "dns:///api.ate-system.svc:443"
       atenetRouterURL: "http://atenet-router.ate-system.svc:80"
-      ateApiInsecure: true
-      defaultWorkerPool:
-        name: kagent-default
+  database:
+    postgres:
+      clientCertificate:
+        enabled: true
   substrateWorkerPool:
     create: true
     name: kagent-default
     replicas: 6
-    workerImage: registry.registry.svc.cluster.local:5000/kagent-dev/substrate/ateom-gvisor:main-85ce8ed5
+    workerImage: registry.registry.svc.cluster.local:5000/kagent-dev/substrate/ateom-gvisor:v0.5.0-alpha2@sha256:51b8095a872c6df503e1543759b121f0841cda3547985d01423318a7015fb5ae
+    sandboxClass: gvisor
   proxy:
     url: http://agentgateway-api.agentgateway-system.svc.cluster.local
   grafana-mcp:
     serverUrl: "http://agentgateway-api.agentgateway-system:80/mcp"
-    args:
-      - --allowed-hosts
-      - "*"
+    allowedHosts: "*"
     grafana:
       url: "http://grafana.grafana:3000"
       secretRef: kagent-grafana-mcp-auth
   kmcp:
+    fullnameOverride: kagent-kmcp
     image:
       registry: registry.registry.svc.cluster.local:5000
       repository: kagent-dev/kmcp/controller
@@ -61,19 +72,16 @@ kagent:
       image:
         registry: registry.registry.svc.cluster.local:5000
         repository: kagent-dev/kagent/tools
-        tag: main-bd6e49d
-        pullPolicy: IfNotPresent
+        tag: main-7d3fde6d
+        pullPolicy: Always
+      prometheus:
+        url: http://prometheus-server.prometheus.svc:9090
   otel:
-    tracing:
+    exporter:
+      otlp:
+        endpoint: http://otel-collector.otel.svc.cluster.local:4318
+        protocol: http/protobuf
+    traces:
       enabled: true
-      exporter:
-        otlp:
-          endpoint: http://otel-collector.otel.svc.cluster.local:4317
-          protocol: grpc
-          insecure: true
-    logging:
+    logs:
       enabled: true
-      exporter:
-        otlp:
-          endpoint: http://otel-collector.otel.svc.cluster.local:4317
-          insecure: true

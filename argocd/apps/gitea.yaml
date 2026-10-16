@@ -14,6 +14,13 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: gitea
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: gitea-postgresql
+      namespace: gitea
+      jsonPointers:
+        - /data
   syncPolicy:
     automated:
       selfHeal: true
@@ -22,3 +29,4 @@ spec:
       - CreateNamespace=true
       - ServerSideApply=true
       - ApplyOutOfSyncOnly=true
+      - RespectIgnoreDifferences=true

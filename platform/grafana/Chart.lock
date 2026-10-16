@@ -1,6 +1,6 @@
 dependencies:
 - name: grafana
   repository: file://charts/grafana
-  version: 13.2.5
-digest: sha256:6fa6c3b4c3c69e2e8c6a9dac9af1212fa95b53574ce1ef0cf829ca8ed1b6a2c4
-generated: "2026-09-20T16:00:07.613372352-03:00"
+  version: 14.0.0
+digest: sha256:16a207b011f05c72b4cc018472ee7bd8c4a99daa4ed47ee6655784d1d809ef84
+generated: "2026-10-15T20:09:04.003343634-03:00"

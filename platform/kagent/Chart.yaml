@@ -2,12 +2,12 @@ apiVersion: v2
 name: ai-dlc-kagent-platform
 description: Kagent and its CRDs managed from the GitOps repository
 type: application
-version: 0.1.2
-appVersion: "0.0.0-main.20260920"
+version: 0.1.4
+appVersion: "main-1eb89fb"
 dependencies:
   - name: kagent-crds
-    version: 0.0.0-main.20260920
+    version: 0.0.0-main.1eb89fb
     repository: file://charts/kagent-crds
   - name: kagent
-    version: 0.0.0-main.20260920
+    version: 0.0.0-main.1eb89fb
     repository: file://charts/kagent

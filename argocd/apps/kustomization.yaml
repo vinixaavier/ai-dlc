@@ -9,6 +9,7 @@ resources:
   - cloud-native-agents.yaml
   - adk-harness.yaml
   - pi-harness.yaml
+  - opencode-harness.yaml
   - codex-harness.yaml
   - claude-harness.yaml
   - substrate.yaml

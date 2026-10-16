@@ -18,14 +18,12 @@ REGISTRY_CLUSTER_IP="${REGISTRY_CLUSTER_IP:-10.96.200.10}"
 REGISTRY_NODE_PORT="${REGISTRY_NODE_PORT:-30500}"
 REGISTRY_HOST_PORT="${REGISTRY_HOST_PORT:-5002}"
 REGISTRY_INTERNAL="${REGISTRY_INTERNAL:-${REGISTRY_SERVICE}:${REGISTRY_PORT}}"
-CUSTOM_ADK_SOURCE_IMAGE="${CUSTOM_ADK_SOURCE_IMAGE:-172.17.0.1:5001/kagent-dev/kagent/golang-adk:0.10.1-otel}"
-CUSTOM_CONTROLLER_SOURCE_IMAGE="${CUSTOM_CONTROLLER_SOURCE_IMAGE:-172.17.0.1:5001/kagent-dev/kagent/controller:0.10.1-otel}"
 REGISTRY_IMAGE="${REGISTRY_IMAGE:-registry:2}"
 NVIDIA_SMOKE_TEST_IMAGE="${NVIDIA_SMOKE_TEST_IMAGE:-nvidia/cuda:12.8.1-base-ubuntu24.04}"
 GITEA_ADMIN_USERNAME="${GITEA_ADMIN_USERNAME:-admin}"
 GITEA_ADMIN_PASSWORD="${GITEA_ADMIN_PASSWORD:-ai-dlc-local-admin}"
 GITEA_REPOSITORY_URL="${GITEA_REPOSITORY_URL:-http://gitea-http.gitea.svc.cluster.local:3000/admin/ai-dlc.git}"
-GITEA_BOOTSTRAP_URL="${GITEA_BOOTSTRAP_URL:-http://127.0.0.1:30090}"
+GITEA_BOOTSTRAP_URL="${GITEA_BOOTSTRAP_URL:-}"
 HELM_BIN="${HELM_BIN:-helm}"
 
 log() {
@@ -208,6 +206,7 @@ kubectl rollout status deployment/registry -n "$REGISTRY_NAMESPACE" --timeout=18
 REGISTRY_CONTROL_PLANE_IP="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' \
   "${KIND_CLUSTER_NAME}-control-plane")"
 REGISTRY_PUSH_REPOSITORY="${REGISTRY_PUSH_REPOSITORY:-oci://${REGISTRY_CONTROL_PLANE_IP}:${REGISTRY_NODE_PORT}/charts}"
+GITEA_BOOTSTRAP_URL="${GITEA_BOOTSTRAP_URL:-http://${REGISTRY_CONTROL_PLANE_IP}:30090}"
 wait_for_registry_endpoint() {
   local endpoint="$1"
   local attempt
@@ -224,23 +223,15 @@ wait_for_registry_endpoint "http://${REGISTRY_CONTROL_PLANE_IP}:${REGISTRY_NODE_
 wait_for_registry_endpoint "http://127.0.0.1:${REGISTRY_HOST_PORT}/v2/" \
   || die "host publishing port ${REGISTRY_HOST_PORT} is unavailable; recreate Kind with the current kind config"
 
-if docker image inspect "$CUSTOM_ADK_SOURCE_IMAGE" >/dev/null 2>&1; then
-  log "Loading the custom Go ADK image into every Kind node"
-  kind load docker-image "$CUSTOM_ADK_SOURCE_IMAGE" --name "$KIND_CLUSTER_NAME"
-  docker tag "$CUSTOM_ADK_SOURCE_IMAGE" "localhost:${REGISTRY_HOST_PORT}/kagent-dev/kagent/golang-adk:0.10.1-otel"
-  docker push "localhost:${REGISTRY_HOST_PORT}/kagent-dev/kagent/golang-adk:0.10.1-otel"
-else
-  die "custom image $CUSTOM_ADK_SOURCE_IMAGE is not present locally; build it before bootstrapping"
+log "Building and publishing the source-pinned agent platform"
+PUBLISH_REGISTRY="localhost:${REGISTRY_HOST_PORT}" "$ROOT_DIR/scripts/publish-agent-platform.sh"
+PUBLISH_REGISTRY="localhost:${REGISTRY_HOST_PORT}" "$ROOT_DIR/scripts/update-harness-image-digests.sh"
+if ! git -C "$ROOT_DIR" diff --quiet -- argocd/apps/{adk,pi,codex,claude}-harness.yaml; then
+  git -C "$ROOT_DIR" commit -s --only -m "chore: pin rebuilt agent harness images" \
+    -- argocd/apps/{adk,pi,codex,claude}-harness.yaml
 fi
-
-if docker image inspect "$CUSTOM_CONTROLLER_SOURCE_IMAGE" >/dev/null 2>&1; then
-  log "Loading the custom kagent controller image into every Kind node"
-  kind load docker-image "$CUSTOM_CONTROLLER_SOURCE_IMAGE" --name "$KIND_CLUSTER_NAME"
-  docker tag "$CUSTOM_CONTROLLER_SOURCE_IMAGE" "localhost:${REGISTRY_HOST_PORT}/kagent-dev/kagent/controller:0.10.1-otel"
-  docker push "localhost:${REGISTRY_HOST_PORT}/kagent-dev/kagent/controller:0.10.1-otel"
-else
-  die "custom image $CUSTOM_CONTROLLER_SOURCE_IMAGE is not present locally; build it before bootstrapping"
-fi
+log "Initializing Substrate signing pools and authentication"
+"$ROOT_DIR/scripts/init-substrate.sh"
 
 push_helm_chart_http() {
   local package_file="$1"
@@ -364,7 +355,7 @@ git -C "$ROOT_DIR" rev-parse --verify HEAD >/dev/null 2>&1 \
   || die "the bootstrap source directory must be a Git repository with at least one commit"
 git -C "$ROOT_DIR" \
   -c "http.extraHeader=Authorization: Basic $gitea_basic_auth" \
-  push "$GITEA_REPOSITORY_URL" HEAD:main >/dev/null
+  push "$GITEA_BOOTSTRAP_URL/admin/ai-dlc.git" HEAD:main >/dev/null
 
 log "Registering the Gitea repository in Argo CD"
 kubectl -n argocd create secret generic repo-gitea \

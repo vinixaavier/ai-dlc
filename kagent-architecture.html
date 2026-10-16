@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>kagent + kagent Substrate — Arquitetura</title>
+  <style>
+    :root{--bg:#08111f;--panel:#101d31;--panel2:#142640;--line:#29415f;--text:#e6f0ff;--muted:#9bb0cc;--cyan:#55d6ff;--green:#83e28a;--orange:#ffbd68;--purple:#c9a7ff;--red:#ff8c8c}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:linear-gradient(180deg,#08111f 0%,#0b1627 55%,#08111f);color:var(--text);font:16px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+    .container{max-width:1180px;margin:auto;padding:0 24px}.hero{padding:72px 0 54px;border-bottom:1px solid var(--line);background:radial-gradient(ellipse at 50% -20%,#1d3c63 0,transparent 65%)}
+    .eyebrow,.tag{font:700 .75rem/1.2 ui-monospace,SFMono-Regular,monospace;letter-spacing:.13em;text-transform:uppercase;color:var(--cyan)}h1{max-width:880px;margin:14px 0 18px;font-size:clamp(2.4rem,6vw,5rem);line-height:1.02;letter-spacing:-.06em}h1 span{color:var(--cyan)}.lead{max-width:850px;color:var(--muted);font-size:1.2rem}.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}.chip{padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:#0e1b2e;color:var(--muted);font-size:.86rem}.chip.c{color:var(--cyan)}.chip.g{color:var(--green)}.chip.o{color:var(--orange)}
+    nav{position:sticky;top:0;z-index:2;border-bottom:1px solid var(--line);background:#08111fe8;backdrop-filter:blur(14px)}nav .container{display:flex;gap:22px;overflow:auto}nav a{padding:14px 0;color:var(--muted);white-space:nowrap;text-decoration:none;font-size:.88rem}nav a:hover{color:var(--cyan)}section{padding:58px 0 0}h2{margin:0 0 12px;font-size:2rem;letter-spacing:-.03em}h2 small{color:var(--cyan);font:700 .8rem ui-monospace,monospace;margin-right:10px}h3{margin:0 0 7px;font-size:1.1rem}p{margin:0 0 14px}.muted{color:var(--muted)}.intro{max-width:780px;color:var(--muted);margin-bottom:25px}
+    .diagram{margin-top:26px;padding:24px;background:#0b1728;border:1px solid var(--line);border-radius:18px;overflow:auto}.diagram svg{display:block;min-width:900px;width:100%;height:auto}.box{fill:var(--panel);stroke:var(--line);stroke-width:1.5}.box.c{stroke:var(--cyan);fill:#10263b}.box.g{stroke:var(--green);fill:#10281f}.box.o{stroke:var(--orange);fill:#2b2115}.box.p{stroke:var(--purple);fill:#211a35}.svg-title{fill:var(--text);font:700 15px ui-monospace,monospace}.svg-sub{fill:var(--muted);font:12px ui-monospace,monospace}.svg-zone{fill:var(--cyan);font:700 12px ui-monospace,monospace;letter-spacing:2px}.arrow{stroke:var(--green);stroke-width:2;fill:none;marker-end:url(#arrow)}.arrow.p{stroke:var(--purple);stroke-dasharray:7 5;marker-end:url(#arrow-p)}.arrow.o{stroke:var(--orange);marker-end:url(#arrow-o)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:15px;margin-top:24px}.card{padding:21px;background:linear-gradient(145deg,var(--panel),#0d192a);border:1px solid var(--line);border-radius:14px}.card:hover{border-color:#47749b}.num{display:inline-grid;place-items:center;width:29px;height:29px;margin-bottom:13px;border-radius:8px;background:#153451;color:var(--cyan);font:700 .8rem ui-monospace,monospace}.card p{color:var(--muted);font-size:.93rem}.card code,.code{color:var(--orange);font: .88em ui-monospace,monospace}.rule{color:var(--green);font-weight:600}
+    .flow{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:stretch;margin-top:26px}.flow-step{position:relative;padding:17px 12px 15px;background:var(--panel);border:1px solid var(--line);border-radius:12px}.flow-step:not(:last-child)::after{content:"→";position:absolute;right:-14px;top:38%;z-index:1;color:var(--green);font-size:1.35rem}.flow-step strong{display:block;color:var(--cyan);font:700 .85rem ui-monospace,monospace;margin-bottom:6px}.flow-step span{display:block;color:var(--muted);font-size:.84rem;line-height:1.35}.callout{margin-top:22px;padding:18px 20px;border-left:3px solid var(--orange);background:#171d28;color:var(--muted);border-radius:0 10px 10px 0}.callout strong{color:var(--orange)}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:24px}.panel{padding:23px;background:var(--panel);border:1px solid var(--line);border-radius:14px}.panel ul{margin:10px 0 0;padding-left:20px;color:var(--muted)}.panel li{margin:7px 0}.panel li::marker{color:var(--cyan)}pre{margin:0;padding:18px;overflow:auto;background:#07101c;border:1px solid #1d344f;border-radius:10px;color:#b6e9c0;font:13px/1.65 ui-monospace,SFMono-Regular,monospace}.yaml-key{color:var(--purple)}.yaml-val{color:var(--orange)}footer{margin-top:70px;padding:26px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:.86rem}
+    @media(max-width:850px){.flow{grid-template-columns:1fr 1fr}.flow-step:not(:last-child)::after{display:none}.split{grid-template-columns:1fr}}@media(max-width:540px){.container{padding:0 16px}.hero{padding-top:48px}.flow{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="container">
+      <div class="eyebrow">ai-dlc · arquitetura de agentes em Kubernetes</div>
+      <h1>kagent <span>+</span> kagent Substrate</h1>
+      <p class="lead">Uma visão de ponta a ponta: como um recurso declarativo vira um agente executável, isolado em sandbox e acessível por APIs, MCP ou AgentGateway.</p>
+      <div class="chips"><span class="chip c">Kubernetes Operator</span><span class="chip g">AgentTemplate → Instance</span><span class="chip o">gVisor / Substrate</span><span class="chip">GitOps + CRDs</span><span class="chip">OpenTelemetry</span></div>
+    </div>
+  </header>
+
+  <nav><div class="container"><a href="#modelo">Modelo mental</a><a href="#diagrama">Arquitetura</a><a href="#etapas">Etapas</a><a href="#fluxo">Fluxo de execução</a><a href="#manifests">Manifests</a></div></nav>
+
+  <main class="container">
+    <section id="modelo">
+      <h2><small>01</small> O modelo mental</h2>
+      <p class="intro"><strong>kagent é um Operator Kubernetes.</strong> Ele observa CRDs como <span class="code">Harness</span> e <span class="code">AgentTemplate</span>, valida o estado desejado e cria ou atualiza os componentes necessários para que o agente exista e possa atender requisições. O código do agente não é o Operator: ele roda no runtime, dentro da infraestrutura definida pelo Harness.</p>
+      <div class="grid">
+        <article class="card"><span class="num">K8s</span><h3>Declaração</h3><p>O usuário descreve intenção em YAML. O Kubernetes guarda o estado desejado e dispara reconciliações.</p></article>
+        <article class="card"><span class="num">↻</span><h3>Operator</h3><p>O controller do kagent traduz CRDs em workloads, configurações, rotas e agentes prontos para execução.</p></article>
+        <article class="card"><span class="num">AI</span><h3>Agente</h3><p>A instância recebe contexto, conversa com o modelo e usa ferramentas autorizadas pelo template.</p></article>
+        <article class="card"><span class="num">ATE</span><h3>Substrate</h3><p>Provisiona actors efêmeros ou restaurados de snapshot dentro de uma sandbox, como gVisor.</p></article>
+      </div>
+    </section>
+
+    <section id="diagrama">
+      <h2><small>02</small> Arquitetura em camadas</h2>
+      <p class="intro">A separação importante é entre controle, definição, execução e isolamento. O kagent conecta Kubernetes ao Substrate; o Substrate não decide a personalidade do agente.</p>
+      <div class="diagram">
+        <svg viewBox="0 0 1060 520" role="img" aria-label="Arquitetura do kagent e kagent Substrate">
+          <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#83e28a"/></marker><marker id="arrow-p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#c9a7ff"/></marker><marker id="arrow-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#ffbd68"/></marker></defs>
+          <rect x="25" y="25" width="1010" height="145" rx="16" fill="none" stroke="#29415f" stroke-dasharray="7 5"/><text x="45" y="53" class="svg-zone">CONTROL PLANE · KUBERNETES</text>
+          <rect x="55" y="75" width="170" height="66" rx="10" class="box c"/><text x="140" y="103" text-anchor="middle" class="svg-title">CRDs</text><text x="140" y="123" text-anchor="middle" class="svg-sub">Harness · Template</text>
+          <rect x="300" y="75" width="190" height="66" rx="10" class="box c"/><text x="395" y="103" text-anchor="middle" class="svg-title">kagent Operator</text><text x="395" y="123" text-anchor="middle" class="svg-sub">controller + reconciler</text>
+          <rect x="570" y="75" width="190" height="66" rx="10" class="box c"/><text x="665" y="103" text-anchor="middle" class="svg-title">AgentGateway</text><text x="665" y="123" text-anchor="middle" class="svg-sub">A2A · MCP · OpenAI</text>
+          <rect x="840" y="75" width="155" height="66" rx="10" class="box o"/><text x="917" y="103" text-anchor="middle" class="svg-title">Modelo</text><text x="917" y="123" text-anchor="middle" class="svg-sub">SGLang / LLM</text>
+          <path d="M225 108h70M490 108h80M760 108h80" class="arrow"/>
+          <rect x="25" y="205" width="1010" height="285" rx="16" fill="none" stroke="#29415f" stroke-dasharray="7 5"/><text x="45" y="233" class="svg-zone">DATA PLANE · KAGENT SUBSTRATE</text>
+          <rect x="55" y="260" width="180" height="82" rx="10" class="box g"/><text x="145" y="291" text-anchor="middle" class="svg-title">Harness</text><text x="145" y="313" text-anchor="middle" class="svg-sub">runtime + policy</text>
+          <rect x="305" y="260" width="190" height="82" rx="10" class="box p"/><text x="400" y="291" text-anchor="middle" class="svg-title">AgentTemplate</text><text x="400" y="313" text-anchor="middle" class="svg-sub">prompt + tools + modelo</text>
+          <rect x="565" y="260" width="190" height="82" rx="10" class="box g"/><text x="660" y="291" text-anchor="middle" class="svg-title">Agent Instance</text><text x="660" y="313" text-anchor="middle" class="svg-sub">actor em execução</text>
+          <rect x="825" y="260" width="170" height="82" rx="10" class="box o"/><text x="910" y="291" text-anchor="middle" class="svg-title">Sandbox</text><text x="910" y="313" text-anchor="middle" class="svg-sub">gVisor / boundary</text>
+          <path d="M235 301h70M495 301h70M755 301h70" class="arrow"/>
+          <rect x="305" y="395" width="190" height="62" rx="10" class="box p"/><text x="400" y="421" text-anchor="middle" class="svg-title">Snapshot store</text><text x="400" y="440" text-anchor="middle" class="svg-sub">estado inicial / restore</text>
+          <rect x="565" y="395" width="190" height="62" rx="10" class="box c"/><text x="660" y="421" text-anchor="middle" class="svg-title">WorkerPool</text><text x="660" y="440" text-anchor="middle" class="svg-sub">capacidade do Substrate</text>
+          <path d="M400 395v-53M660 395v-53" class="arrow p"/><path d="M395 141v119M665 141v119" class="arrow o"/>
+        </svg>
+      </div>
+    </section>
+
+    <section id="etapas">
+      <h2><small>03</small> Cada etapa, em ordem</h2>
+      <div class="grid">
+        <article class="card"><span class="num">01</span><h3>Runtime</h3><p>É o processo que executa o loop do agente: ADK, Pi, Codex ou Claude, por exemplo. Ele recebe mensagens, chama o LLM e executa tools.</p></article>
+        <article class="card"><span class="num">02</span><h3>Sandbox</h3><p>É a fronteira de isolamento do processo. O Substrate pode usar um actor gVisor para separar filesystem, namespaces, rede e execução do ambiente do cluster.</p></article>
+        <article class="card"><span class="num">03</span><h3>Harness</h3><p>É o contrato operacional reutilizável: imagem imutável, comando, env, política de snapshot, WorkerPool e quais templates são permitidos.</p></article>
+        <article class="card"><span class="num">04</span><h3>AgentTemplate</h3><p>É a definição da identidade do agente: system prompt, model config, descrição e referências de ferramentas. Um template é uma receita, não um processo.</p></article>
+        <article class="card"><span class="num">05</span><h3>Agent Instance</h3><p>É a instância concreta criada para atender uma sessão ou workload. Ela combina um template com um runtime e um actor alocado pelo Substrate.</p></article>
+        <article class="card"><span class="num">06</span><h3>Tools e modelo</h3><p>As tools são a capacidade de agir (MCP, Kubernetes, Grafana). O modelo fornece raciocínio; o agente decide quando usar cada ferramenta.</p></article>
+      </div>
+      <div class="callout"><strong>Distinção essencial:</strong> o <strong>Harness</strong> define “onde e como” o agente roda; o <strong>AgentTemplate</strong> define “quem é” o agente; a <strong>Agent Instance</strong> é o resultado vivo dessa combinação.</div>
+    </section>
+
+    <section id="fluxo">
+      <h2><small>04</small> O fluxo de uma requisição</h2>
+      <p class="intro">A reconciliação acontece antes do tráfego. Uma vez que o estado está pronto, cada interação percorre o runtime e retorna pelo gateway.</p>
+      <div class="flow"><div class="flow-step"><strong>01 · Cliente</strong><span>Chat, A2A, API OpenAI ou evento.</span></div><div class="flow-step"><strong>02 · Gateway</strong><span>Roteia para o agente.</span></div><div class="flow-step"><strong>03 · Operator</strong><span>Garante o estado desejado.</span></div><div class="flow-step"><strong>04 · Instance</strong><span>Actor é criado ou restaurado.</span></div><div class="flow-step"><strong>05 · Runtime</strong><span>Loop do agente processa o pedido.</span></div><div class="flow-step"><strong>06 · Tools / LLM</strong><span>Executa ações e consulta o modelo.</span></div><div class="flow-step"><strong>07 · Resposta</strong><span>Retorna com logs e traces.</span></div></div>
+      <div class="callout"><strong>Observabilidade:</strong> kagent e os runtimes exportam logs e traces via OTLP. Isso permite correlacionar gateway → controller/runtime → tool → modelo em uma única investigação.</div>
+    </section>
+
+    <section id="manifests">
+      <h2><small>05</small> Como isso aparece no Kubernetes</h2>
+      <div class="split"><div class="panel"><h3>Harness: infraestrutura e política</h3><pre><span class="yaml-key">kind:</span> <span class="yaml-val">Harness</span>
+<span class="yaml-key">spec:</span>
+  <span class="yaml-key">workload:</span>
+    <span class="yaml-key">image:</span> <span class="yaml-val">.../golang-adk@sha256:...</span>
+    <span class="yaml-key">command:</span> [<span class="yaml-val">"/app"</span>]
+  <span class="yaml-key">substrate:</span>
+    <span class="yaml-key">workerPoolRef:</span>
+      <span class="yaml-key">name:</span> <span class="yaml-val">kagent-default</span>
+    <span class="yaml-key">snapshotPolicy:</span>
+      <span class="yaml-key">location:</span> <span class="yaml-val">gs://ate-snapshots/...</span></pre></div>
+        <div class="panel"><h3>AgentTemplate: comportamento</h3><pre><span class="yaml-key">kind:</span> <span class="yaml-val">AgentTemplate</span>
+<span class="yaml-key">metadata:</span>
+  <span class="yaml-key">labels:</span>
+    <span class="yaml-key">kagent.dev/runtime:</span> <span class="yaml-val">hello-substrate</span>
+<span class="yaml-key">spec:</span>
+  <span class="yaml-key">modelConfig:</span>
+    <span class="yaml-key">name:</span> <span class="yaml-val">default-model-config</span>
+  <span class="yaml-key">systemPrompt:</span> <span class="yaml-val">...</span></pre></div></div>
+      <div class="panel" style="margin-top:18px"><h3>O que o Operator reconcilia</h3><ul><li>Seleciona o Harness compatível com o label/runtime do template.</li><li>Prepara o workload e a conexão com o Substrate API.</li><li>Aloca ou restaura o actor no WorkerPool escolhido.</li><li>Aplica a imagem, prompt, model config e ferramentas permitidas.</li><li>Expõe o agente e mantém status, saúde e telemetria coerentes com o estado desejado.</li></ul></div>
+    </section>
+  </main>
+  <footer><div class="container">Documento visual da arquitetura usada neste repositório · kagent + kagent Substrate · <span class="code">ai-dlc</span></div></footer>
+</body>
+</html>

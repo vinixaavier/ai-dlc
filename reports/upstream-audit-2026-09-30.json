@@ -1,0 +1,2813 @@
+{
+  "checked_at": "2026-10-01T02:18:46.258038+00:00",
+  "platform": {
+    "checked_at": "2026-10-01T02:16:44+00:00",
+    "components": [
+      {
+        "name": "gateway-api-crds",
+        "path": "argocd/apps/gateway-api-crds.yaml",
+        "source": "kubernetes-sigs/gateway-api",
+        "pins": [
+          {
+            "tag": "v1.6.2",
+            "repo": "kubernetes-sigs/gateway-api"
+          }
+        ],
+        "findings": [
+          {
+            "mode": "tags",
+            "repo": "kubernetes-sigs/gateway-api",
+            "pin": "v1.6.2",
+            "latest_tag": "v1.6.2",
+            "update_available": false,
+            "url": "https://github.com/kubernetes-sigs/gateway-api/releases",
+            "newer_tags": [],
+            "tags_behind": 0,
+            "stable_tags_behind": 0,
+            "latest_stable": "v1.6.2"
+          }
+        ]
+      },
+      {
+        "name": "agentgateway",
+        "path": "platform/agentgateway",
+        "source": "agentgateway/agentgateway",
+        "pins": [
+          {
+            "tag": "0.0.0-latest-dev",
+            "repo": "agentgateway/agentgateway"
+          }
+        ],
+        "findings": [
+          {
+            "mode": "unresolved",
+            "repo": "agentgateway/agentgateway",
+            "pin": "0.0.0-latest-dev",
+            "latest_tag": "v1.6.0-alpha.2",
+            "update_available": true,
+            "url": "https://github.com/agentgateway/agentgateway/releases",
+            "reason": "rolling latest-dev pin has no source SHA; cannot count commits or tags behind"
+          }
+        ]
+      },
+      {
+        "name": "agentregistry",
+        "path": "platform/agentregistry",
+        "source": "agentregistry-dev/agentregistry",
+        "pins": [
+          {
+            "tag": "0.4.0",
+            "repo": "agentregistry-dev/agentregistry"
+          }
+        ],
+        "findings": [
+          {
+            "mode": "tags",
+            "repo": "agentregistry-dev/agentregistry",
+            "pin": "0.4.0",
+            "latest_tag": "v0.4.0",
+            "update_available": false,
+            "url": "https://github.com/agentregistry-dev/agentregistry/releases",
+            "newer_tags": [],
+            "tags_behind": 0,
+            "stable_tags_behind": 0,
+            "latest_stable": "0.4.0"
+          }
+        ]
+      },
+      {
+        "name": "gpu-operator",
+        "path": "platform/gpu-operator",
+        "source": "NVIDIA/gpu-operator",
+        "pins": [
+          {
+            "tag": "v26.7.1",
+            "repo": "NVIDIA/gpu-operator"
+          }
+        ],
+        "findings": [
+          {
+            "mode": "tags",
+            "repo": "NVIDIA/gpu-operator",
+            "pin": "v26.7.1",
+            "latest_tag": "v26.7.1",
+            "update_available": false,
+            "url": "https://github.com/NVIDIA/gpu-operator/releases",
+            "newer_tags": [],
+            "tags_behind": 0,
+            "stable_tags_behind": 0,
+            "latest_stable": "v26.7.1"
+          }
+        ]
+      },
+      {
+        "name": "kagent",
+        "path": "platform/kagent",
+        "source": "kagent-dev/kagent\"",
+        "pins": [
+          {
+            "tag": "main-8f26f04",
+            "repo": "kagent-dev/kmcp"
+          },
+          {
+            "tag": "main-bd6e49d",
+            "repo": "kagent-dev/tools"
+          }
+        ],
+        "findings": [
+          {
+            "mode": "commits",
+            "repo": "kagent-dev/kagent",
+            "pin": "main-90151e98",
+            "pinned_sha": "90151e9833a8c26ad8a0598320132ef484ed8249",
+            "upstream_sha": "ee0db68c39983130a33fbf4cc9fb631418be1290",
+            "ahead_by": 85,
+            "behind_by": 0,
+            "commits": [
+              {
+                "sha": "5e18d9c48a79e47cbe20703c16d10de6935bcc6c",
+                "subject": "fix: skills-init checkout passes SHA as revision, not pathspec (#2608) (#2720)",
+                "url": "https://github.com/kagent-dev/kagent/commit/5e18d9c48a79e47cbe20703c16d10de6935bcc6c"
+              },
+              {
+                "sha": "ff355b37c42b76662fe5622e260e22e00234ee41",
+                "subject": "feat(ui): name snapshots, and put fork, rename and delete on their mark (#2847)",
+                "url": "https://github.com/kagent-dev/kagent/commit/ff355b37c42b76662fe5622e260e22e00234ee41"
+              },
+              {
+                "sha": "56b6bea4afde8a1e1a52bb95f4a07eca88746e13",
+                "subject": "fix(ui): work over plain http, and catch render crashes at the boundaries (#2865)",
+                "url": "https://github.com/kagent-dev/kagent/commit/56b6bea4afde8a1e1a52bb95f4a07eca88746e13"
+              },
+              {
+                "sha": "850c464726881317997c32515f8b621b949d6ce1",
+                "subject": "fix: use Substrate beta4 gateway credential injection (#2868)",
+                "url": "https://github.com/kagent-dev/kagent/commit/850c464726881317997c32515f8b621b949d6ce1"
+              },
+              {
+                "sha": "27218d6c0c734d9fff6fdbb00e91267232543789",
+                "subject": "feat(helm): global values for registry, pull config, and namespace scope (#2817)",
+                "url": "https://github.com/kagent-dev/kagent/commit/27218d6c0c734d9fff6fdbb00e91267232543789"
+              },
+              {
+                "sha": "e69e98ad66a6a1d151a157d5504321d259359503",
+                "subject": "feat(models): adding python support for Azure foundry models (OpenAI + Anthropic types) (#2512)",
+                "url": "https://github.com/kagent-dev/kagent/commit/e69e98ad66a6a1d151a157d5504321d259359503"
+              },
+              {
+                "sha": "1ab46a51d21700182de2131d415a04253418dea6",
+                "subject": "feat(harness): export executor construction and health config (#2858)",
+                "url": "https://github.com/kagent-dev/kagent/commit/1ab46a51d21700182de2131d415a04253418dea6"
+              },
+              {
+                "sha": "ed289289166fba1df061243c0549b53266ffa869",
+                "subject": "fix: serialize AgentInstance lifecycle execution (#2857)",
+                "url": "https://github.com/kagent-dev/kagent/commit/ed289289166fba1df061243c0549b53266ffa869"
+              },
+              {
+                "sha": "7471879e16f6ea68fbe183d9f9ee19976ec6836d",
+                "subject": "feat(adk): honour context compaction in the Go runtime (#2790)",
+                "url": "https://github.com/kagent-dev/kagent/commit/7471879e16f6ea68fbe183d9f9ee19976ec6836d"
+              },
+              {
+                "sha": "da82b8d031d33c5d740cd17950c3998453266361",
+                "subject": "chore(deps): bump the npm-minor-patch group in /ui with 9 updates (#2882)",
+                "url": "https://github.com/kagent-dev/kagent/commit/da82b8d031d33c5d740cd17950c3998453266361"
+              },
+              {
+                "sha": "d511815ac20fecc9d9427c92314c3ec1f14fe692",
+                "subject": "fix(ui): isolate theme hook from refreshable provider (#2878)",
+                "url": "https://github.com/kagent-dev/kagent/commit/d511815ac20fecc9d9427c92314c3ec1f14fe692"
+              },
+              {
+                "sha": "e8961b8b582e11c852b176acd9f1687ab8ad66a0",
+                "subject": "fix(ui): give checkpoint delete cancel buttons unique data-testids (#2871) (#2877)",
+                "url": "https://github.com/kagent-dev/kagent/commit/e8961b8b582e11c852b176acd9f1687ab8ad66a0"
+              },
+              {
+                "sha": "58cc9906b78e08dc32c1c28b70f3223898497c22",
+                "subject": "chore(deps): bump the python-google-ai group in /python with 2 updates (#2883)",
+                "url": "https://github.com/kagent-dev/kagent/commit/58cc9906b78e08dc32c1c28b70f3223898497c22"
+              },
+              {
+                "sha": "fad229ffb3585c0bfc277dc6bbf4013658c6e5bb",
+                "subject": "feat(harness): load Claude-format plugins whole only on the Claude harness (#2875)",
+                "url": "https://github.com/kagent-dev/kagent/commit/fad229ffb3585c0bfc277dc6bbf4013658c6e5bb"
+              },
+              {
+                "sha": "844ea06b55dd831896fb8f97f00d93b2609b3430",
+                "subject": "feat(core): serve the controller's metrics, and its gRPC metrics with them (#2886)",
+                "url": "https://github.com/kagent-dev/kagent/commit/844ea06b55dd831896fb8f97f00d93b2609b3430"
+              },
+              {
+                "sha": "0115b18b985aab3a5eacb815e636ba0b96ba2ae6",
+                "subject": "chore: bump substrate to v0.2.0-beta5 (#2892)",
+                "url": "https://github.com/kagent-dev/kagent/commit/0115b18b985aab3a5eacb815e636ba0b96ba2ae6"
+              },
+              {
+                "sha": "373b56be5a2243bc6df0550033ade32dd8f6d721",
+                "subject": "feat(tracing): add harness invocation identity, lifecycle, and bounded capture (#2863)",
+                "url": "https://github.com/kagent-dev/kagent/commit/373b56be5a2243bc6df0550033ade32dd8f6d721"
+              },
+              {
+                "sha": "cbc39402a9a17794dd8d1d141762ccdf438425e2",
+                "subject": "test(ui): run the live Playwright suite in CI against the built UI image (#2874)",
+                "url": "https://github.com/kagent-dev/kagent/commit/cbc39402a9a17794dd8d1d141762ccdf438425e2"
+              },
+              {
+                "sha": "4ee8b69e4d8572da634182f29df4e6ae206364bd",
+                "subject": "feat: support structured output in JSON Schema over A2A DataPart  (#2890)",
+                "url": "https://github.com/kagent-dev/kagent/commit/4ee8b69e4d8572da634182f29df4e6ae206364bd"
+              },
+              {
+                "sha": "3967a6b85e20b61899fc6941e19b0107fe0e7ae9",
+                "subject": "feat(telemetry): add a Weaver registry as the telemetry contract (#2906)",
+                "url": "https://github.com/kagent-dev/kagent/commit/3967a6b85e20b61899fc6941e19b0107fe0e7ae9"
+              },
+              {
+                "sha": "9d3a9835e7de8b9eea6a32ca6bdafd0975185673",
+                "subject": "fix: key STS token cache by acting subject, not session alone (#2459)",
+                "url": "https://github.com/kagent-dev/kagent/commit/9d3a9835e7de8b9eea6a32ca6bdafd0975185673"
+              },
+              {
+                "sha": "1e5533b281b99d706e780c894a728c214bb9a1db",
+                "subject": "feat(models): add Mistral AI as a native LLM provider (#2406)",
+                "url": "https://github.com/kagent-dev/kagent/commit/1e5533b281b99d706e780c894a728c214bb9a1db"
+              },
+              {
+                "sha": "8fb0815c54d25373e9ca82e335d8b29bfa177ed4",
+                "subject": "Revert \"test(ui): run the live Playwright suite in CI against the built UI image (#2874)\" (#2910)",
+                "url": "https://github.com/kagent-dev/kagent/commit/8fb0815c54d25373e9ca82e335d8b29bfa177ed4"
+              },
+              {
+                "sha": "a42400e8019082015cf18d0a6cc51a8123f67605",
+                "subject": "feat: add list_files and grep_file skills tools (#2267)",
+                "url": "https://github.com/kagent-dev/kagent/commit/a42400e8019082015cf18d0a6cc51a8123f67605"
+              },
+              {
+                "sha": "c61fad8bece10fb8e4c3ddcdb3a9c853a4154d90",
+                "subject": "feat: add standalone sandbox guest using env services (#2911)",
+                "url": "https://github.com/kagent-dev/kagent/commit/c61fad8bece10fb8e4c3ddcdb3a9c853a4154d90"
+              },
+              {
+                "sha": "34e9770e6324e773c7220713a9038dbaa1e7d0a3",
+                "subject": "feat(models): route Ollama cloud models to api.ollama.com (#2898)",
+                "url": "https://github.com/kagent-dev/kagent/commit/34e9770e6324e773c7220713a9038dbaa1e7d0a3"
+              },
+              {
+                "sha": "d0743bbba0a72873e5897a2ab4ab165c2024fd3a",
+                "subject": "fix(codex): ignore child-thread notifications during delegation (#2914)",
+                "url": "https://github.com/kagent-dev/kagent/commit/d0743bbba0a72873e5897a2ab4ab165c2024fd3a"
+              },
+              {
+                "sha": "aa2681d9017c411f0accfa2814119fad50e8cba2",
+                "subject": "refactor: standardize A2A metadata (#2902)",
+                "url": "https://github.com/kagent-dev/kagent/commit/aa2681d9017c411f0accfa2814119fad50e8cba2"
+              },
+              {
+                "sha": "6898fc9e3befbaacf11fb4159bd190e8d03b7f7e",
+                "subject": "fix(harness): Disable bare mode for Claude Code (#2923)",
+                "url": "https://github.com/kagent-dev/kagent/commit/6898fc9e3befbaacf11fb4159bd190e8d03b7f7e"
+              },
+              {
+                "sha": "dc9e2d135f6a4b9efb759328fb3b8fccf7c6c55d",
+                "subject": "test: run shared agent E2Es across all harnesses (#2919)",
+                "url": "https://github.com/kagent-dev/kagent/commit/dc9e2d135f6a4b9efb759328fb3b8fccf7c6c55d"
+              },
+              {
+                "sha": "375fe73a0c1d4fc57991e321bf03a5a2fb1a3cd6",
+                "subject": "feat(ui): serve the UI under a sub-path behind a reverse proxy (#2904)",
+                "url": "https://github.com/kagent-dev/kagent/commit/375fe73a0c1d4fc57991e321bf03a5a2fb1a3cd6"
+              },
+              {
+                "sha": "1069fd2fcc7454964ecf62c38bcf65f743df1ab6",
+                "subject": "chore(deps): bump the go-minor-patch group across 1 directory with 39 updates (#2913)",
+                "url": "https://github.com/kagent-dev/kagent/commit/1069fd2fcc7454964ecf62c38bcf65f743df1ab6"
+              },
+              {
+                "sha": "ddb9e0ab5b70732db7341beb2fdc29a41a08e35b",
+                "subject": "feat(telemetry): configure runtimes with SDK-spec OTEL variables (#2909)",
+                "url": "https://github.com/kagent-dev/kagent/commit/ddb9e0ab5b70732db7341beb2fdc29a41a08e35b"
+              },
+              {
+                "sha": "82acbf43fe0e1c785e5e46680cfc23207de3b2e4",
+                "subject": "feat(ui): support BYO harnesses (#2935)",
+                "url": "https://github.com/kagent-dev/kagent/commit/82acbf43fe0e1c785e5e46680cfc23207de3b2e4"
+              },
+              {
+                "sha": "80079e3cbcacc7936b5a5cef7faf67e3ca898413",
+                "subject": "fix: honor kagent Harness command and args (#2934)",
+                "url": "https://github.com/kagent-dev/kagent/commit/80079e3cbcacc7936b5a5cef7faf67e3ca898413"
+              },
+              {
+                "sha": "32f13c6ea28baa0169c56fd1261b9f3062db9e30",
+                "subject": "feat(harness): support microvm sandboxes (#2918)",
+                "url": "https://github.com/kagent-dev/kagent/commit/32f13c6ea28baa0169c56fd1261b9f3062db9e30"
+              },
+              {
+                "sha": "dd3b24057eafed5286e4f14d55a8234550844e9e",
+                "subject": "feat: serve per-instance A2A JSON-RPC and agent cards (#2933)",
+                "url": "https://github.com/kagent-dev/kagent/commit/dd3b24057eafed5286e4f14d55a8234550844e9e"
+              },
+              {
+                "sha": "977cc0a904c015af19e444cce9a5b6818dd4e9c3",
+                "subject": "Bump `kagent-tools` to `0.3.0` (#2930)",
+                "url": "https://github.com/kagent-dev/kagent/commit/977cc0a904c015af19e444cce9a5b6818dd4e9c3"
+              },
+              {
+                "sha": "248a2bffb86fcbe63d86d9b70baee70004f8857b",
+                "subject": "fix(ui): wait for schedule deletion redirect in live test (#2879)",
+                "url": "https://github.com/kagent-dev/kagent/commit/248a2bffb86fcbe63d86d9b70baee70004f8857b"
+              },
+              {
+                "sha": "f1e46d1ad62cea8ec79ba629bdca0b1686ead076",
+                "subject": "feat(telemetry): export semconv metrics, drop ADK legacy spans, correlate logs (#2929)",
+                "url": "https://github.com/kagent-dev/kagent/commit/f1e46d1ad62cea8ec79ba629bdca0b1686ead076"
+              },
+              {
+                "sha": "15e0fc1512b5cf927691f901d7e73e85f91e3aaf",
+                "subject": "fix(hitl): compose the same pause text in every runtime and always declare the extension (#2472)",
+                "url": "https://github.com/kagent-dev/kagent/commit/15e0fc1512b5cf927691f901d7e73e85f91e3aaf"
+              },
+              {
+                "sha": "3d33ecd17f68f48c45badaf4d677bec91a99da44",
+                "subject": "fix(harness): hold the Claude prompt until Claude Code can trace the turn (#2943)",
+                "url": "https://github.com/kagent-dev/kagent/commit/3d33ecd17f68f48c45badaf4d677bec91a99da44"
+              },
+              {
+                "sha": "8be872b231d09f762435dc8296556c0ffef6ce6d",
+                "subject": "feat: move A2A execution into runtimes with a gRPC TaskStore (#2939)",
+                "url": "https://github.com/kagent-dev/kagent/commit/8be872b231d09f762435dc8296556c0ffef6ce6d"
+              },
+              {
+                "sha": "4ef51aa99614fbf0e5404c0e581b089ebb0ea1ab",
+                "subject": "feat(ui): let app extensions replace chat part renderers (#2945)",
+                "url": "https://github.com/kagent-dev/kagent/commit/4ef51aa99614fbf0e5404c0e581b089ebb0ea1ab"
+              },
+              {
+                "sha": "ad5356d92bb133aa9f78407f9a302d074616f6bd",
+                "subject": "chore: keep planning documents in gitignored .plans (#2955)",
+                "url": "https://github.com/kagent-dev/kagent/commit/ad5356d92bb133aa9f78407f9a302d074616f6bd"
+              },
+              {
+                "sha": "271c72edbd6bfa1dc8e7fd59fdb3adf4eade9d4e",
+                "subject": "fix: flush buffered OTEL logs (#2772)",
+                "url": "https://github.com/kagent-dev/kagent/commit/271c72edbd6bfa1dc8e7fd59fdb3adf4eade9d4e"
+              },
+              {
+                "sha": "907daf90481cd0da9aa31d6095224f0d4b854a32",
+                "subject": "feat: add explicit Agent definitions and Sessions (#2952)",
+                "url": "https://github.com/kagent-dev/kagent/commit/907daf90481cd0da9aa31d6095224f0d4b854a32"
+              },
+              {
+                "sha": "9b6ac65551079b15a3280ae1ced757cf516e646c",
+                "subject": "docs: add API design guidelines and refresh OIDC architecture (#2958)",
+                "url": "https://github.com/kagent-dev/kagent/commit/9b6ac65551079b15a3280ae1ced757cf516e646c"
+              },
+              {
+                "sha": "413ea93ef2583d1f48129fd0a3705ad630e7a21d",
+                "subject": "feat(api): add SandboxTemplate and Sandbox contracts (#2959)",
+                "url": "https://github.com/kagent-dev/kagent/commit/413ea93ef2583d1f48129fd0a3705ad630e7a21d"
+              },
+              {
+                "sha": "44fc8927c130d1172677fe349398ef1a69f8d910",
+                "subject": "feat(sandbox): implement standalone sandbox runtimes (#2962)",
+                "url": "https://github.com/kagent-dev/kagent/commit/44fc8927c130d1172677fe349398ef1a69f8d910"
+              },
+              {
+                "sha": "a6ccbece65202126519b444fe357fd7d552a39dc",
+                "subject": "chore: update Substrate to v0.3.0-alpha1 (#2963)",
+                "url": "https://github.com/kagent-dev/kagent/commit/a6ccbece65202126519b444fe357fd7d552a39dc"
+              },
+              {
+                "sha": "1fa61adce846cdb9bb0bb82b017c5550278f3ffc",
+                "subject": "fix(byo): centralize ADK runtime configuration (#2965)",
+                "url": "https://github.com/kagent-dev/kagent/commit/1fa61adce846cdb9bb0bb82b017c5550278f3ffc"
+              },
+              {
+                "sha": "5202687fd5f588bcd50ccf2ed09e3057c0c091a2",
+                "subject": "feat: add sandbox workflows and group agent commands (#2966)",
+                "url": "https://github.com/kagent-dev/kagent/commit/5202687fd5f588bcd50ccf2ed09e3057c0c091a2"
+              },
+              {
+                "sha": "69d8e7c508cac8acc91b32a460b856d88c55fd94",
+                "subject": "ci: overlap slow E2E harness scenarios (#2969)",
+                "url": "https://github.com/kagent-dev/kagent/commit/69d8e7c508cac8acc91b32a460b856d88c55fd94"
+              },
+              {
+                "sha": "d5708705ad6a40d53cca3986ecb5b594f54dc2af",
+                "subject": "refactor: standardize environment settings and generate their reference (#2967)",
+                "url": "https://github.com/kagent-dev/kagent/commit/d5708705ad6a40d53cca3986ecb5b594f54dc2af"
+              },
+              {
+                "sha": "2b9ffec09f804a77f2526557dde67895901108bc",
+                "subject": "fix(kagent-adk): compact MCP App tool results only when the result carries a UI resource (#2579)",
+                "url": "https://github.com/kagent-dev/kagent/commit/2b9ffec09f804a77f2526557dde67895901108bc"
+              },
+              {
+                "sha": "81312d3e7815ed8ef10fb0c125eda46f0e1e9eda",
+                "subject": "feat(ui): create, edit and delete explicit Agents (#2953)",
+                "url": "https://github.com/kagent-dev/kagent/commit/81312d3e7815ed8ef10fb0c125eda46f0e1e9eda"
+              },
+              {
+                "sha": "d4ed7dea2079c43d734c7d77840ed328c7c4c728",
+                "subject": "fix: wire Helm authentication settings into controller startup (#2971)",
+                "url": "https://github.com/kagent-dev/kagent/commit/d4ed7dea2079c43d734c7d77840ed328c7c4c728"
+              },
+              {
+                "sha": "f5d9b95f5702d77b11ab770033503834cd569942",
+                "subject": "ci: build release artifacts before the final release job (#2972)",
+                "url": "https://github.com/kagent-dev/kagent/commit/f5d9b95f5702d77b11ab770033503834cd569942"
+              },
+              {
+                "sha": "a5417cbae601d42203f2aaefedbd915d44185166",
+                "subject": "fix: expire idle sessions through the delete workflow (#2970)",
+                "url": "https://github.com/kagent-dev/kagent/commit/a5417cbae601d42203f2aaefedbd915d44185166"
+              },
+              {
+                "sha": "1b61b27e39b252c59f688e8c186150ae27521966",
+                "subject": "chore(deps): bump alpine from 3.22 to 3.24 in /go in the docker-minor-patch group across 1 directory (#2973)",
+                "url": "https://github.com/kagent-dev/kagent/commit/1b61b27e39b252c59f688e8c186150ae27521966"
+              },
+              {
+                "sha": "8317f9db5971ea62c1a703c400a08feef206860a",
+                "subject": "chore(deps): update langsmith[otel] requirement from >=0.10.10 to >=0.14.0 in /python (#2978)",
+                "url": "https://github.com/kagent-dev/kagent/commit/8317f9db5971ea62c1a703c400a08feef206860a"
+              },
+              {
+                "sha": "6fcd5098e4b7711393b6e0f8ba860dfb53274a61",
+                "subject": "chore(deps): bump the go-minor-patch group in /go with 15 updates (#2976)",
+                "url": "https://github.com/kagent-dev/kagent/commit/6fcd5098e4b7711393b6e0f8ba860dfb53274a61"
+              },
+              {
+                "sha": "9ea788e5ae738ef097b9ffbde1c7e15ceb56a509",
+                "subject": "chore(deps): update setuptools requirement from >=83.0.0 to >=84.0.0 in /python (#2979)",
+                "url": "https://github.com/kagent-dev/kagent/commit/9ea788e5ae738ef097b9ffbde1c7e15ceb56a509"
+              },
+              {
+                "sha": "e78b8d8f221d6a8810084a0243ec3329c2aa861d",
+                "subject": "chore(deps): update google-adk[a2a,db] requirement from <3,>=2.6.2 to >=2.9.2,<3 in /python (#2980)",
+                "url": "https://github.com/kagent-dev/kagent/commit/e78b8d8f221d6a8810084a0243ec3329c2aa861d"
+              },
+              {
+                "sha": "abade5cfa51ca840110818f108576888ac8c5198",
+                "subject": "chore(deps): bump the npm-minor-patch group in /ui with 7 updates (#2974)",
+                "url": "https://github.com/kagent-dev/kagent/commit/abade5cfa51ca840110818f108576888ac8c5198"
+              },
+              {
+                "sha": "e7aa3d463dae7763f6ba84c922c3ab7f5d25dfd0",
+                "subject": "chore(deps): update google-adk[a2a] requirement from <3,>=2.6.2 to >=2.9.2,<3 in /python (#2983)",
+                "url": "https://github.com/kagent-dev/kagent/commit/e7aa3d463dae7763f6ba84c922c3ab7f5d25dfd0"
+              },
+              {
+                "sha": "dfc58c1a8130da4bb1b9e9b2c0038cbe491f0a92",
+                "subject": "fix(adk): keep Ollama tool call argument order stable across requests (#2988)",
+                "url": "https://github.com/kagent-dev/kagent/commit/dfc58c1a8130da4bb1b9e9b2c0038cbe491f0a92"
+              },
+              {
+                "sha": "f03933396a6384e4855c4c474618edf921614f6b",
+                "subject": "chore(deps): bump mcp from 1.29.0 to 2.2.0 in /python (#2984)",
+                "url": "https://github.com/kagent-dev/kagent/commit/f03933396a6384e4855c4c474618edf921614f6b"
+              },
+              {
+                "sha": "0d38c7b8b78a6b8daca755c98a2b674937deb811",
+                "subject": "chore(deps): update anthropic[vertex] requirement from >=0.120.0 to >=1.8.0 in /python (#2985)",
+                "url": "https://github.com/kagent-dev/kagent/commit/0d38c7b8b78a6b8daca755c98a2b674937deb811"
+              },
+              {
+                "sha": "b784dc05fd79c49dca1aca4dccb118a010de9e79",
+                "subject": "chore(deps): update wheel requirement from >=0.47.0 to >=0.48.0 in /python (#2981)",
+                "url": "https://github.com/kagent-dev/kagent/commit/b784dc05fd79c49dca1aca4dccb118a010de9e79"
+              },
+              {
+                "sha": "d03ba9a9b830edef9befa2053feaa4a5594c2359",
+                "subject": "chore(deps): bump the python-google-ai group in /python with 2 updates (#2975)",
+                "url": "https://github.com/kagent-dev/kagent/commit/d03ba9a9b830edef9befa2053feaa4a5594c2359"
+              },
+              {
+                "sha": "57253758b9d813144a702165152e6bcb30112ca9",
+                "subject": "chore(deps): bump the python-minor-patch group in /python with 6 updates (#2977)",
+                "url": "https://github.com/kagent-dev/kagent/commit/57253758b9d813144a702165152e6bcb30112ca9"
+              },
+              {
+                "sha": "b1a03aaaad4f0a3b3c9060c681fca1ebe011234c",
+                "subject": "chore(deps): bump filelock from 3.29.4 to 4.0.3 in /python (#2982)",
+                "url": "https://github.com/kagent-dev/kagent/commit/b1a03aaaad4f0a3b3c9060c681fca1ebe011234c"
+              },
+              {
+                "sha": "cb6b756c1b2e3bdf781c9df370543e66a265e6c0",
+                "subject": "fix(controller): simplify agent preparation and retry handling (#2994)",
+                "url": "https://github.com/kagent-dev/kagent/commit/cb6b756c1b2e3bdf781c9df370543e66a265e6c0"
+              },
+              {
+                "sha": "99c442ed1a2ba570a65f99ce54e9717dca21adc1",
+                "subject": "fix(adk): pass MCP embedded resource text to OpenAI-compatible models (#2992)",
+                "url": "https://github.com/kagent-dev/kagent/commit/99c442ed1a2ba570a65f99ce54e9717dca21adc1"
+              },
+              {
+                "sha": "fdd8856f3e06658565b5b503384ca449e7c08909",
+                "subject": "fix(e2e): wait for controller health and parallelize independent tests (#2993)",
+                "url": "https://github.com/kagent-dev/kagent/commit/fdd8856f3e06658565b5b503384ca449e7c08909"
+              },
+              {
+                "sha": "5d192ea12eeec4421f17db93b0b759a5edd7cb1b",
+                "subject": "fix: repair image scans and use uv-managed Python (#2995)",
+                "url": "https://github.com/kagent-dev/kagent/commit/5d192ea12eeec4421f17db93b0b759a5edd7cb1b"
+              },
+              {
+                "sha": "e451630265e590a6408c3dea37ee6e38cfa8666b",
+                "subject": "fix(ui): report harness delete failures (#2964)",
+                "url": "https://github.com/kagent-dev/kagent/commit/e451630265e590a6408c3dea37ee6e38cfa8666b"
+              },
+              {
+                "sha": "936ee56d845dcd9bd1e0182765b88245202085ec",
+                "subject": "fix: keep Go ADK SQLite connections out of VM snapshots (#3004)",
+                "url": "https://github.com/kagent-dev/kagent/commit/936ee56d845dcd9bd1e0182765b88245202085ec"
+              },
+              {
+                "sha": "ccd68ccadb5241eb7e1382abf065661fec00d2ab",
+                "subject": "docs: update README for the v1 architecture (#2996)",
+                "url": "https://github.com/kagent-dev/kagent/commit/ccd68ccadb5241eb7e1382abf065661fec00d2ab"
+              },
+              {
+                "sha": "9708e796231e67c6def4e9f1e4ff2880f5768656",
+                "subject": "fix(api): defer unsupported configuration fields (#3007)",
+                "url": "https://github.com/kagent-dev/kagent/commit/9708e796231e67c6def4e9f1e4ff2880f5768656"
+              },
+              {
+                "sha": "6a8c2c960400c68efcd705495d46d13abc9859bd",
+                "subject": "chore: bump retired gemini 2.5 default models to 3.5 (#3027)",
+                "url": "https://github.com/kagent-dev/kagent/commit/6a8c2c960400c68efcd705495d46d13abc9859bd"
+              },
+              {
+                "sha": "ba60ebda4295051dd1b5adc5988959f975363f5b",
+                "subject": "feat(helm): make the controller ServiceAccount optional (#3022)",
+                "url": "https://github.com/kagent-dev/kagent/commit/ba60ebda4295051dd1b5adc5988959f975363f5b"
+              },
+              {
+                "sha": "ee0db68c39983130a33fbf4cc9fb631418be1290",
+                "subject": "fix: allow disabling kagent model streaming (#3028)",
+                "url": "https://github.com/kagent-dev/kagent/commit/ee0db68c39983130a33fbf4cc9fb631418be1290"
+              }
+            ]
+          },
+          {
+            "mode": "commits",
+            "repo": "kagent-dev/kmcp",
+            "pin": "main-8f26f04",
+            "pinned_sha": "8f26f0474e1e36699673246512b7040bd8b63775",
+            "upstream_sha": "8f26f0474e1e36699673246512b7040bd8b63775",
+            "ahead_by": 0,
+            "behind_by": 0,
+            "commits": []
+          },
+          {
+            "mode": "commits",
+            "repo": "kagent-dev/tools",
+            "pin": "main-bd6e49d",
+            "pinned_sha": "bd6e49deddfaa0885b0ec93457467cbd9d1baeb1",
+            "upstream_sha": "7d3fde6dade8a8149ba83d8d3cf8b96a2953dc10",
+            "ahead_by": 2,
+            "behind_by": 0,
+            "commits": [
+              {
+                "sha": "1bdfcd6709a140b0d990a87f1b86e24e40755ea5",
+                "subject": "fix: release MCP session state so the server stops leaking heap (#85)",
+                "url": "https://github.com/kagent-dev/tools/commit/1bdfcd6709a140b0d990a87f1b86e24e40755ea5"
+              },
+              {
+                "sha": "7d3fde6dade8a8149ba83d8d3cf8b96a2953dc10",
+                "subject": "Migrate to GO SDK (#66)",
+                "url": "https://github.com/kagent-dev/tools/commit/7d3fde6dade8a8149ba83d8d3cf8b96a2953dc10"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "kgateway",
+        "path": "platform/kgateway",
+        "source": "kgateway-dev/kgateway",
+        "pins": [
+          {
+            "tag": "v2.5.0-beta.1",
+            "repo": "kgateway-dev/kgateway"
+          }
+        ],
+        "findings": [
+          {
+            "mode": "tags",
+            "repo": "kgateway-dev/kgateway",
+            "pin": "v2.5.0-beta.1",
+            "latest_tag": "v2.5.0-beta.1",
+            "update_available": false,
+            "url": "https://github.com/kgateway-dev/kgateway/releases",
+            "newer_tags": [],
+            "tags_behind": 0,
+            "stable_tags_behind": 0,
+            "latest_stable": "v2.5.0-beta.1"
+          }
+        ]
+      },
+      {
+        "name": "llm-runtime",
+        "path": "platform/llm-runtime",
+        "source": null,
+        "pins": [
+          {
+            "tag": "qwen38-27b",
+            "repo": "sgl-project/sglang"
+          },
+          {
+            "tag": "v0.10.2",
+            "repo": "vllm-project/vllm"
+          }
+        ],
+        "findings": [
+          {
+            "mode": "unresolved",
+            "repo": "sgl-project/sglang",
+            "pin": "qwen38-27b",
+            "reason": "custom or non-semantic tag cannot be compared with GitHub releases"
+          },
+          {
+            "mode": "tags",
+            "repo": "vllm-project/vllm",
+            "pin": "v0.10.2",
+            "latest_tag": "v0.30.0",
+            "update_available": true,
+            "url": "https://github.com/vllm-project/vllm/releases",
+            "newer_tags": [
+              "v0.11.0",
+              "v0.11.1",
+              "v0.11.2",
+              "v0.12.0",
+              "v0.13.0",
+              "v0.14.0",
+              "v0.14.1",
+              "v0.15.0",
+              "v0.15.1",
+              "v0.16.0",
+              "v0.17.0",
+              "v0.17.1",
+              "v0.18.0",
+              "v0.18.1",
+              "v0.19.0",
+              "v0.19.1",
+              "v0.20.0",
+              "v0.20.1",
+              "v0.20.2",
+              "v0.21.0",
+              "v0.22.0",
+              "v0.22.1",
+              "v0.23.0",
+              "v0.24.0",
+              "v0.25.0",
+              "v0.25.1",
+              "v0.26.0",
+              "v0.27.0",
+              "v0.27.1",
+              "v0.28.0",
+              "v0.29.0",
+              "v0.30.0"
+            ],
+            "tags_behind": 32,
+            "stable_tags_behind": 32,
+            "latest_stable": "v0.30.0"
+          }
+        ]
+      },
+      {
+        "name": "substrate",
+        "path": "platform/substrate",
+        "source": "agent-substrate/substrate",
+        "pins": [
+          {
+            "tag": "main-85ce8ed5",
+            "repo": "agent-substrate/substrate"
+          }
+        ],
+        "findings": [
+          {
+            "mode": "commits",
+            "repo": "agent-substrate/substrate",
+            "pin": "main-85ce8ed5",
+            "pinned_sha": "85ce8ed5313f64aa4d8d5fb616ce450abf1e95e0",
+            "upstream_sha": "a9eaa2647c98acdd7e9e16feb0a58bb86342464f",
+            "ahead_by": 130,
+            "behind_by": 0,
+            "commits": [
+              {
+                "sha": "0ea56b60308ff63740506be929003a6d515d6ee6",
+                "subject": "ateomnet: replace stale named namespaces (#1682)",
+                "url": "https://github.com/agent-substrate/substrate/commit/0ea56b60308ff63740506be929003a6d515d6ee6"
+              },
+              {
+                "sha": "2dda7260e8c2c485df8a77cfbc63bcdd24431e80",
+                "subject": "ateom-gvisor:  treat a container runsc has no record of as already destroyed (#1666)",
+                "url": "https://github.com/agent-substrate/substrate/commit/2dda7260e8c2c485df8a77cfbc63bcdd24431e80"
+              },
+              {
+                "sha": "b25c23e4ad0b124cc536955b91269014960072c8",
+                "subject": "Glutton Benchmarking Enhancements (#1631)",
+                "url": "https://github.com/agent-substrate/substrate/commit/b25c23e4ad0b124cc536955b91269014960072c8"
+              },
+              {
+                "sha": "d7c2d05d0c1630c17c767792ced4ffb55427b731",
+                "subject": "fix(atelet): Supersede stale system-info volume registrations in atelet (#1684)",
+                "url": "https://github.com/agent-substrate/substrate/commit/d7c2d05d0c1630c17c767792ced4ffb55427b731"
+              },
+              {
+                "sha": "0109b8e02efb4d926dbc068dd9bdccfd9c909926",
+                "subject": "ateom: pluralize the discovery read for multi-actor workers (#1644)",
+                "url": "https://github.com/agent-substrate/substrate/commit/0109b8e02efb4d926dbc068dd9bdccfd9c909926"
+              },
+              {
+                "sha": "f539483b9cdf19b470fca28471d791f1f12b6904",
+                "subject": "Enable PR workflow on merge_queue trigger (#1712)",
+                "url": "https://github.com/agent-substrate/substrate/commit/f539483b9cdf19b470fca28471d791f1f12b6904"
+              },
+              {
+                "sha": "2b9196e8bd0f513b6500db472e7a87c8325e9613",
+                "subject": "e2e: copy the source pool's worker resources (#1691)",
+                "url": "https://github.com/agent-substrate/substrate/commit/2b9196e8bd0f513b6500db472e7a87c8325e9613"
+              },
+              {
+                "sha": "8ca99ccec99380a0acb91184eb2fb4ad766a4454",
+                "subject": "Revert \"e2e: copy the source pool's worker resources\" (#1728)",
+                "url": "https://github.com/agent-substrate/substrate/commit/8ca99ccec99380a0acb91184eb2fb4ad766a4454"
+              },
+              {
+                "sha": "9f57d78f4f56810bb5c8760b02206aecb4f7b7b1",
+                "subject": "Add `--enable-nested-virtualization` to `setup-gcp` (#1669)",
+                "url": "https://github.com/agent-substrate/substrate/commit/9f57d78f4f56810bb5c8760b02206aecb4f7b7b1"
+              },
+              {
+                "sha": "66f9e8c2fb5eeb342f539436e8535552c1622f71",
+                "subject": "e2e: give the parking suite its own fixture (#1735)",
+                "url": "https://github.com/agent-substrate/substrate/commit/66f9e8c2fb5eeb342f539436e8535552c1622f71"
+              },
+              {
+                "sha": "4139df0cc9bf81e55055e7eb1f141fdeb208b215",
+                "subject": "reduce e2e worker sizing (#1734)",
+                "url": "https://github.com/agent-substrate/substrate/commit/4139df0cc9bf81e55055e7eb1f141fdeb208b215"
+              },
+              {
+                "sha": "ebbd31e60cf1ed8a37cc36fb8237e330b1aa0f7f",
+                "subject": "egress: gate the fetch-collapse test on all callers joining [flake fix] (#1732)",
+                "url": "https://github.com/agent-substrate/substrate/commit/ebbd31e60cf1ed8a37cc36fb8237e330b1aa0f7f"
+              },
+              {
+                "sha": "57db40e4d99cd008bca8c68149306dd3ea8a04ff",
+                "subject": "workersync: make the list retry backoff per-syncer [flake fix] (#1731)",
+                "url": "https://github.com/agent-substrate/substrate/commit/57db40e4d99cd008bca8c68149306dd3ea8a04ff"
+              },
+              {
+                "sha": "8c0192030cebbde906af75fab23e3ed78d91cb2b",
+                "subject": "Consolidate subcommands for each resource on a single file. (#1733)",
+                "url": "https://github.com/agent-substrate/substrate/commit/8c0192030cebbde906af75fab23e3ed78d91cb2b"
+              },
+              {
+                "sha": "af2477e45d3d449fb797d55d70a26521cd666827",
+                "subject": "When connecting to Atelet, always resolve the atelet IP from the node name (#1742)",
+                "url": "https://github.com/agent-substrate/substrate/commit/af2477e45d3d449fb797d55d70a26521cd666827"
+              },
+              {
+                "sha": "5f7c6901089c9c1e6acce624330f149b81a9cfc4",
+                "subject": "(feat): Actor lifecycle events over otlp (#1658)",
+                "url": "https://github.com/agent-substrate/substrate/commit/5f7c6901089c9c1e6acce624330f149b81a9cfc4"
+              },
+              {
+                "sha": "944abe3278b895ccbf5d45555a49dd0f2f6ceae7",
+                "subject": "feat(api): introduce RevertActor lifecycle RPC (#1675)",
+                "url": "https://github.com/agent-substrate/substrate/commit/944abe3278b895ccbf5d45555a49dd0f2f6ceae7"
+              },
+              {
+                "sha": "c7a1be177d0f1391c38a3b77f333d10ce8ec324a",
+                "subject": "Atunnel <> PEP contract documentation (#1726)",
+                "url": "https://github.com/agent-substrate/substrate/commit/c7a1be177d0f1391c38a3b77f333d10ce8ec324a"
+              },
+              {
+                "sha": "b29f97778aef01c051b62822b35859b268fefed2",
+                "subject": "Initialize OpenFGA server on ATE API Server bootstrap. (#1670)",
+                "url": "https://github.com/agent-substrate/substrate/commit/b29f97778aef01c051b62822b35859b268fefed2"
+              },
+              {
+                "sha": "27bf34444e0c1a8762aebcafbc733a97c023cb4d",
+                "subject": "ateom: remove the ateom directory on graceful shutdown (#1678)",
+                "url": "https://github.com/agent-substrate/substrate/commit/27bf34444e0c1a8762aebcafbc733a97c023cb4d"
+              },
+              {
+                "sha": "0ab30264bcac18b312ed49222e40d7ea42a0aa6b",
+                "subject": "Move DeleteTag orchestration to a workflow (#1720)",
+                "url": "https://github.com/agent-substrate/substrate/commit/0ab30264bcac18b312ed49222e40d7ea42a0aa6b"
+              },
+              {
+                "sha": "bb0effed188e06a44e03862cb6ea993e58f86893",
+                "subject": "A few more changes to resource defaults (#1674)",
+                "url": "https://github.com/agent-substrate/substrate/commit/bb0effed188e06a44e03862cb6ea993e58f86893"
+              },
+              {
+                "sha": "aa17b3c297d497f8e46b5b5c37d1dcf8ac1deef9",
+                "subject": "post-draft-review skill for AI *assisted* PR reviews (#870)",
+                "url": "https://github.com/agent-substrate/substrate/commit/aa17b3c297d497f8e46b5b5c37d1dcf8ac1deef9"
+              },
+              {
+                "sha": "f75e6264852e057b0346d49ae084b412cd8a1690",
+                "subject": "(chore): Write both copies of an actor lifecycle event from one call (#1771)",
+                "url": "https://github.com/agent-substrate/substrate/commit/f75e6264852e057b0346d49ae084b412cd8a1690"
+              },
+              {
+                "sha": "7d241bfe1d74c76bf7a1a45cf2454df8137b4b33",
+                "subject": "Split atepg.go into one file per resource/table (#1777)",
+                "url": "https://github.com/agent-substrate/substrate/commit/7d241bfe1d74c76bf7a1a45cf2454df8137b4b33"
+              },
+              {
+                "sha": "dc1f263076d1575c0562c71d763edd0a0342fd68",
+                "subject": "Document the egress traffic supported for GA (#1749)",
+                "url": "https://github.com/agent-substrate/substrate/commit/dc1f263076d1575c0562c71d763edd0a0342fd68"
+              },
+              {
+                "sha": "8062bbafb40a5a84060a7386878fdcf602a40571",
+                "subject": "microvm: drop the kata-config asset (#1704)",
+                "url": "https://github.com/agent-substrate/substrate/commit/8062bbafb40a5a84060a7386878fdcf602a40571"
+              },
+              {
+                "sha": "cdac9baef81dd319b46086d695266e6161e9e592",
+                "subject": "benchmarking/locust: Add sweperf trajectory-based benchmarking workload (#1694)",
+                "url": "https://github.com/agent-substrate/substrate/commit/cdac9baef81dd319b46086d695266e6161e9e592"
+              },
+              {
+                "sha": "57234a866acf407da6f834eff62da275414edd15",
+                "subject": "egress: add an example credential provider which reads from k8s secret (#1335)",
+                "url": "https://github.com/agent-substrate/substrate/commit/57234a866acf407da6f834eff62da275414edd15"
+              },
+              {
+                "sha": "d0d85c397db77dee84f3c87f1b23cb10a714f3b5",
+                "subject": "atecontroller: set the worker Deployment rollout strategy (#1783)",
+                "url": "https://github.com/agent-substrate/substrate/commit/d0d85c397db77dee84f3c87f1b23cb10a714f3b5"
+              },
+              {
+                "sha": "92a84388b44b9c1b9131ee62f58eaa87b76a53d8",
+                "subject": "microvm: bump kata assets to 4.1.0 (#1708)",
+                "url": "https://github.com/agent-substrate/substrate/commit/92a84388b44b9c1b9131ee62f58eaa87b76a53d8"
+              },
+              {
+                "sha": "b374862ce3dfc5a413b97177643d30fa260eacad",
+                "subject": "atenet: report \"unknown\" when a resume does not complete (#1482)",
+                "url": "https://github.com/agent-substrate/substrate/commit/b374862ce3dfc5a413b97177643d30fa260eacad"
+              },
+              {
+                "sha": "514e6109bfe0cf8b1d3586b408322f033f2a2ffd",
+                "subject": "kubectl-ate: add get and create egress-policy (#1659)",
+                "url": "https://github.com/agent-substrate/substrate/commit/514e6109bfe0cf8b1d3586b408322f033f2a2ffd"
+              },
+              {
+                "sha": "6c70d60c19680423283e63ad82066dedcd9f7b43",
+                "subject": "Update to the latest version of the hack scripts (#1785)",
+                "url": "https://github.com/agent-substrate/substrate/commit/6c70d60c19680423283e63ad82066dedcd9f7b43"
+              },
+              {
+                "sha": "6ec93a45f0fe4b935d550a505321c08185458c39",
+                "subject": "Make `apitool validate` fail if the exemptions are not sorted. (#1798)",
+                "url": "https://github.com/agent-substrate/substrate/commit/6ec93a45f0fe4b935d550a505321c08185458c39"
+              },
+              {
+                "sha": "25cdbe00bc9b6b2d33b799030daa752e644b5234",
+                "subject": "proto: mark secret-bearing fields with debug_redact (#1803)",
+                "url": "https://github.com/agent-substrate/substrate/commit/25cdbe00bc9b6b2d33b799030daa752e644b5234"
+              },
+              {
+                "sha": "9e503c42b83f589ad095430dbdd0acc6233dba4e",
+                "subject": "Delete ate.scheduler.eligible_workers (#1804)",
+                "url": "https://github.com/agent-substrate/substrate/commit/9e503c42b83f589ad095430dbdd0acc6233dba4e"
+              },
+              {
+                "sha": "6f45aeb2dd656ec65fcdd9dff360e8397052cf42",
+                "subject": "Make substrate's namespace, Service names and ServiceAccount names configurable (#350)",
+                "url": "https://github.com/agent-substrate/substrate/commit/6f45aeb2dd656ec65fcdd9dff360e8397052cf42"
+              },
+              {
+                "sha": "d277088bc1d081ef716d81dd7986d05d0a36ad3a",
+                "subject": "Rename `ActorTemplate.containers.readyz` to `wakeupProbe`. (#1794)",
+                "url": "https://github.com/agent-substrate/substrate/commit/d277088bc1d081ef716d81dd7986d05d0a36ad3a"
+              },
+              {
+                "sha": "4ab35e1d6e4d48f4baae549a10e8d151a9b6f59e",
+                "subject": "Delete unused messages. (#1814)",
+                "url": "https://github.com/agent-substrate/substrate/commit/4ab35e1d6e4d48f4baae549a10e8d151a9b6f59e"
+              },
+              {
+                "sha": "cd102f0af21eb29cd2872f7118e5cf3904b6a931",
+                "subject": "per sandbox networking (#1689)",
+                "url": "https://github.com/agent-substrate/substrate/commit/cd102f0af21eb29cd2872f7118e5cf3904b6a931"
+              },
+              {
+                "sha": "43a5c56838ec13c1edfd6940e67d668db020da5d",
+                "subject": "Remove reserved fields from protos (#1793)",
+                "url": "https://github.com/agent-substrate/substrate/commit/43a5c56838ec13c1edfd6940e67d668db020da5d"
+              },
+              {
+                "sha": "ee9aa9c2471b6d1adc16b8e3d0b7f36bc2158aa4",
+                "subject": "Add DV for TagStatus + drop unused TagStatus.source_actor_uid field (#1772)",
+                "url": "https://github.com/agent-substrate/substrate/commit/ee9aa9c2471b6d1adc16b8e3d0b7f36bc2158aa4"
+              },
+              {
+                "sha": "fb4b31529ae5d1e5b5040341091e76389f72ebed",
+                "subject": "Rename SnapshotsConfig to SnapshotConfig everywhere in the codebase (#1791)",
+                "url": "https://github.com/agent-substrate/substrate/commit/fb4b31529ae5d1e5b5040341091e76389f72ebed"
+              },
+              {
+                "sha": "d2da3609f52b989f6d70079266e895a59589589b",
+                "subject": "Add Keith Mattix to the project maintainers (#1806)",
+                "url": "https://github.com/agent-substrate/substrate/commit/d2da3609f52b989f6d70079266e895a59589589b"
+              },
+              {
+                "sha": "aae7df7810d1cad28bb5322051aafabf139e32a7",
+                "subject": "Crash actor when Ateom Checkpoint or Restore fails; Also when the error is not marked as retriable (#1220)",
+                "url": "https://github.com/agent-substrate/substrate/commit/aae7df7810d1cad28bb5322051aafabf139e32a7"
+              },
+              {
+                "sha": "35dde2ed3fce753187c9ae86d1d349b4f225c61f",
+                "subject": "otlprelay: forward log records (#1800)",
+                "url": "https://github.com/agent-substrate/substrate/commit/35dde2ed3fce753187c9ae86d1d349b4f225c61f"
+              },
+              {
+                "sha": "232d0f2227d130a07127307fd4dec55a43f093d2",
+                "subject": "ateinterceptors: redact debug_redact fields from RPC logs (#1822)",
+                "url": "https://github.com/agent-substrate/substrate/commit/232d0f2227d130a07127307fd4dec55a43f093d2"
+              },
+              {
+                "sha": "8ea4abe1a383325033b217c3499c33a70962e4d9",
+                "subject": "ateom/actor ID split: Define MintAteomActorCertificate (#1626)",
+                "url": "https://github.com/agent-substrate/substrate/commit/8ea4abe1a383325033b217c3499c33a70962e4d9"
+              },
+              {
+                "sha": "898f6e649503ef9a1a2b4d8e93d419e292ea13a5",
+                "subject": "CI: Emit JUnit from test runners, pin their exec bounds (#1687)",
+                "url": "https://github.com/agent-substrate/substrate/commit/898f6e649503ef9a1a2b4d8e93d419e292ea13a5"
+              },
+              {
+                "sha": "52c6a03c690ae926d63c15406f745c864cdd8883",
+                "subject": "CI: Fail on missing preconditions and exceeded boundaries (#1754)",
+                "url": "https://github.com/agent-substrate/substrate/commit/52c6a03c690ae926d63c15406f745c864cdd8883"
+              },
+              {
+                "sha": "47b67574ac10817ecaf434e79714339b814de17e",
+                "subject": "docs: Document RevertActor and drop \"terminal\" from CRASHED (#1711)",
+                "url": "https://github.com/agent-substrate/substrate/commit/47b67574ac10817ecaf434e79714339b814de17e"
+              },
+              {
+                "sha": "32df55327656349e01dfd4bba03a77c0230a2c7c",
+                "subject": "Add statusz page in k8s secret credential provider (#1811)",
+                "url": "https://github.com/agent-substrate/substrate/commit/32df55327656349e01dfd4bba03a77c0230a2c7c"
+              },
+              {
+                "sha": "985c200247a91d76e805b9bc96ffcf55c1923416",
+                "subject": "Add `DeletePreconditions` to all `Delete<Resource>` methods (#1807)",
+                "url": "https://github.com/agent-substrate/substrate/commit/985c200247a91d76e805b9bc96ffcf55c1923416"
+              },
+              {
+                "sha": "21b0b030bc7e92f432d47335713d8580341b7d40",
+                "subject": "Generate the benchmark Python gRPC clients at image build time (#1825)",
+                "url": "https://github.com/agent-substrate/substrate/commit/21b0b030bc7e92f432d47335713d8580341b7d40"
+              },
+              {
+                "sha": "74bbfc529ca9b5554d20117c2c78a3aea48b5d55",
+                "subject": "Delete the ateerrors failure-reason taxonomy (#1817)",
+                "url": "https://github.com/agent-substrate/substrate/commit/74bbfc529ca9b5554d20117c2c78a3aea48b5d55"
+              },
+              {
+                "sha": "5334f16476b4f34c897501c2a751ed45bb4432e9",
+                "subject": "feat(ateapi): track actor_template_uid per snapshot on ExternalSnapshot (#1713)",
+                "url": "https://github.com/agent-substrate/substrate/commit/5334f16476b4f34c897501c2a751ed45bb4432e9"
+              },
+              {
+                "sha": "ddd6f64e51cb8d5a7b1bb3e3c2903b734eb17fc7",
+                "subject": "ateom-microvm: find leftover VMM processes by their staged path (#1843)",
+                "url": "https://github.com/agent-substrate/substrate/commit/ddd6f64e51cb8d5a7b1bb3e3c2903b734eb17fc7"
+              },
+              {
+                "sha": "31a5e0ba29a525b3587882132fa13bd211653152",
+                "subject": "Fix the broken link in ecosystem projects (#1845)",
+                "url": "https://github.com/agent-substrate/substrate/commit/31a5e0ba29a525b3587882132fa13bd211653152"
+              },
+              {
+                "sha": "8834f1bf2986a994c3f76a93f33cc092407c3e8c",
+                "subject": "glutton: replace stuck actors on resume/hibernate failure (#1759)",
+                "url": "https://github.com/agent-substrate/substrate/commit/8834f1bf2986a994c3f76a93f33cc092407c3e8c"
+              },
+              {
+                "sha": "f3b53847ad0af2f2ecc8befaefec36e13cdf2b5f",
+                "subject": "ate-setup: wait for ate-system namespace termination during teardown/\u2026 (#1851)",
+                "url": "https://github.com/agent-substrate/substrate/commit/f3b53847ad0af2f2ecc8befaefec36e13cdf2b5f"
+              },
+              {
+                "sha": "444d7631d1bb4f1ae0dbfef5ff1ec76061b8b369",
+                "subject": "enhance tests to validate volume lifecycle for actor state changes (#1581)",
+                "url": "https://github.com/agent-substrate/substrate/commit/444d7631d1bb4f1ae0dbfef5ff1ec76061b8b369"
+              },
+              {
+                "sha": "34f30033261cbba538d424a055fb65458e09fd4b",
+                "subject": "Add DV for GoldenSnapshotStatus and unbounded strings (#1831)",
+                "url": "https://github.com/agent-substrate/substrate/commit/34f30033261cbba538d424a055fb65458e09fd4b"
+              },
+              {
+                "sha": "97d565f3eb62158756fde5ce59937f5b205fd051",
+                "subject": "docs: drop the Google product disclaimer from the README (#1862)",
+                "url": "https://github.com/agent-substrate/substrate/commit/97d565f3eb62158756fde5ce59937f5b205fd051"
+              },
+              {
+                "sha": "30e6d33daafe1aa4c24b8a4ac397f7a6ee2042e7",
+                "subject": "Initial commit of Envoy Dynamic Modules (#1535)",
+                "url": "https://github.com/agent-substrate/substrate/commit/30e6d33daafe1aa4c24b8a4ac397f7a6ee2042e7"
+              },
+              {
+                "sha": "82a777186a0f5445753871933c99e84da48bf898",
+                "subject": "ateom-gvisor: delete an actor's containers before its sandbox (#1847)",
+                "url": "https://github.com/agent-substrate/substrate/commit/82a777186a0f5445753871933c99e84da48bf898"
+              },
+              {
+                "sha": "d7d70420db73fbbcb4802fa6c45e50bf57ce2f18",
+                "subject": "kubectl-ate: add update egress-policy (#1813)",
+                "url": "https://github.com/agent-substrate/substrate/commit/d7d70420db73fbbcb4802fa6c45e50bf57ce2f18"
+              },
+              {
+                "sha": "5fb129d87d440f35d516b95cb4369f2cd57b87df",
+                "subject": "authz: manage OpenFGA schema in Goose migrations and share pgxpool/tx (#1839)",
+                "url": "https://github.com/agent-substrate/substrate/commit/5fb129d87d440f35d516b95cb4369f2cd57b87df"
+              },
+              {
+                "sha": "945e44a5ec80fcf32d4a7134558d2093bf4489ca",
+                "subject": "(ateapi): report worker occupancy by actor slots in ate.worker.state (#1854)",
+                "url": "https://github.com/agent-substrate/substrate/commit/945e44a5ec80fcf32d4a7134558d2093bf4489ca"
+              },
+              {
+                "sha": "93e691d9b12ab05328d9d2187faac347dea78629",
+                "subject": "serverboot: give the ateoms a LoggerProvider over the relay (#1857)",
+                "url": "https://github.com/agent-substrate/substrate/commit/93e691d9b12ab05328d9d2187faac347dea78629"
+              },
+              {
+                "sha": "3198991d23c77155503d6c9f3f9aa5af3b5055c0",
+                "subject": "benchmarking/locust: record cluster hardware facts and density frontiers (#1723)",
+                "url": "https://github.com/agent-substrate/substrate/commit/3198991d23c77155503d6c9f3f9aa5af3b5055c0"
+              },
+              {
+                "sha": "fa24dcc5146cbf9062966cb2e27822d27b24ead6",
+                "subject": "Add plumbing to allow ateom to suspend actors (#1779)",
+                "url": "https://github.com/agent-substrate/substrate/commit/fa24dcc5146cbf9062966cb2e27822d27b24ead6"
+              },
+              {
+                "sha": "14c0c136bc3fda4d8e67de3851c087a28a2e754b",
+                "subject": "multi actor worker support (#1836)",
+                "url": "https://github.com/agent-substrate/substrate/commit/14c0c136bc3fda4d8e67de3851c087a28a2e754b"
+              },
+              {
+                "sha": "d6d2a0fa1dcf9f576d30fe2406779551141ac252",
+                "subject": "Add the option to install a large-cluster manifest and cordon control plane to dedicated machines (#1632)",
+                "url": "https://github.com/agent-substrate/substrate/commit/d6d2a0fa1dcf9f576d30fe2406779551141ac252"
+              },
+              {
+                "sha": "5ebccf3897f7d709635fc760b6897f48bafb7641",
+                "subject": "Fix the kind install on arm64 hosts (#1869)",
+                "url": "https://github.com/agent-substrate/substrate/commit/5ebccf3897f7d709635fc760b6897f48bafb7641"
+              },
+              {
+                "sha": "22ba860e0f32e20713165b96abd81f6f96da620c",
+                "subject": "add get-contributors.sh for releases (#1870)",
+                "url": "https://github.com/agent-substrate/substrate/commit/22ba860e0f32e20713165b96abd81f6f96da620c"
+              },
+              {
+                "sha": "d72edfbb3c862a7597b8a229e70a7430185a2255",
+                "subject": "Rename LocalSnapshotInfo to LocalSnapshot (#1856)",
+                "url": "https://github.com/agent-substrate/substrate/commit/d72edfbb3c862a7597b8a229e70a7430185a2255"
+              },
+              {
+                "sha": "e87c55fc2ef6b5b20ba8e17065d4b7507d1ad0a6",
+                "subject": "Add the crash reason and timestamp to the ActorStatus (#1867)",
+                "url": "https://github.com/agent-substrate/substrate/commit/e87c55fc2ef6b5b20ba8e17065d4b7507d1ad0a6"
+              },
+              {
+                "sha": "54cba01a8eeb15d3971ba92a2aa792bc4d9560b3",
+                "subject": "feat(ateapi): send resolved sandbox assets during restore (#1866)",
+                "url": "https://github.com/agent-substrate/substrate/commit/54cba01a8eeb15d3971ba92a2aa792bc4d9560b3"
+              },
+              {
+                "sha": "8b5d9ff0ef451afb8f981b81926b81e2157761e6",
+                "subject": "Tolerations for Workload Types (#1874)",
+                "url": "https://github.com/agent-substrate/substrate/commit/8b5d9ff0ef451afb8f981b81926b81e2157761e6"
+              },
+              {
+                "sha": "10a1bfb2f58039608a0b8419379714945e4d65ac",
+                "subject": "PodCertificateRequest v1 support (#1829)",
+                "url": "https://github.com/agent-substrate/substrate/commit/10a1bfb2f58039608a0b8419379714945e4d65ac"
+              },
+              {
+                "sha": "d3a556aae32285430b10fb74a1071eb6dd511c49",
+                "subject": "ateapi: make the actor JWT issuer configurable and add typ to the header (#1834)",
+                "url": "https://github.com/agent-substrate/substrate/commit/d3a556aae32285430b10fb74a1071eb6dd511c49"
+              },
+              {
+                "sha": "03ba5821ecf9c8e559d2c38065cad313965fe4bb",
+                "subject": "actorevent: define the actor usage event and the activation epoch (#1881)",
+                "url": "https://github.com/agent-substrate/substrate/commit/03ba5821ecf9c8e559d2c38065cad313965fe4bb"
+              },
+              {
+                "sha": "a0b680d72e10e38c55657d9809a1998dfcf6500c",
+                "subject": "Add `ActorDirs` message to carry per-actor directories and and split the path packages by owner (#1730)",
+                "url": "https://github.com/agent-substrate/substrate/commit/a0b680d72e10e38c55657d9809a1998dfcf6500c"
+              },
+              {
+                "sha": "8d6be5fb4ed738220483917bd1d8dbd8905a4fff",
+                "subject": "ateom/actor ID split: Ateom uses MintAteomActorCertificate (#1809)",
+                "url": "https://github.com/agent-substrate/substrate/commit/8d6be5fb4ed738220483917bd1d8dbd8905a4fff"
+              },
+              {
+                "sha": "d2b29a5fa2f22ed3b42a4ea463391a23d56b7e01",
+                "subject": "docs: add a star history chart to the README (#1894)",
+                "url": "https://github.com/agent-substrate/substrate/commit/d2b29a5fa2f22ed3b42a4ea463391a23d56b7e01"
+              },
+              {
+                "sha": "7f7a40c1b97c012139faff9031b2729e67beea3f",
+                "subject": "ateom/actor ID split: Clean up purpose from MintActorCertificate (#1810)",
+                "url": "https://github.com/agent-substrate/substrate/commit/7f7a40c1b97c012139faff9031b2729e67beea3f"
+              },
+              {
+                "sha": "d3aec58cddfaf52d0c9a96dbb77b5e2b1ccbb08e",
+                "subject": "Remove unnecessary fsync during ResumeActor (#1883)",
+                "url": "https://github.com/agent-substrate/substrate/commit/d3aec58cddfaf52d0c9a96dbb77b5e2b1ccbb08e"
+              },
+              {
+                "sha": "fe82dae3f3d78d26730c1125e29f02325af51db9",
+                "subject": "serverboot.Fatal: Allow additional slog arguments (#1908)",
+                "url": "https://github.com/agent-substrate/substrate/commit/fe82dae3f3d78d26730c1125e29f02325af51db9"
+              },
+              {
+                "sha": "c7b5469968eb1e91f3653f6fe04224a03ab39873",
+                "subject": "ate-api: Move authn package into server-specific internal package (#1909)",
+                "url": "https://github.com/agent-substrate/substrate/commit/c7b5469968eb1e91f3653f6fe04224a03ab39873"
+              },
+              {
+                "sha": "1d7ca8ced056192a1801d6565251adcaab3eb0c9",
+                "subject": "ateletpb: carry the Restore base snapshot as a typed source, dropping golden_snapshot_uri (#1602)",
+                "url": "https://github.com/agent-substrate/substrate/commit/1d7ca8ced056192a1801d6565251adcaab3eb0c9"
+              },
+              {
+                "sha": "ed6d2a1fc8ae8337eb055d51b0b767b023cb3b5c",
+                "subject": "Update agentgateway for split actor and ateom identities (#1923)",
+                "url": "https://github.com/agent-substrate/substrate/commit/ed6d2a1fc8ae8337eb055d51b0b767b023cb3b5c"
+              },
+              {
+                "sha": "6621f2b4b4284a09277a76a030e42c8e74c9f47e",
+                "subject": "egress policy enhancements for GA (#1751)",
+                "url": "https://github.com/agent-substrate/substrate/commit/6621f2b4b4284a09277a76a030e42c8e74c9f47e"
+              },
+              {
+                "sha": "22efea18a992e4503fb15309c680ee4da165a4df",
+                "subject": "Clean up packages in ateomnet (#1897)",
+                "url": "https://github.com/agent-substrate/substrate/commit/22efea18a992e4503fb15309c680ee4da165a4df"
+              },
+              {
+                "sha": "7999d6f1d1b03b2c0d4b43900bb537bb4ab05639",
+                "subject": "atelet: pin the multi-actor stats fold and keep CPU baselines across pending sweeps (#1885)",
+                "url": "https://github.com/agent-substrate/substrate/commit/7999d6f1d1b03b2c0d4b43900bb537bb4ab05639"
+              },
+              {
+                "sha": "c7dbe9d6728ee7ac25c9231a5388a3020fe933a0",
+                "subject": "nodepath: move the node state root to /var/lib/ate (#1926)",
+                "url": "https://github.com/agent-substrate/substrate/commit/c7dbe9d6728ee7ac25c9231a5388a3020fe933a0"
+              },
+              {
+                "sha": "2e57c900a3d1528009c14245d15e43becd7aa941",
+                "subject": "move agw tests to post-merge and release-* branches (#1949)",
+                "url": "https://github.com/agent-substrate/substrate/commit/2e57c900a3d1528009c14245d15e43becd7aa941"
+              },
+              {
+                "sha": "5b7417e85dd01905316527209095c5154c798b05",
+                "subject": "Snapshot path validation (#1950)",
+                "url": "https://github.com/agent-substrate/substrate/commit/5b7417e85dd01905316527209095c5154c798b05"
+              },
+              {
+                "sha": "7c0c70c7a2c7288ed1448edeb686542723aeccf2",
+                "subject": "CI: create JUnit artifacts and gate on all tests passing (#1873)",
+                "url": "https://github.com/agent-substrate/substrate/commit/7c0c70c7a2c7288ed1448edeb686542723aeccf2"
+              },
+              {
+                "sha": "dd57a119ae51fa87c81c7575b241c054617348a0",
+                "subject": "doc: egress credential injection with sample k8s secret credential pr\u2026 (#1805)",
+                "url": "https://github.com/agent-substrate/substrate/commit/dd57a119ae51fa87c81c7575b241c054617348a0"
+              },
+              {
+                "sha": "51a71cb365362ab7be389254800102a054ec29b9",
+                "subject": "upgrade otel log to 0.21 (#1958)",
+                "url": "https://github.com/agent-substrate/substrate/commit/51a71cb365362ab7be389254800102a054ec29b9"
+              },
+              {
+                "sha": "7380e230dcc2d0454f753ad985a398446f19dc14",
+                "subject": "ateom-gvisor: take the actor directories from the request (#1865)",
+                "url": "https://github.com/agent-substrate/substrate/commit/7380e230dcc2d0454f753ad985a398446f19dc14"
+              },
+              {
+                "sha": "f7ec6acfc0d45c91f33ada38e2abee523c782c00",
+                "subject": "fix(benchmarking): make the SWE-Perf ActorTemplate deployable (#1889)",
+                "url": "https://github.com/agent-substrate/substrate/commit/f7ec6acfc0d45c91f33ada38e2abee523c782c00"
+              },
+              {
+                "sha": "4f9c293e48e0655f45ce355670145b0d1b4f28e4",
+                "subject": "e2e: add test for egress credential injection cujs (#1795)",
+                "url": "https://github.com/agent-substrate/substrate/commit/4f9c293e48e0655f45ce355670145b0d1b4f28e4"
+              },
+              {
+                "sha": "4672e95a20c14ed176bdab7481023328a4ecf893",
+                "subject": "nighthawk-ingress: let run-dev.sh run more actors than workers (#1982)",
+                "url": "https://github.com/agent-substrate/substrate/commit/4672e95a20c14ed176bdab7481023328a4ecf893"
+              },
+              {
+                "sha": "6b53cad92c7e0d700a784eb8d498b32229e65833",
+                "subject": "ateom-microvm: take the actor directories from the request and remove ateompath package (#1872)",
+                "url": "https://github.com/agent-substrate/substrate/commit/6b53cad92c7e0d700a784eb8d498b32229e65833"
+              },
+              {
+                "sha": "0f4572495a17a252bc180d5290b8624fe42e4638",
+                "subject": "Egress policy plumbing (#1978)",
+                "url": "https://github.com/agent-substrate/substrate/commit/0f4572495a17a252bc180d5290b8624fe42e4638"
+              },
+              {
+                "sha": "2d5ef32d47b3b79f159bb94eec4955f4649d7fb4",
+                "subject": "ateom-microvm: reseed the guest CRNG on restore (#1524)",
+                "url": "https://github.com/agent-substrate/substrate/commit/2d5ef32d47b3b79f159bb94eec4955f4649d7fb4"
+              },
+              {
+                "sha": "97f8e9aa88c126186530a708f6477e0dde7c1e94",
+                "subject": "Pin envoy-dataplane from the release on a pre-built install (#1964)",
+                "url": "https://github.com/agent-substrate/substrate/commit/97f8e9aa88c126186530a708f6477e0dde7c1e94"
+              },
+              {
+                "sha": "fbfd50cd19baca477e23be8af153bfdb72e3fd23",
+                "subject": "Fix several broken links to CODE_OF_CONDUCT.md (#1987)",
+                "url": "https://github.com/agent-substrate/substrate/commit/fbfd50cd19baca477e23be8af153bfdb72e3fd23"
+              },
+              {
+                "sha": "820591528e21937d6810bbb5996bb04fe6e21394",
+                "subject": "atelet: introduce declarative validation for the AteomSupport RPCs (#1903)",
+                "url": "https://github.com/agent-substrate/substrate/commit/820591528e21937d6810bbb5996bb04fe6e21394"
+              },
+              {
+                "sha": "6c60ec5d5a0770eb86ddee66a25c9e7878e1d374",
+                "subject": "ateapi: [Part 1] Runtime Authorization check for Atespace CRUD (#1702)",
+                "url": "https://github.com/agent-substrate/substrate/commit/6c60ec5d5a0770eb86ddee66a25c9e7878e1d374"
+              },
+              {
+                "sha": "afb62e18fbef085202dd64e63c0a5e5ea683ffe3",
+                "subject": "atelet: add CAP_DAC_OVERRIDE to reset dirs a non-root container wrote (#1910)",
+                "url": "https://github.com/agent-substrate/substrate/commit/afb62e18fbef085202dd64e63c0a5e5ea683ffe3"
+              },
+              {
+                "sha": "1282773d3a9471e0c9b4c2fc812833fe0be95fab",
+                "subject": "kubectl-ate: add delete egress-policy (#1808)",
+                "url": "https://github.com/agent-substrate/substrate/commit/1282773d3a9471e0c9b4c2fc812833fe0be95fab"
+              },
+              {
+                "sha": "9c1f0ba0428262291ed1728cd29ef92f0fbc3ccb",
+                "subject": "benchmark(atelet, ateom-microvm): log per-actor checkpoint and restor\u2026 (#1941)",
+                "url": "https://github.com/agent-substrate/substrate/commit/9c1f0ba0428262291ed1728cd29ef92f0fbc3ccb"
+              },
+              {
+                "sha": "12407494837e9b21bcef37b9b4804ce75cd8f0d4",
+                "subject": "ateapi: rename --egress-gateway-address to --default-egress-gateway-address  (#1858)",
+                "url": "https://github.com/agent-substrate/substrate/commit/12407494837e9b21bcef37b9b4804ce75cd8f0d4"
+              },
+              {
+                "sha": "12cf471c287a4d5c674f6139b5b8be67a570b38e",
+                "subject": "ateapi: release a suspend's replaced snapshot after committing SUSPENDED (#2006)",
+                "url": "https://github.com/agent-substrate/substrate/commit/12cf471c287a4d5c674f6139b5b8be67a570b38e"
+              },
+              {
+                "sha": "13e8efff2556f16d7e40067271682cdb42e34f6a",
+                "subject": "envoy dyn module followup (#1995)",
+                "url": "https://github.com/agent-substrate/substrate/commit/13e8efff2556f16d7e40067271682cdb42e34f6a"
+              },
+              {
+                "sha": "262af570fb3f7caf2cf98953ef187d668de73193",
+                "subject": "Move DV validators under `apivalidations`. (#2007)",
+                "url": "https://github.com/agent-substrate/substrate/commit/262af570fb3f7caf2cf98953ef187d668de73193"
+              },
+              {
+                "sha": "9e525467d11dd71fc2ce5c56a448c1e1a0ee278a",
+                "subject": "benchmarking: actor telemetry for the sweperf workload (#1848)",
+                "url": "https://github.com/agent-substrate/substrate/commit/9e525467d11dd71fc2ce5c56a448c1e1a0ee278a"
+              },
+              {
+                "sha": "15e765edf8c2a325fe5c15a8d13320b965243afe",
+                "subject": "ate-setup: add deploy subcommands for podcertificate-controller and SandboxConfig (#2010)",
+                "url": "https://github.com/agent-substrate/substrate/commit/15e765edf8c2a325fe5c15a8d13320b965243afe"
+              },
+              {
+                "sha": "ce05e5d93b9a0fe6155aa3af1ff8784fff6954ff",
+                "subject": "Clean up vestigial metadata setting in atepg (#1992)",
+                "url": "https://github.com/agent-substrate/substrate/commit/ce05e5d93b9a0fe6155aa3af1ff8784fff6954ff"
+              },
+              {
+                "sha": "ccecc788a327dc11dcd6c21ee153f3d0cbb5cc97",
+                "subject": "ateapi: require an actor JWT lifetime and align the subject with the SPIFFE ID (#1902)",
+                "url": "https://github.com/agent-substrate/substrate/commit/ccecc788a327dc11dcd6c21ee153f3d0cbb5cc97"
+              },
+              {
+                "sha": "10ba865ea7cee3edc04947847510489b4d222c0b",
+                "subject": "Add gcp secret manager as a credential provider in its own go module (#1991)",
+                "url": "https://github.com/agent-substrate/substrate/commit/10ba865ea7cee3edc04947847510489b4d222c0b"
+              },
+              {
+                "sha": "8d5a5b70ba7d872382f731f25281114c99bc8846",
+                "subject": "Clean up actors when ateom terminates (#1888)",
+                "url": "https://github.com/agent-substrate/substrate/commit/8d5a5b70ba7d872382f731f25281114c99bc8846"
+              },
+              {
+                "sha": "f0e3ef64e7d39f09029c94df6a21f630b6504785",
+                "subject": "atepg: name the row in list decode errors (#2000)",
+                "url": "https://github.com/agent-substrate/substrate/commit/f0e3ef64e7d39f09029c94df6a21f630b6504785"
+              },
+              {
+                "sha": "bc3cbc519d95bf3c54783ea2a4efeb98e2fe8f1e",
+                "subject": "benchmarking: agent-session workload \u2014 a scripted coding agent that suspends while the LLM thinks (#1934)",
+                "url": "https://github.com/agent-substrate/substrate/commit/bc3cbc519d95bf3c54783ea2a4efeb98e2fe8f1e"
+              },
+              {
+                "sha": "479204c1b82f20f2bdcbcde1648114cadff56270",
+                "subject": "egress policy: add an actor JWT value source to CredentialHeader (#1960)",
+                "url": "https://github.com/agent-substrate/substrate/commit/479204c1b82f20f2bdcbcde1648114cadff56270"
+              },
+              {
+                "sha": "6a0519d26b0db9a9c99cc58c7db83f9c7cf38556",
+                "subject": "ategcs: rename and move to pkg/ for reuse outside atelet (#2013)",
+                "url": "https://github.com/agent-substrate/substrate/commit/6a0519d26b0db9a9c99cc58c7db83f9c7cf38556"
+              },
+              {
+                "sha": "a9eaa2647c98acdd7e9e16feb0a58bb86342464f",
+                "subject": "Select kvm-clock for amd64 micro-VM guests (#1945)",
+                "url": "https://github.com/agent-substrate/substrate/commit/a9eaa2647c98acdd7e9e16feb0a58bb86342464f"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "extra": {
+    "sglang": {
+      "mode": "commits",
+      "repo": "sgl-project/sglang",
+      "pin": "main-c4271c3fe1262fc2adbd162c33b25de5255251c5",
+      "pinned_sha": "c4271c3fe1262fc2adbd162c33b25de5255251c5",
+      "upstream_sha": "0148d9a2fd0f12595f2da0c04846f80cf9e9853b",
+      "ahead_by": 2616,
+      "behind_by": 0,
+      "commits": [
+        {
+          "sha": "d3fcf8997cf2fc7ea51cdd7a852dc57306cb0a5a",
+          "subject": "[Refactor] Run the LayerNorm SP region's boundary steps in the communicator itself (#41255)",
+          "url": "https://github.com/sgl-project/sglang/commit/d3fcf8997cf2fc7ea51cdd7a852dc57306cb0a5a"
+        },
+        {
+          "sha": "9cd6616c24c41a6e7b28d1d50be7363a5b0b330f",
+          "subject": "[Refactor] Pick the two-batch-overlap split's layout moves once and remove execute (#41256)",
+          "url": "https://github.com/sgl-project/sglang/commit/9cd6616c24c41a6e7b28d1d50be7363a5b0b330f"
+        },
+        {
+          "sha": "bd37e7f513b67701afe27a93e1dc45320d724eeb",
+          "subject": "[Refactor] Choose a dense layer's boundaries under attention DP from both sides' declarations (#41257)",
+          "url": "https://github.com/sgl-project/sglang/commit/bd37e7f513b67701afe27a93e1dc45320d724eeb"
+        },
+        {
+          "sha": "a947b56bc7cb135a47911bbf49e83011497a434c",
+          "subject": "[CI] Add __main__ entry to test_deep_select.py (#41341)",
+          "url": "https://github.com/sgl-project/sglang/commit/a947b56bc7cb135a47911bbf49e83011497a434c"
+        },
+        {
+          "sha": "710a41ba570abdb3aa127916088ca62a9b665ca4",
+          "subject": "[sgl-router] Book the input_ids forwarding outcome only for built bodies (#41342)",
+          "url": "https://github.com/sgl-project/sglang/commit/710a41ba570abdb3aa127916088ca62a9b665ca4"
+        },
+        {
+          "sha": "cdbea5dccf0a8085200abad617910c9688e932fe",
+          "subject": "[CI] Move DeepSelect into the attention kernel group to fix the namespace test (#41349)",
+          "url": "https://github.com/sgl-project/sglang/commit/cdbea5dccf0a8085200abad617910c9688e932fe"
+        },
+        {
+          "sha": "e1e97e8b4949bd9ec4b3b459b2e631f2410c4bc8",
+          "subject": "Pin triton_kernels num_warps for MXFP4 MoE below Hopper (6x gpt-oss decode on RTX 4090) (#41292)",
+          "url": "https://github.com/sgl-project/sglang/commit/e1e97e8b4949bd9ec4b3b459b2e631f2410c4bc8"
+        },
+        {
+          "sha": "7bdd8fe6ec2a94d6a0d11b885ca9fe6a9f610d53",
+          "subject": "[CI] Merge the Kimi-Linear PD DCP4 nightly tests and drop exact-token parity (#41321)",
+          "url": "https://github.com/sgl-project/sglang/commit/7bdd8fe6ec2a94d6a0d11b885ca9fe6a9f610d53"
+        },
+        {
+          "sha": "c73f7077eb051ceeaadfa8819b20ed6d4912e8de",
+          "subject": "[AMD] Fix jit broken on rocm env (#41356)",
+          "url": "https://github.com/sgl-project/sglang/commit/c73f7077eb051ceeaadfa8819b20ed6d4912e8de"
+        },
+        {
+          "sha": "c10fa03fc43180fcae072c6535f6c6d9c33c3ef1",
+          "subject": "Make sliding-window caching and speculative batch padding extensible (#41325)",
+          "url": "https://github.com/sgl-project/sglang/commit/c10fa03fc43180fcae072c6535f6c6d9c33c3ef1"
+        },
+        {
+          "sha": "fc9e1c8d296216ff1e216dfbe7286ef392448d28",
+          "subject": "[MemCache] Fix LMCache component cursors and per-cache backend selection (#41328)",
+          "url": "https://github.com/sgl-project/sglang/commit/fc9e1c8d296216ff1e216dfbe7286ef392448d28"
+        },
+        {
+          "sha": "425a1f8f247d0cc17f2a3f3c2dba6c0bdf936552",
+          "subject": "[AMD] Honor an explicit triton moe_runner_backend for mxfp8 on ROCm (#41377)",
+          "url": "https://github.com/sgl-project/sglang/commit/425a1f8f247d0cc17f2a3f3c2dba6c0bdf936552"
+        },
+        {
+          "sha": "effb75218808cb05a4f89fd0efc982c32d687e56",
+          "subject": "dsv4.1-amd: KV cache layouts, FP4 indexer, compressor and router kernels (#41019)",
+          "url": "https://github.com/sgl-project/sglang/commit/effb75218808cb05a4f89fd0efc982c32d687e56"
+        },
+        {
+          "sha": "b4584ab83884ff40a4e5a77f0ea4ef98c038d3b9",
+          "subject": "[sgl-router] Take SGLang's render defaults: --default-chat-template-kwargs and thinking/effort envs (#41221)",
+          "url": "https://github.com/sgl-project/sglang/commit/b4584ab83884ff40a4e5a77f0ea4ef98c038d3b9"
+        },
+        {
+          "sha": "d27efca3536e3fe084fe654a68d494d95af030a9",
+          "subject": "[mem_cache] Never free the protected prefix on request release (#41312)",
+          "url": "https://github.com/sgl-project/sglang/commit/d27efca3536e3fe084fe654a68d494d95af030a9"
+        },
+        {
+          "sha": "38d865489af5ce7b1885577aa834b0d34dd99438",
+          "subject": "[DSV4.1][HiCache] fix: wait for the layer transfer before reading low-ratio index-K (#41345)",
+          "url": "https://github.com/sgl-project/sglang/commit/38d865489af5ce7b1885577aa834b0d34dd99438"
+        },
+        {
+          "sha": "acc15c193b9d8813cb31b66cd19980fe0de9d72d",
+          "subject": "[Diffusion] Preserve per-sample rollout trajectories across multi-output merge (#34416)",
+          "url": "https://github.com/sgl-project/sglang/commit/acc15c193b9d8813cb31b66cd19980fe0de9d72d"
+        },
+        {
+          "sha": "df1fc6ab6441abbdf21944958b131c03e0921253",
+          "subject": "[kv-shard 3/4] Enable Control Plane B (#39964)",
+          "url": "https://github.com/sgl-project/sglang/commit/df1fc6ab6441abbdf21944958b131c03e0921253"
+        },
+        {
+          "sha": "aa7a976807ea71320027713a8b90cf91cc1503c4",
+          "subject": "[qwen 3.8 next] Fuse small CUDA graph input buffer copies (#41166)",
+          "url": "https://github.com/sgl-project/sglang/commit/aa7a976807ea71320027713a8b90cf91cc1503c4"
+        },
+        {
+          "sha": "0bc074db83286449b96198eb340dacdf89041650",
+          "subject": "[KDA+Kimi K3] Speed up SANA-Video residual gate add on H200 (#41305)",
+          "url": "https://github.com/sgl-project/sglang/commit/0bc074db83286449b96198eb340dacdf89041650"
+        },
+        {
+          "sha": "37556c1b91494db583b01791720d49f275cae3bb",
+          "subject": "[mem_cache] Replace `cache_finished_req` with `insert_req`; `release_kv_cache` frees and unpins (#41281)",
+          "url": "https://github.com/sgl-project/sglang/commit/37556c1b91494db583b01791720d49f275cae3bb"
+        },
+        {
+          "sha": "2a14f65fd7a1b00ec45711103f0e3f46bec5803e",
+          "subject": "[diffusion] feat: support in-place lora merge/unmerge under layerwise offload (#36192)",
+          "url": "https://github.com/sgl-project/sglang/commit/2a14f65fd7a1b00ec45711103f0e3f46bec5803e"
+        },
+        {
+          "sha": "ae47bcd4da527933ae599a8e95d7058c26999d32",
+          "subject": "[diffusion] feat: minimax-h3 spectrum skip-step + fused RMSNorm/AdaLN (#35684)",
+          "url": "https://github.com/sgl-project/sglang/commit/ae47bcd4da527933ae599a8e95d7058c26999d32"
+        },
+        {
+          "sha": "f1e62e3a2effef2cbddd02e24479f7069b06718a",
+          "subject": "[diffusion] feat: add MiniMax-H3 to ComfyUI integrated mode (#35990)",
+          "url": "https://github.com/sgl-project/sglang/commit/f1e62e3a2effef2cbddd02e24479f7069b06718a"
+        },
+        {
+          "sha": "a0ba1968b161f1d2989aaacfdbd88a7e522d59a1",
+          "subject": "[Diffusion] Apply latent-ids and packing to caller-provided initial latents (#34418)",
+          "url": "https://github.com/sgl-project/sglang/commit/a0ba1968b161f1d2989aaacfdbd88a7e522d59a1"
+        },
+        {
+          "sha": "84622ce9d50cf9c606a976289e9f651493ce526c",
+          "subject": "[diffusion] fix: lora-wrapped linears crash qwen-image and minimax-h3 inference (#41272)",
+          "url": "https://github.com/sgl-project/sglang/commit/84622ce9d50cf9c606a976289e9f651493ce526c"
+        },
+        {
+          "sha": "588049fe2eaad4bd41bf052a84b2110f52a1c331",
+          "subject": "[diffusion] fix: run an all-valid attention mask on the backend's unmasked kernel (#41309)",
+          "url": "https://github.com/sgl-project/sglang/commit/588049fe2eaad4bd41bf052a84b2110f52a1c331"
+        },
+        {
+          "sha": "c311bc961164be098bb281b743fdbb59ad35b1ba",
+          "subject": "[VLM] Introduce FA4 into ViT for SM100/SM103 (#41344)",
+          "url": "https://github.com/sgl-project/sglang/commit/c311bc961164be098bb281b743fdbb59ad35b1ba"
+        },
+        {
+          "sha": "1ba84a4b59e6aee78f90a41ac49a3df6d1778c8e",
+          "subject": "[bench] Take each request's prompt length from the server (#39889)",
+          "url": "https://github.com/sgl-project/sglang/commit/1ba84a4b59e6aee78f90a41ac49a3df6d1778c8e"
+        },
+        {
+          "sha": "b2800461e5bd5967f4aa00cbc8ab7337757f1867",
+          "subject": "[Diffusion] Reuse bit-exact packed SwiGLU for Ming-Image (#41266)",
+          "url": "https://github.com/sgl-project/sglang/commit/b2800461e5bd5967f4aa00cbc8ab7337757f1867"
+        },
+        {
+          "sha": "d10a09ecf3310423ad01191bd9b1421f5436a23f",
+          "subject": "Add MiniMax arch fallback to auto parser resolution (#40930)",
+          "url": "https://github.com/sgl-project/sglang/commit/d10a09ecf3310423ad01191bd9b1421f5436a23f"
+        },
+        {
+          "sha": "e581520c67a921feda4433bc4e4d41f3514a9d06",
+          "subject": "[HiCache] Add the page-unified KV load-back JIT kernel  (#39726)",
+          "url": "https://github.com/sgl-project/sglang/commit/e581520c67a921feda4433bc4e4d41f3514a9d06"
+        },
+        {
+          "sha": "b252aceffecd1e313cb5a03d3cbf56c99fc8c9ce",
+          "subject": "[AMD] Update v4 cookbook for megamoe, fp8 kv attn, BCG (#41458)",
+          "url": "https://github.com/sgl-project/sglang/commit/b252aceffecd1e313cb5a03d3cbf56c99fc8c9ce"
+        },
+        {
+          "sha": "14ab74ef951e837da9d8a1dc5cb98292a21cd727",
+          "subject": "[PD] Fan drain abort ACKs out to every decode peer of the room (#41402)",
+          "url": "https://github.com/sgl-project/sglang/commit/14ab74ef951e837da9d8a1dc5cb98292a21cd727"
+        },
+        {
+          "sha": "78eee88113510d6b0d70f6978739d0845e2fff0f",
+          "subject": "[Spec] Add LiLiCorr: a candidate-lattice reranker for DFlash drafts (#37462)",
+          "url": "https://github.com/sgl-project/sglang/commit/78eee88113510d6b0d70f6978739d0845e2fff0f"
+        },
+        {
+          "sha": "583fada954a8a7f2cb2b8e07735a336f2e20f6cf",
+          "subject": "Port chat_parsing core (#40477)",
+          "url": "https://github.com/sgl-project/sglang/commit/583fada954a8a7f2cb2b8e07735a336f2e20f6cf"
+        },
+        {
+          "sha": "446d181e23d05554cfd5534469bbdfbe56d4f673",
+          "subject": "[Refactor] Choose the boundaries of plain-TP dense layers and MoE layers from declarations (#41417)",
+          "url": "https://github.com/sgl-project/sglang/commit/446d181e23d05554cfd5534469bbdfbe56d4f673"
+        },
+        {
+          "sha": "846181f1c40884cbdee81c8c6a5935f4defba047",
+          "subject": "[Refactor] Give the fused prepare_mlp kernels an explicit contract (#41418)",
+          "url": "https://github.com/sgl-project/sglang/commit/846181f1c40884cbdee81c8c6a5935f4defba047"
+        },
+        {
+          "sha": "9f87d28db6fcda194cf04bc0522928aecd339b39",
+          "subject": "[Refactor] Choose the LayerNorm SP region's and input-scattered batches' steps from declarations (#41419)",
+          "url": "https://github.com/sgl-project/sglang/commit/9f87d28db6fcda194cf04bc0522928aecd339b39"
+        },
+        {
+          "sha": "380a4d03329f2dca0b35a4fc2ad906e2053e70cf",
+          "subject": "[Refactor] Run every batch of a layer from one BoundarySteps (#41420)",
+          "url": "https://github.com/sgl-project/sglang/commit/380a4d03329f2dca0b35a4fc2ad906e2053e70cf"
+        },
+        {
+          "sha": "7a833ad0a2a0367f544d7957ef23ebf5037765f3",
+          "subject": "[Refactor] Choose a GQA prefill CP extend's steps from declarations (#41421)",
+          "url": "https://github.com/sgl-project/sglang/commit/7a833ad0a2a0367f544d7957ef23ebf5037765f3"
+        },
+        {
+          "sha": "1c919e401de427e23cf8aa0573ed380aa99d537f",
+          "subject": "[Fix] Keep one copy of CP-replicated rows in the DP gather (#41422)",
+          "url": "https://github.com/sgl-project/sglang/commit/1c919e401de427e23cf8aa0573ed380aa99d537f"
+        },
+        {
+          "sha": "cad9eaf27d7468c07cd5e61b8c347e7881a3895a",
+          "subject": "[Fix] Gather a dense FFN's input across attention DP and CP in one DP sum (#41423)",
+          "url": "https://github.com/sgl-project/sglang/commit/cad9eaf27d7468c07cd5e61b8c347e7881a3895a"
+        },
+        {
+          "sha": "f5ae989a0e945135b672049e03f647a9798fcc41",
+          "subject": "[Refactor] Choose fully-DP dense and DSA / MLA prefill CP layers' steps from declarations (#41424)",
+          "url": "https://github.com/sgl-project/sglang/commit/f5ae989a0e945135b672049e03f647a9798fcc41"
+        },
+        {
+          "sha": "6f2d2437b63f1d5fa8efeb9a1e744df581a20693",
+          "subject": "[Refactor] Run MHC layers on the shared boundary steps with MHC's residual operations (#41425)",
+          "url": "https://github.com/sgl-project/sglang/commit/6f2d2437b63f1d5fa8efeb9a1e744df581a20693"
+        },
+        {
+          "sha": "deaa7f14634e66800ae6949acd46a3c51415918f",
+          "subject": "[Refactor] Run two-batch-overlap layers on the declared boundaries (#41426)",
+          "url": "https://github.com/sgl-project/sglang/commit/deaa7f14634e66800ae6949acd46a3c51415918f"
+        },
+        {
+          "sha": "c28965643489701cc561bd0b724c3b354dd6c3cb",
+          "subject": "[Refactor] Let the MoE declare whether its skipped reduction is one TP all-reduce (#41427)",
+          "url": "https://github.com/sgl-project/sglang/commit/c28965643489701cc561bd0b724c3b354dd6c3cb"
+        },
+        {
+          "sha": "2e7f0bb28c4826755e30c574b1cb1ab6b782d591",
+          "subject": "[Refactor] Publish the LoRA token layout from the batch's FFN input rows (#41428)",
+          "url": "https://github.com/sgl-project/sglang/commit/2e7f0bb28c4826755e30c574b1cb1ab6b782d591"
+        },
+        {
+          "sha": "6f370c3bcd6a65b10960b47909e7781d92ebeae3",
+          "subject": "[Refactor] Build each decoder boundary from the declarations of its two sides (#41429)",
+          "url": "https://github.com/sgl-project/sglang/commit/6f370c3bcd6a65b10960b47909e7781d92ebeae3"
+        },
+        {
+          "sha": "8c43c667cbb462b2d90016ad03ba39f9e581a75e",
+          "subject": "[Refactor] Nemotron-H: build each layer's boundaries from its stage and the previous one (#41430)",
+          "url": "https://github.com/sgl-project/sglang/commit/8c43c667cbb462b2d90016ad03ba39f9e581a75e"
+        },
+        {
+          "sha": "f0ecf15c84d2b58d1726c2a1e87809ba0d71948f",
+          "subject": "[Refactor] Move CuTe DSL-fused layers onto the declared boundaries and FFN-exit kernel entries (#41431)",
+          "url": "https://github.com/sgl-project/sglang/commit/f0ecf15c84d2b58d1726c2a1e87809ba0d71948f"
+        },
+        {
+          "sha": "31329c222cb0e4e172fcc4c9a31b12c906b43654",
+          "subject": "[Fix] Run MoE layers under attention DP and GQA prefill CP on the declared DP \u00d7 CP gather (#41432)",
+          "url": "https://github.com/sgl-project/sglang/commit/31329c222cb0e4e172fcc4c9a31b12c906b43654"
+        },
+        {
+          "sha": "19eb56fa57c5aec984dc6c4b084d5750d3952e51",
+          "subject": "[Fix] Falcon-H1: count the Mamba mixer's output once under tensor parallelism (#41433)",
+          "url": "https://github.com/sgl-project/sglang/commit/19eb56fa57c5aec984dc6c4b084d5750d3952e51"
+        },
+        {
+          "sha": "ecb8e9fc8f753c4b2544df2d9d1d6695fc02992f",
+          "subject": "[Refactor] Falcon-H1: complete the FFN's sum through ffn_exit (#41434)",
+          "url": "https://github.com/sgl-project/sglang/commit/ecb8e9fc8f753c4b2544df2d9d1d6695fc02992f"
+        },
+        {
+          "sha": "4fac02fe5dad6002453620743be523c4835242d3",
+          "subject": "[Refactor] Choose MoE layers' boundaries from declarations when moe_dp_size equals attn_cp_size (#41435)",
+          "url": "https://github.com/sgl-project/sglang/commit/4fac02fe5dad6002453620743be523c4835242d3"
+        },
+        {
+          "sha": "0971450c168f14fd28055ec32f4eb5a6b50f1799",
+          "subject": "[Fix] LongCat-Flash under attention DP: branch and merge the dense FFNs through the communicators (#41436)",
+          "url": "https://github.com/sgl-project/sglang/commit/0971450c168f14fd28055ec32f4eb5a6b50f1799"
+        },
+        {
+          "sha": "55d2ee554635b8ac5db58b30ae828a83bd0cf27b",
+          "subject": "[Refactor] Step-3.5: complete the dense MLP's sum through ffn_exit (#41437)",
+          "url": "https://github.com/sgl-project/sglang/commit/55d2ee554635b8ac5db58b30ae828a83bd0cf27b"
+        },
+        {
+          "sha": "427c9e05c165befa2997a080c4ef0274dbce1f5a",
+          "subject": "[Refactor] Choose every layer's boundaries from declarations and remove the scatter-mode selection (#41438)",
+          "url": "https://github.com/sgl-project/sglang/commit/427c9e05c165befa2997a080c4ef0274dbce1f5a"
+        },
+        {
+          "sha": "0e907b755d73da127d04708a0cd91436b1d12ff8",
+          "subject": "[Refactor] Split the layer communicator into a package (move only) (#41439)",
+          "url": "https://github.com/sgl-project/sglang/commit/0e907b755d73da127d04708a0cd91436b1d12ff8"
+        },
+        {
+          "sha": "644014bc981bbf5156cb6b6431f600160c74dbbf",
+          "subject": "[Refactor] Declare each stage's residual read and update, and give each stage its own entry (#41440)",
+          "url": "https://github.com/sgl-project/sglang/commit/644014bc981bbf5156cb6b6431f600160c74dbbf"
+        },
+        {
+          "sha": "341d5273bd3ff840f16ce10428d08a3092b1d583",
+          "subject": "[Refactor] Build the boundary into any stage with one construction (#41441)",
+          "url": "https://github.com/sgl-project/sglang/commit/341d5273bd3ff840f16ce10428d08a3092b1d583"
+        },
+        {
+          "sha": "06d012eacad7f0a79c8bf4467159af4fc6fcbc44",
+          "subject": "[Refactor] Give a layer its CuTe DSL kernels at construction instead of a subclass (#41442)",
+          "url": "https://github.com/sgl-project/sglang/commit/06d012eacad7f0a79c8bf4467159af4fc6fcbc44"
+        },
+        {
+          "sha": "81f27fb3a71d3504eab821a9d39352c924c730cf",
+          "subject": "[Refactor] Replace LayerScatterModes with LayerFacts and remove ScatterMode (#41443)",
+          "url": "https://github.com/sgl-project/sglang/commit/81f27fb3a71d3504eab821a9d39352c924c730cf"
+        },
+        {
+          "sha": "0823651b0b10cd331295e6c821fe41908a7f378f",
+          "subject": "[XPU] Disable test_ngram_corpus on XPU and detect XPU tests dynamically in CI filter (#41075)",
+          "url": "https://github.com/sgl-project/sglang/commit/0823651b0b10cd331295e6c821fe41908a7f378f"
+        },
+        {
+          "sha": "6cbdfec45308759009511894cccd8654c893392b",
+          "subject": "[Fix][NPU] Fix performance degradation caused by serial execution of two-stage ACL op calls on graph (#40814)",
+          "url": "https://github.com/sgl-project/sglang/commit/6cbdfec45308759009511894cccd8654c893392b"
+        },
+        {
+          "sha": "8b2ca8ecc2410f3ab170adff23fcd2db4cd47d2b",
+          "subject": "[diffusion] feat: support multiple task types for pipelines (#38762)",
+          "url": "https://github.com/sgl-project/sglang/commit/8b2ca8ecc2410f3ab170adff23fcd2db4cd47d2b"
+        },
+        {
+          "sha": "cc012abd215fe8548597bcfdf9bc7f67dd36c83d",
+          "subject": "[CI] fix CI regression on xeon (#41002)",
+          "url": "https://github.com/sgl-project/sglang/commit/cc012abd215fe8548597bcfdf9bc7f67dd36c83d"
+        },
+        {
+          "sha": "55cc90b533cdf4a956bd9e32460c1e1a5829c218",
+          "subject": "[CI] Real-model Kimi-Linear PD parity at page, DCP virtual-page, chunk and cached-prefix boundaries (#41378)",
+          "url": "https://github.com/sgl-project/sglang/commit/55cc90b533cdf4a956bd9e32460c1e1a5829c218"
+        },
+        {
+          "sha": "3d2827236d5a81ca1959c82f23b2b86fc1b1d6d9",
+          "subject": "[AMD] Register Triton data movement tests in PR CI (#41137)",
+          "url": "https://github.com/sgl-project/sglang/commit/3d2827236d5a81ca1959c82f23b2b86fc1b1d6d9"
+        },
+        {
+          "sha": "25de80780a9e93a24062135631085f818dc9714d",
+          "subject": "[AMD] Add GLM-5.3-Flash MI35x nightly test (#36903)",
+          "url": "https://github.com/sgl-project/sglang/commit/25de80780a9e93a24062135631085f818dc9714d"
+        },
+        {
+          "sha": "34f090053e094df0a7e0497fc89140d2b5864419",
+          "subject": "[AMD] [Docker] Remove unused LLVM 18 setup from ROCm TileLang build (#41387)",
+          "url": "https://github.com/sgl-project/sglang/commit/34f090053e094df0a7e0497fc89140d2b5864419"
+        },
+        {
+          "sha": "6be9c78cf442a53e1e82dbabc58a234e51c0da7c",
+          "subject": "[Intel GPU] Xpu/weekly simple model enablement 2026 09 21 (#40664)",
+          "url": "https://github.com/sgl-project/sglang/commit/6be9c78cf442a53e1e82dbabc58a234e51c0da7c"
+        },
+        {
+          "sha": "e75e3b8a98c349e59d0e19238c5958ba1fc68468",
+          "subject": "[Bugfix] fix(hicache): wait for decode offload before retraction (#30899)",
+          "url": "https://github.com/sgl-project/sglang/commit/e75e3b8a98c349e59d0e19238c5958ba1fc68468"
+        },
+        {
+          "sha": "6c4f36e47af9b8e6aa846c998762861424267b3a",
+          "subject": "Rust server unify datapath for mm and generate requests (#39679)",
+          "url": "https://github.com/sgl-project/sglang/commit/6c4f36e47af9b8e6aa846c998762861424267b3a"
+        },
+        {
+          "sha": "f4de6abee64727d8b52bc732c589babb754df060",
+          "subject": "feat(npu): Support returning indexer top-k results (#39060)",
+          "url": "https://github.com/sgl-project/sglang/commit/f4de6abee64727d8b52bc732c589babb754df060"
+        },
+        {
+          "sha": "6405cf288103304f399074ede8529af37cfdd51c",
+          "subject": "Fix chat template cache key order (#41517)",
+          "url": "https://github.com/sgl-project/sglang/commit/6405cf288103304f399074ede8529af37cfdd51c"
+        },
+        {
+          "sha": "7ee7bef79decaf78f7669994f74e6f75c7784c14",
+          "subject": "docs: add prefill context parallelism guide and design draft (#39354)",
+          "url": "https://github.com/sgl-project/sglang/commit/7ee7bef79decaf78f7669994f74e6f75c7784c14"
+        },
+        {
+          "sha": "e8eeff2956be1fa9db0134a789e882c291753cb8",
+          "subject": "[XPU] Bump sglang-kernel-xpu wheel to v0.3.0 (#41220)",
+          "url": "https://github.com/sgl-project/sglang/commit/e8eeff2956be1fa9db0134a789e882c291753cb8"
+        },
+        {
+          "sha": "546bfa7221ce70af2f086eeea2135a7701cfe280",
+          "subject": "[Kimi-K3] Merge fused_qkvg_proj into the loader-seeded packed_modules_mapping (#41164)",
+          "url": "https://github.com/sgl-project/sglang/commit/546bfa7221ce70af2f086eeea2135a7701cfe280"
+        },
+        {
+          "sha": "df378bca4259c3ca455b17b9483d9a134e45a739",
+          "subject": "[Router] Give the cache-aware tree a snapshot surface (1/13) (#40687)",
+          "url": "https://github.com/sgl-project/sglang/commit/df378bca4259c3ca455b17b9483d9a134e45a739"
+        },
+        {
+          "sha": "65824258549671404188450748b90ab7cacab2ae",
+          "subject": "Let predicate-registered linear-attention models carry the mamba radix-cache leaves (#41165)",
+          "url": "https://github.com/sgl-project/sglang/commit/65824258549671404188450748b90ab7cacab2ae"
+        },
+        {
+          "sha": "c02eaadeb28c1e0b41e9730d18fb78dbcd4d7f01",
+          "subject": "[diffusion] optimization: populate cpu weight stores before host registration to speedup layerwise-offload initialization (#40439)",
+          "url": "https://github.com/sgl-project/sglang/commit/c02eaadeb28c1e0b41e9730d18fb78dbcd4d7f01"
+        },
+        {
+          "sha": "6caf0ff4aeb7890815ad8bed8f12397ba9819302",
+          "subject": "perf(multimodal): offload CPU feature hashing with bounded admission (#39539)",
+          "url": "https://github.com/sgl-project/sglang/commit/6caf0ff4aeb7890815ad8bed8f12397ba9819302"
+        },
+        {
+          "sha": "85be04978d76843635690300246aaf2f29a307fa",
+          "subject": "[AMD][DSV4] moe: enable shared-expert fusion on the grouped-topk path (megamoe) (#40943)",
+          "url": "https://github.com/sgl-project/sglang/commit/85be04978d76843635690300246aaf2f29a307fa"
+        },
+        {
+          "sha": "47ad1928a2517c3f865fa2f118c2287ff141e263",
+          "subject": "[sgl-router] Scope input_ids forwarding by renderer: all text chats for DeepSeek-V4 (#41226)",
+          "url": "https://github.com/sgl-project/sglang/commit/47ad1928a2517c3f865fa2f118c2287ff141e263"
+        },
+        {
+          "sha": "2f88c6528906a2464dee6eb9adbf9e8c25f4781e",
+          "subject": "[Router] Serve the cache-aware tree at /internal/kv_snapshot (2/13) (#40688)",
+          "url": "https://github.com/sgl-project/sglang/commit/2f88c6528906a2464dee6eb9adbf9e8c25f4781e"
+        },
+        {
+          "sha": "fa443412c558b5b58bed47a12e4eb7363dddf211",
+          "subject": "[AMD] [GLM5] Fuse shared expert into AITER MoE on gfx950 (#41161)",
+          "url": "https://github.com/sgl-project/sglang/commit/fa443412c558b5b58bed47a12e4eb7363dddf211"
+        },
+        {
+          "sha": "6aacca2d919bcefa98244cc0c564818ce37d8c0e",
+          "subject": "[Router] Name a replica's siblings with --kv-peer-selector (3/13) (#40689)",
+          "url": "https://github.com/sgl-project/sglang/commit/6aacca2d919bcefa98244cc0c564818ce37d8c0e"
+        },
+        {
+          "sha": "090439bf8f9a73ba999faac2a1179c6714adac58",
+          "subject": "[diffusion] docs: consolidate Qwen-Image 2.1 guidance in its cookbook (#41540)",
+          "url": "https://github.com/sgl-project/sglang/commit/090439bf8f9a73ba999faac2a1179c6714adac58"
+        },
+        {
+          "sha": "bddeb61d948ad7ad9279899a397c79b03ba054b8",
+          "subject": "[Unified Memory] fix: preserve FP8 dtype in unified MHA pool (#38133)",
+          "url": "https://github.com/sgl-project/sglang/commit/bddeb61d948ad7ad9279899a397c79b03ba054b8"
+        },
+        {
+          "sha": "da3eb6db32a1d2de6e8bb0d4b3984a33c1d3f7ef",
+          "subject": "[Unified Memory] Fix Inkling conv-checkpoint track ids written to virtual slot numbers (#41144)",
+          "url": "https://github.com/sgl-project/sglang/commit/da3eb6db32a1d2de6e8bb0d4b3984a33c1d3f7ef"
+        },
+        {
+          "sha": "0318a8d0af86ba14a05ca093aa43fafe446da23e",
+          "subject": "[Doc] Add kernel benchmark rule on L2 cache reuse (#41545)",
+          "url": "https://github.com/sgl-project/sglang/commit/0318a8d0af86ba14a05ca093aa43fafe446da23e"
+        },
+        {
+          "sha": "8151378c1ab3c2e01ce6d23f9377922ebde55b03",
+          "subject": "[DeepSelect] Add page-table transform to top-k and tighten the layout contract (#41364)",
+          "url": "https://github.com/sgl-project/sglang/commit/8151378c1ab3c2e01ce6d23f9377922ebde55b03"
+        },
+        {
+          "sha": "2e7e0802f4f3edc94702933675a71d6c7ef4f24f",
+          "subject": "[diffusion] Qwen-Image 2.1: fuse Q/K RMSNorm + RoPE + KV packing into one CUDA kernel and project Q/K/V with one packed GEMM (#41339)",
+          "url": "https://github.com/sgl-project/sglang/commit/2e7e0802f4f3edc94702933675a71d6c7ef4f24f"
+        },
+        {
+          "sha": "6624999385015d04d6a8a5d369546e7fc9d40229",
+          "subject": "[Fix][NPU] fix dp-attn hang when pin_mem is True on NPU (#40446)",
+          "url": "https://github.com/sgl-project/sglang/commit/6624999385015d04d6a8a5d369546e7fc9d40229"
+        },
+        {
+          "sha": "f209e67767304b9c03aabc7852de839d05db2c09",
+          "subject": "[Spec] Model-agnostic last-stage draft embedding under pipeline parallelism (#39643)",
+          "url": "https://github.com/sgl-project/sglang/commit/f209e67767304b9c03aabc7852de839d05db2c09"
+        },
+        {
+          "sha": "2a1c477648fe962627a1af091de54ca5e05859b4",
+          "subject": "[PD] Defer decode KV release on every transfer failure, not only decode-initiated aborts (#41404)",
+          "url": "https://github.com/sgl-project/sglang/commit/2a1c477648fe962627a1af091de54ca5e05859b4"
+        },
+        {
+          "sha": "6fa3fe69e2e5e19b75cadd9fc285b72634551992",
+          "subject": "[PD] Keep the sampling mask of a replayed rebootstrap token (#41235)",
+          "url": "https://github.com/sgl-project/sglang/commit/6fa3fe69e2e5e19b75cadd9fc285b72634551992"
+        },
+        {
+          "sha": "b07cb9e9e73acc60c04b5fcf6554380b4ec78770",
+          "subject": "[NVIDIA] Update deepgemm, deep-ep, sgl-kernel in CUDA 13.4 image, use cuda base image (#40987)",
+          "url": "https://github.com/sgl-project/sglang/commit/b07cb9e9e73acc60c04b5fcf6554380b4ec78770"
+        },
+        {
+          "sha": "26d7539799ec37efb387cdbcc14992aa1a644eca",
+          "subject": "[Docs][AMD] Update GLM-5.2 MI355X daily image (#41597)",
+          "url": "https://github.com/sgl-project/sglang/commit/26d7539799ec37efb387cdbcc14992aa1a644eca"
+        },
+        {
+          "sha": "096b066fb4f6dc3b058ff294cb9e8f7f5a7150cf",
+          "subject": "dsv4.1-amd: gfx950 sparse decode attention and sorted top-k (#41020)",
+          "url": "https://github.com/sgl-project/sglang/commit/096b066fb4f6dc3b058ff294cb9e8f7f5a7150cf"
+        },
+        {
+          "sha": "9654e5c4bcb233df406101cfc1b35aae05970691",
+          "subject": "dsv4.1-amd: fused mHC boundary and all-reduce + mHC post kernels (#41021)",
+          "url": "https://github.com/sgl-project/sglang/commit/9654e5c4bcb233df406101cfc1b35aae05970691"
+        },
+        {
+          "sha": "f124c5ceece1c61733b941cfd0e7e38fad52b44a",
+          "subject": "[Model Loader] Stop checkpoint prefetch after iterator completion (#41588)",
+          "url": "https://github.com/sgl-project/sglang/commit/f124c5ceece1c61733b941cfd0e7e38fad52b44a"
+        },
+        {
+          "sha": "89e1316eae9aae634c174c040415289fe4484aee",
+          "subject": "[mem cache] refactor: remove the index-K continuous getters orphaned by the CP v1 removal (#41469)",
+          "url": "https://github.com/sgl-project/sglang/commit/89e1316eae9aae634c174c040415289fe4484aee"
+        },
+        {
+          "sha": "7889fbab9a1a40f19793eb860017dbaa05c72140",
+          "subject": "[PD] Keep EAGLE DP graph and token metadata consistent (#32196)",
+          "url": "https://github.com/sgl-project/sglang/commit/7889fbab9a1a40f19793eb860017dbaa05c72140"
+        },
+        {
+          "sha": "b95329a74d26397825ebe55c02706c2e2f5fcc28",
+          "subject": "[Docs] Add GigaChat 3.5 and GigaChat 3.5 Reasoning cookbook pages (#41118)",
+          "url": "https://github.com/sgl-project/sglang/commit/b95329a74d26397825ebe55c02706c2e2f5fcc28"
+        },
+        {
+          "sha": "79cafec013d0a01c782d7a4bc902ef32a8941ba8",
+          "subject": "[Model] Add IQuest Q1 support and MTP draft (#41590)",
+          "url": "https://github.com/sgl-project/sglang/commit/79cafec013d0a01c782d7a4bc902ef32a8941ba8"
+        },
+        {
+          "sha": "49d26ff0c268941026b5729e2290fcfbce316466",
+          "subject": "[diffusion] model: support flux 3 action robot policies (#41066)",
+          "url": "https://github.com/sgl-project/sglang/commit/49d26ff0c268941026b5729e2290fcfbce316466"
+        },
+        {
+          "sha": "77091cea68d0701d6cc71edfb45f2815c4f8d791",
+          "subject": "[Radix Cache] Sync Rust TreeCore and make it the default (#39627)",
+          "url": "https://github.com/sgl-project/sglang/commit/77091cea68d0701d6cc71edfb45f2815c4f8d791"
+        },
+        {
+          "sha": "6e1df69623aadaba7a32284d4739c571b2f502aa",
+          "subject": "[npu]support NPU 910C L2 memcache offload (#41527)",
+          "url": "https://github.com/sgl-project/sglang/commit/6e1df69623aadaba7a32284d4739c571b2f502aa"
+        },
+        {
+          "sha": "d9074f7943b899e925cdff1842dfcbf93dd580f7",
+          "subject": "[Test] Fail fast when PD test RDMA devices are not openable by ibverbs (#41600)",
+          "url": "https://github.com/sgl-project/sglang/commit/d9074f7943b899e925cdff1842dfcbf93dd580f7"
+        },
+        {
+          "sha": "e49d7fb17073551b2f2f0ceac2959dfaefd53b29",
+          "subject": "Remove GLM-4.1V-9B-Thinking from encoder DP MMMU test (#41608)",
+          "url": "https://github.com/sgl-project/sglang/commit/e49d7fb17073551b2f2f0ceac2959dfaefd53b29"
+        },
+        {
+          "sha": "0a8ca85565697208617942c2a77aa8182b41c597",
+          "subject": "[Refactor] Group communicator fusion and CP adapters (#41547)",
+          "url": "https://github.com/sgl-project/sglang/commit/0a8ca85565697208617942c2a77aa8182b41c597"
+        },
+        {
+          "sha": "6f72cc3b642c65a09ec0e19ab3542da8ece3da16",
+          "subject": "[Refactor] Centralize decoder output access (#41548)",
+          "url": "https://github.com/sgl-project/sglang/commit/6f72cc3b642c65a09ec0e19ab3542da8ece3da16"
+        },
+        {
+          "sha": "42f58b4da700ce44a3afad5632072c2ecdd04ef0",
+          "subject": "[Refactor] Carry residual state across stage boundaries (#41549)",
+          "url": "https://github.com/sgl-project/sglang/commit/42f58b4da700ce44a3afad5632072c2ecdd04ef0"
+        },
+        {
+          "sha": "cb1fa3c3995a984e37ece0aeefec96c6d1677a1e",
+          "subject": "[Refactor] Capture auxiliary states at residual reads (#41550)",
+          "url": "https://github.com/sgl-project/sglang/commit/cb1fa3c3995a984e37ece0aeefec96c6d1677a1e"
+        },
+        {
+          "sha": "acffb0d20d4e172981e84d1006ca10e1704f039c",
+          "subject": "[Refactor] Select reduction fusion at the consumer (#41551)",
+          "url": "https://github.com/sgl-project/sglang/commit/acffb0d20d4e172981e84d1006ca10e1704f039c"
+        },
+        {
+          "sha": "49b5e76e450488dfbd61a14745fdf7f0148c01f5",
+          "subject": "[Refactor] Construct independent decoder stage boundaries (#41552)",
+          "url": "https://github.com/sgl-project/sglang/commit/49b5e76e450488dfbd61a14745fdf7f0148c01f5"
+        },
+        {
+          "sha": "9b89b96230253be38e14315519c533bd17579f95",
+          "subject": "[Refactor] Migrate specialized decoder and overlap boundaries (#41553)",
+          "url": "https://github.com/sgl-project/sglang/commit/9b89b96230253be38e14315519c533bd17579f95"
+        },
+        {
+          "sha": "701213c867a998302d4cef01a9cc1afbb6833523",
+          "subject": "[Refactor] Retire the layer facade and simplify boundary internals (#41554)",
+          "url": "https://github.com/sgl-project/sglang/commit/701213c867a998302d4cef01a9cc1afbb6833523"
+        },
+        {
+          "sha": "de9f850b36dbd26cebbfca5cdf187544ae6c8c4b",
+          "subject": "[Refactor] Rename the module to layer_boundary (#41555)",
+          "url": "https://github.com/sgl-project/sglang/commit/de9f850b36dbd26cebbfca5cdf187544ae6c8c4b"
+        },
+        {
+          "sha": "49e7bd179dc85293d022c016650c83fc0816df1a",
+          "subject": "[Refactor] Group layer boundary unit tests (#41556)",
+          "url": "https://github.com/sgl-project/sglang/commit/49e7bd179dc85293d022c016650c83fc0816df1a"
+        },
+        {
+          "sha": "6dad1524901dd070d8720f88b58bccfc5f9579f7",
+          "subject": "[Refactor] Document layer boundary contracts and integration (#41557)",
+          "url": "https://github.com/sgl-project/sglang/commit/6dad1524901dd070d8720f88b58bccfc5f9579f7"
+        },
+        {
+          "sha": "069523f999cb5a27d4c2da4ed690a42f6042fd67",
+          "subject": "[Rust] Extract a transport-neutral frontend core (#39385)",
+          "url": "https://github.com/sgl-project/sglang/commit/069523f999cb5a27d4c2da4ed690a42f6042fd67"
+        },
+        {
+          "sha": "5781206833d3296f6dc6846a9eb1ac9eab0cd522",
+          "subject": "[PD] Give FakeKVReceiver ensure_abort_notified (#41618)",
+          "url": "https://github.com/sgl-project/sglang/commit/5781206833d3296f6dc6846a9eb1ac9eab0cd522"
+        },
+        {
+          "sha": "9ae43b0eee1ba5db389cf3dec1baa9258ef85ad7",
+          "subject": "[XPU] Support compressed-tensors W4A16 by reusing the torch int4pack path (#40828)",
+          "url": "https://github.com/sgl-project/sglang/commit/9ae43b0eee1ba5db389cf3dec1baa9258ef85ad7"
+        },
+        {
+          "sha": "2ff52e3ceb0bcfdc8ba1dd0367b39ce0370bbfaf",
+          "subject": "[Intel][XPU]Enable chunked prefill scnearios for XPU with UT (#33804)",
+          "url": "https://github.com/sgl-project/sglang/commit/2ff52e3ceb0bcfdc8ba1dd0367b39ce0370bbfaf"
+        },
+        {
+          "sha": "c7be3e935b5034006cd6ae7977b41e2459b4126c",
+          "subject": "[SM120] Add optional FlashInfer PCIe-IPC all-reduce for switch-free hosts (#34528)",
+          "url": "https://github.com/sgl-project/sglang/commit/c7be3e935b5034006cd6ae7977b41e2459b4126c"
+        },
+        {
+          "sha": "dc1bd468020f8f543139d3f0e55d4d694e2d928c",
+          "subject": "[diffusion] feat: support bounded exact conditioning cache across native models (#40470)",
+          "url": "https://github.com/sgl-project/sglang/commit/dc1bd468020f8f543139d3f0e55d4d694e2d928c"
+        },
+        {
+          "sha": "bd780950300a0c236509352bab44d8a8a98f36c2",
+          "subject": "[Fix] Add name mapping in load_weights of nvidia/LocateAnything-3B (#41059)",
+          "url": "https://github.com/sgl-project/sglang/commit/bd780950300a0c236509352bab44d8a8a98f36c2"
+        },
+        {
+          "sha": "05817a40c98a09021945f894b8200911df8e1ec6",
+          "subject": "[AMD] Fix GLM-5.3 quark MoE MI35x test runner config (#41464)",
+          "url": "https://github.com/sgl-project/sglang/commit/05817a40c98a09021945f894b8200911df8e1ec6"
+        },
+        {
+          "sha": "34a1234d212fefe86acbc943114187a2a89cfa2e",
+          "subject": "chore: expose agent skills via `.agents` directories (#40515)",
+          "url": "https://github.com/sgl-project/sglang/commit/34a1234d212fefe86acbc943114187a2a89cfa2e"
+        },
+        {
+          "sha": "c9cb32e3106118ba42edd885e775916fafbf4aff",
+          "subject": "[AMD] fix kda decode flydsl import (#40546)",
+          "url": "https://github.com/sgl-project/sglang/commit/c9cb32e3106118ba42edd885e775916fafbf4aff"
+        },
+        {
+          "sha": "0e586fd12d63f06306ec20beb637bfeb331f1088",
+          "subject": "fuse shared experts with routed experts in MegaMoE's DeepGEMM (#39313)",
+          "url": "https://github.com/sgl-project/sglang/commit/0e586fd12d63f06306ec20beb637bfeb331f1088"
+        },
+        {
+          "sha": "f731e82f09be137cfc5001c732f044dd44740c1d",
+          "subject": "Fix MUSA detection under torch.compile fullgraph (#41065)",
+          "url": "https://github.com/sgl-project/sglang/commit/f731e82f09be137cfc5001c732f044dd44740c1d"
+        },
+        {
+          "sha": "5828cd49276a419402b316aec0236e5c2161e46d",
+          "subject": "[AMD] Add GLM-5.3 MI30x and MI35x nightly accuracy tests (#41602)",
+          "url": "https://github.com/sgl-project/sglang/commit/5828cd49276a419402b316aec0236e5c2161e46d"
+        },
+        {
+          "sha": "c5a38d3998b33c07ca99afea0b6838969fff2d1e",
+          "subject": "[sgl-router] Add --tokenizer-backend fast and --tokenizer-l1-cache-mb (#41268)",
+          "url": "https://github.com/sgl-project/sglang/commit/c5a38d3998b33c07ca99afea0b6838969fff2d1e"
+        },
+        {
+          "sha": "7bcfcf5aa0e511058fb1fe021c9b17ad99d993c4",
+          "subject": "[Router] Watch EndpointSlices for sibling router replicas (4/13) (#40690)",
+          "url": "https://github.com/sgl-project/sglang/commit/7bcfcf5aa0e511058fb1fe021c9b17ad99d993c4"
+        },
+        {
+          "sha": "8b3a4cad8be68a23f480b4c4ee07189150931d86",
+          "subject": "[Router] Track a booting rank's bootstrap and fetch a peer's snapshot (5/13) (#40691)",
+          "url": "https://github.com/sgl-project/sglang/commit/8b3a4cad8be68a23f480b4c4ee07189150931d86"
+        },
+        {
+          "sha": "8d1643b21ea43ab86d9575302075fd1b951ab313",
+          "subject": "[Router] Vet a peer's snapshot before it may touch the tree (6/13) (#40692)",
+          "url": "https://github.com/sgl-project/sglang/commit/8d1643b21ea43ab86d9575302075fd1b951ab313"
+        },
+        {
+          "sha": "4a4e1ce0140cacc52e2903bc8403ad762f6c68c7",
+          "subject": "[Router] Hold a booting rank's batches and graft a snapshot on the pump (7/13) (#40693)",
+          "url": "https://github.com/sgl-project/sglang/commit/4a4e1ce0140cacc52e2903bc8403ad762f6c68c7"
+        },
+        {
+          "sha": "98fce73d5bd0a25afe7d68443d314190b1c47e64",
+          "subject": "[XPU] publish nightly docker image with sgl-kernel-xpu built from main (#41650)",
+          "url": "https://github.com/sgl-project/sglang/commit/98fce73d5bd0a25afe7d68443d314190b1c47e64"
+        },
+        {
+          "sha": "fa090f77551844087456f648ff7e10c1b7ae7ad7",
+          "subject": "[MUSA] Fix fused MoE GEMV registration and torchada pin (#41444)",
+          "url": "https://github.com/sgl-project/sglang/commit/fa090f77551844087456f648ff7e10c1b7ae7ad7"
+        },
+        {
+          "sha": "ced5e9fe49386de27aa253497ecacea13c8c39d9",
+          "subject": "[Kimi] Enable GB300 TP4 and GB200/GB300 TP16 SP collectives (#35330)",
+          "url": "https://github.com/sgl-project/sglang/commit/ced5e9fe49386de27aa253497ecacea13c8c39d9"
+        },
+        {
+          "sha": "affc602f51d0dc85cabb1886d36d1208772a3b80",
+          "subject": "[CI] Extend DeepGEMM GB300 validation timeout to three hours (#41720)",
+          "url": "https://github.com/sgl-project/sglang/commit/affc602f51d0dc85cabb1886d36d1208772a3b80"
+        },
+        {
+          "sha": "875dd41e6f5cca73070078fdc198eee21b7c20e1",
+          "subject": "[AMD] Fix Load and Inference of MLA models with Quark PTPC FP8 attention on ROCm (#28734)",
+          "url": "https://github.com/sgl-project/sglang/commit/875dd41e6f5cca73070078fdc198eee21b7c20e1"
+        },
+        {
+          "sha": "8f2a9638f7a5a2b3ac903aca45508b12206b0fda",
+          "subject": "[metrics] Fix non-streaming TTFT by flushing the first output through detokenization (#38600)",
+          "url": "https://github.com/sgl-project/sglang/commit/8f2a9638f7a5a2b3ac903aca45508b12206b0fda"
+        },
+        {
+          "sha": "bf80732b926eabadbd6f54f702ffa74916a9121b",
+          "subject": "Fix pip install: exclude multimodal_gen/.claude symlink from package data (#41703)",
+          "url": "https://github.com/sgl-project/sglang/commit/bf80732b926eabadbd6f54f702ffa74916a9121b"
+        },
+        {
+          "sha": "9a16e4743769e391091760e31c8d9e56d98a4fc8",
+          "subject": "chore: grant jain-ria CI permissions (#41728)",
+          "url": "https://github.com/sgl-project/sglang/commit/9a16e4743769e391091760e31c8d9e56d98a4fc8"
+        },
+        {
+          "sha": "51ace48387ad8b86e6c81988de4bbbe6a014a544",
+          "subject": "[Metrics] Add request-level TPOT histogram (sglang:request_time_per_output_token_seconds) (#40275)",
+          "url": "https://github.com/sgl-project/sglang/commit/51ace48387ad8b86e6c81988de4bbbe6a014a544"
+        },
+        {
+          "sha": "f884231f5a3108d9139b0141406ddea60f6a97ff",
+          "subject": "[Docs] Add IQuestLab card logo to cookbook landing page (#41746)",
+          "url": "https://github.com/sgl-project/sglang/commit/f884231f5a3108d9139b0141406ddea60f6a97ff"
+        },
+        {
+          "sha": "3c4653b6a30cba798448f7fc34ad9a92a7f8e68b",
+          "subject": "[Metrics] Fix PD latency histogram accounting (#39706)",
+          "url": "https://github.com/sgl-project/sglang/commit/3c4653b6a30cba798448f7fc34ad9a92a7f8e68b"
+        },
+        {
+          "sha": "77a81996ce8295d9a3f683282693168ee4c229ed",
+          "subject": "[PD] Preserve bootstrap metadata in native Messages requests (#39711)",
+          "url": "https://github.com/sgl-project/sglang/commit/77a81996ce8295d9a3f683282693168ee4c229ed"
+        },
+        {
+          "sha": "46beacf13dbcd9d3aea456301f2d39ea3888540e",
+          "subject": "[grpc rust] Define semantic frontend contract (#41709)",
+          "url": "https://github.com/sgl-project/sglang/commit/46beacf13dbcd9d3aea456301f2d39ea3888540e"
+        },
+        {
+          "sha": "84523d67851171fa20f7c68d3d6dc6cbf20c4423",
+          "subject": "[Spec] Reuse K3 auxiliary outputs across decode CUDA graph sizes (#40159)",
+          "url": "https://github.com/sgl-project/sglang/commit/84523d67851171fa20f7c68d3d6dc6cbf20c4423"
+        },
+        {
+          "sha": "4885b563c33e10cc8655538f73db88451ca3cbb3",
+          "subject": "[Test] Demote PD test RDMA openability check to a warning (#41681)",
+          "url": "https://github.com/sgl-project/sglang/commit/4885b563c33e10cc8655538f73db88451ca3cbb3"
+        },
+        {
+          "sha": "37a47737c805782028e2c7cdbcc99f8770c0774c",
+          "subject": "[Perf] Tune SM90 GDN recurrent verify launch for small batches (#41486)",
+          "url": "https://github.com/sgl-project/sglang/commit/37a47737c805782028e2c7cdbcc99f8770c0774c"
+        },
+        {
+          "sha": "211b1d9784d15845566081cc25c8103ce43cc4f2",
+          "subject": "[Refactor] Share PD routing fields across request models (#41756)",
+          "url": "https://github.com/sgl-project/sglang/commit/211b1d9784d15845566081cc25c8103ce43cc4f2"
+        },
+        {
+          "sha": "d3f8a8f4f57f0b058aa0e4eb0cff6b7da7c0b1ce",
+          "subject": "[Spec/Prefill Coordination] Dspark support (#41623)",
+          "url": "https://github.com/sgl-project/sglang/commit/d3f8a8f4f57f0b058aa0e4eb0cff6b7da7c0b1ce"
+        },
+        {
+          "sha": "f0e4001930f86cf4b418411ba7dd20e917ce6f90",
+          "subject": "[Fix] Allocate SWA KV pools inside the memory-saver region (#40979)",
+          "url": "https://github.com/sgl-project/sglang/commit/f0e4001930f86cf4b418411ba7dd20e917ce6f90"
+        },
+        {
+          "sha": "3d4953839c39d0b5413bed701405632fc6a903f8",
+          "subject": "[Fix] MoE: require TopK layer_id to ensure routed expert captures (#40980)",
+          "url": "https://github.com/sgl-project/sglang/commit/3d4953839c39d0b5413bed701405632fc6a903f8"
+        },
+        {
+          "sha": "8d2d87475832c31f4d92df9e5c5616f36393cbd3",
+          "subject": "[Fix] Release consumed residual contributions (#41749)",
+          "url": "https://github.com/sgl-project/sglang/commit/8d2d87475832c31f4d92df9e5c5616f36393cbd3"
+        },
+        {
+          "sha": "ba3e04c063fad25675a9ddf40dc0ce51a2e3c5cf",
+          "subject": "[CI] Grant CI permissions to four contributors (#41775)",
+          "url": "https://github.com/sgl-project/sglang/commit/ba3e04c063fad25675a9ddf40dc0ce51a2e3c5cf"
+        },
+        {
+          "sha": "57d4adeb8331cf2e4b0a61dddd3103db037b67c1",
+          "subject": "[Kernel] Expose FlashMLA kv_format in sgl-kernel sparse decode (#41336)",
+          "url": "https://github.com/sgl-project/sglang/commit/57d4adeb8331cf2e4b0a61dddd3103db037b67c1"
+        },
+        {
+          "sha": "cae69be584b8fc2daf0b03ec552710592f8738cb",
+          "subject": "chore: bump sgl-kernel version to 0.4.8 (#41784)",
+          "url": "https://github.com/sgl-project/sglang/commit/cae69be584b8fc2daf0b03ec552710592f8738cb"
+        },
+        {
+          "sha": "e5cec303ae7e719d27694f46e1c14b9bf34b1894",
+          "subject": "[Fix] Restore deferred layer dumps and pin SentencePiece for InternVL (#41777)",
+          "url": "https://github.com/sgl-project/sglang/commit/e5cec303ae7e719d27694f46e1c14b9bf34b1894"
+        },
+        {
+          "sha": "fc9bdc8a3e60a0896e58d84ac261cc470ab4a24c",
+          "subject": "[MoE] Keep the moe_align_block_size pad fill inside sorted_token_ids (#41759)",
+          "url": "https://github.com/sgl-project/sglang/commit/fc9bdc8a3e60a0896e58d84ac261cc470ab4a24c"
+        },
+        {
+          "sha": "7b30ff26eea8b593efe00d429eb001ad446c3f2a",
+          "subject": "[CI] Evaluate the maintenance gate with github-script instead of jq (#41625)",
+          "url": "https://github.com/sgl-project/sglang/commit/7b30ff26eea8b593efe00d429eb001ad446c3f2a"
+        },
+        {
+          "sha": "8854857a991e06b3ef9c4caeae34c94fc3588336",
+          "subject": "[CI] Bound maintenance API requests to 30 seconds (#41800)",
+          "url": "https://github.com/sgl-project/sglang/commit/8854857a991e06b3ef9c4caeae34c94fc3588336"
+        },
+        {
+          "sha": "cb3ba2f2b77b4812313f7b13da67759d2b5e3a52",
+          "subject": "[XPU] Add dynamic_expert_bias and track_state support (#39618)",
+          "url": "https://github.com/sgl-project/sglang/commit/cb3ba2f2b77b4812313f7b13da67759d2b5e3a52"
+        },
+        {
+          "sha": "01b5f572b7b678e2fa5a727881f1ff3ab4dd3c6d",
+          "subject": "[Refactor] Rename layer boundary protocols, contracts and helpers (#41750)",
+          "url": "https://github.com/sgl-project/sglang/commit/01b5f572b7b678e2fa5a727881f1ff3ab4dd3c6d"
+        },
+        {
+          "sha": "ea855f0daf9f104ad93f93056de79c6c376aacbe",
+          "subject": "[Refactor] Leave decoder stacks through final_norm(skip_empty=True) (#41751)",
+          "url": "https://github.com/sgl-project/sglang/commit/ea855f0daf9f104ad93f93056de79c6c376aacbe"
+        },
+        {
+          "sha": "843f50f5c1e3c5812e05ccf363141ccb38270307",
+          "subject": "[Fix] Reduce the Sarvam dense MLP through its row-parallel projection (#41752)",
+          "url": "https://github.com/sgl-project/sglang/commit/843f50f5c1e3c5812e05ccf363141ccb38270307"
+        },
+        {
+          "sha": "faa5064f6e07ebeafd27875d2b210afbbe66e973",
+          "subject": "[Refactor] Send producer-written residual streams through to_pp (#41753)",
+          "url": "https://github.com/sgl-project/sglang/commit/faa5064f6e07ebeafd27875d2b210afbbe66e973"
+        },
+        {
+          "sha": "9ee065e49a129db2e11a2b4cc94eb290fd1b80dc",
+          "subject": "[Fix] Step-3.5: build the shared expert without TP under all-to-all MoE backends (#41754)",
+          "url": "https://github.com/sgl-project/sglang/commit/9ee065e49a129db2e11a2b4cc94eb290fd1b80dc"
+        },
+        {
+          "sha": "7fb85a9d8806acfe865d998cbcc1899ea7b739c9",
+          "subject": "[MLX] Fix startup after logical token capacity change (#41314)",
+          "url": "https://github.com/sgl-project/sglang/commit/7fb85a9d8806acfe865d998cbcc1899ea7b739c9"
+        },
+        {
+          "sha": "113e6a14963e82509fbb80bdcea2c84991affbd6",
+          "subject": "[Refactor] Simplify layer boundary internals (#41778)",
+          "url": "https://github.com/sgl-project/sglang/commit/113e6a14963e82509fbb80bdcea2c84991affbd6"
+        },
+        {
+          "sha": "d41904f05e19388326cc06c42b5a62cd5a1bba30",
+          "subject": "[Refactor] Build seven more decoders from stage boundaries (#41779)",
+          "url": "https://github.com/sgl-project/sglang/commit/d41904f05e19388326cc06c42b5a62cd5a1bba30"
+        },
+        {
+          "sha": "be66c1b460529067742349dc8bf85456ad423ae1",
+          "subject": "[NPU][CI] Fix stale multimodal-gen job name in fast-fail health check (#41824)",
+          "url": "https://github.com/sgl-project/sglang/commit/be66c1b460529067742349dc8bf85456ad423ae1"
+        },
+        {
+          "sha": "964fd6af929261d90c7c53dcc4fdc6a2c9dc2e3d",
+          "subject": "[ROCm] GLM-5.2: gfx950 four-kernel fused DSA indexer decode path (#38583)",
+          "url": "https://github.com/sgl-project/sglang/commit/964fd6af929261d90c7c53dcc4fdc6a2c9dc2e3d"
+        },
+        {
+          "sha": "b660100c008bc15f6e6979ddbaaed5a1c037350b",
+          "subject": "[qwen 3.8 next] Fuse QSA graph replay metadata across draft steps (#41173)",
+          "url": "https://github.com/sgl-project/sglang/commit/b660100c008bc15f6e6979ddbaaed5a1c037350b"
+        },
+        {
+          "sha": "88f95f4b87c52044139aadcb1b2797f7e46845b9",
+          "subject": "[qwen next] Fuse QSA KV preparation and sparse block expansion (#40972)",
+          "url": "https://github.com/sgl-project/sglang/commit/88f95f4b87c52044139aadcb1b2797f7e46845b9"
+        },
+        {
+          "sha": "eb9c9ee99d47bf4c526a06cd84da59cd9cf4e2a5",
+          "subject": "[Qwen4-Exp] Optional fp8 (e4m3) storage for the compressed QSA indexer cache (#39614)",
+          "url": "https://github.com/sgl-project/sglang/commit/eb9c9ee99d47bf4c526a06cd84da59cd9cf4e2a5"
+        },
+        {
+          "sha": "24ee67d2fa7485d86201680fd2a950dfb9baea41",
+          "subject": "Readme refresh (#41787)",
+          "url": "https://github.com/sgl-project/sglang/commit/24ee67d2fa7485d86201680fd2a950dfb9baea41"
+        },
+        {
+          "sha": "f85ca901e2a1d2551001c320d1a39a08bdcf3e49",
+          "subject": "[AMD][DI][CI] Fix four failures in the MI355X disaggregation nightly (#41025)",
+          "url": "https://github.com/sgl-project/sglang/commit/f85ca901e2a1d2551001c320d1a39a08bdcf3e49"
+        },
+        {
+          "sha": "4207f1ae23bd8c60fd3d677c918af8ffc98e4e5f",
+          "subject": "[AMD][DI][CI] Record the commit the MI355X nightly tested (#41099)",
+          "url": "https://github.com/sgl-project/sglang/commit/4207f1ae23bd8c60fd3d677c918af8ffc98e4e5f"
+        },
+        {
+          "sha": "25de118ae3a010e81997e2b884e11524f713c834",
+          "subject": "[AMD][DI][CI] Give the dsv4pro-fp4 MTP decode more memory headroom (#41238)",
+          "url": "https://github.com/sgl-project/sglang/commit/25de118ae3a010e81997e2b884e11524f713c834"
+        },
+        {
+          "sha": "3b537e96e2e676583f72d0c86558570bc7723282",
+          "subject": "[AMD][DI][CI] Leave the GLM-5.2 MTP decode room to load its Triton kernels (#41135)",
+          "url": "https://github.com/sgl-project/sglang/commit/3b537e96e2e676583f72d0c86558570bc7723282"
+        },
+        {
+          "sha": "8c75ad9e62c8a994cd386f2357d1a9d7c1fcd0ac",
+          "subject": "chore: bump mooncake version to 0.3.13.post1 (#41678)",
+          "url": "https://github.com/sgl-project/sglang/commit/8c75ad9e62c8a994cd386f2357d1a9d7c1fcd0ac"
+        },
+        {
+          "sha": "ec0006673abe8c2a89162d428ef9b68b67393797",
+          "subject": "[NPU] Add decode context parallel support for dsa models (#37787)",
+          "url": "https://github.com/sgl-project/sglang/commit/ec0006673abe8c2a89162d428ef9b68b67393797"
+        },
+        {
+          "sha": "51cae5f303ec3c0c8fe20976c274fda8fc5bb1fe",
+          "subject": "[HiCache][PD] fix: clamp the decode restore to the prefix promised to prefill (#41450)",
+          "url": "https://github.com/sgl-project/sglang/commit/51cae5f303ec3c0c8fe20976c274fda8fc5bb1fe"
+        },
+        {
+          "sha": "682f4ef32f46fd718fdc698c93e69a6b3a79f8f5",
+          "subject": "[ROCm] Select DSA indexer top-k wave size by arch (wave32 on gfx1250) (#41687)",
+          "url": "https://github.com/sgl-project/sglang/commit/682f4ef32f46fd718fdc698c93e69a6b3a79f8f5"
+        },
+        {
+          "sha": "b87a241a6f977c2de475b1f7029d23c0b50adf09",
+          "subject": "[AMD] Add Qwen3.8-Flash-Next-FP8 nightly validation (#36901)",
+          "url": "https://github.com/sgl-project/sglang/commit/b87a241a6f977c2de475b1f7029d23c0b50adf09"
+        },
+        {
+          "sha": "0931a72eb2265b136b9d664448c4a79b34d988bd",
+          "subject": "[diffusion] feat: support MiniMax H3 RL  (#34365)",
+          "url": "https://github.com/sgl-project/sglang/commit/0931a72eb2265b136b9d664448c4a79b34d988bd"
+        },
+        {
+          "sha": "45c8ddddd3defbb760a221881b82911e67de3f11",
+          "subject": "[diffusion] feat: check the final MP4 in-process instead of spawning ffprobe (#41825)",
+          "url": "https://github.com/sgl-project/sglang/commit/45c8ddddd3defbb760a221881b82911e67de3f11"
+        },
+        {
+          "sha": "4d4d3f2e5ce7a6bb4ae09e342c9f750648aec711",
+          "subject": "[Router] Sweep the fleet for a peer snapshot and hand it to the pump (8/13) (#40694)",
+          "url": "https://github.com/sgl-project/sglang/commit/4d4d3f2e5ce7a6bb4ae09e342c9f750648aec711"
+        },
+        {
+          "sha": "964c45cf31e838d85c048fe8c03fa51a588881a1",
+          "subject": "[NPU] [DOC]: add Kimi-K3 NPU PD disaggregation recipes (#41717)",
+          "url": "https://github.com/sgl-project/sglang/commit/964c45cf31e838d85c048fe8c03fa51a588881a1"
+        },
+        {
+          "sha": "d7cce548859c9a088fcebf5d5f95c4269ab44146",
+          "subject": "[AMD] Resolve QSA packed-varlen decode to aiter on HIP (#41513)",
+          "url": "https://github.com/sgl-project/sglang/commit/d7cce548859c9a088fcebf5d5f95c4269ab44146"
+        },
+        {
+          "sha": "e9b0d0c0a3cc033a653501231b2de6af9ffec7db",
+          "subject": "[AMD] Gate flashinfer and TRT-LLM DSA paths on CUDA (#40911)",
+          "url": "https://github.com/sgl-project/sglang/commit/e9b0d0c0a3cc033a653501231b2de6af9ffec7db"
+        },
+        {
+          "sha": "9b7464c8dd1c1c43d28c426232f2be9fd35c87a8",
+          "subject": "ci: temporarily disable A5 (950) nightly job during power maintenance (#41856)",
+          "url": "https://github.com/sgl-project/sglang/commit/9b7464c8dd1c1c43d28c426232f2be9fd35c87a8"
+        },
+        {
+          "sha": "8055ccd2cd36964541b36b817e40f5a758e31746",
+          "subject": "[Linear Attention] Expose GDN/KDA prefill hooks and auxiliary cache accounting (#40227)",
+          "url": "https://github.com/sgl-project/sglang/commit/8055ccd2cd36964541b36b817e40f5a758e31746"
+        },
+        {
+          "sha": "c0296186b75ef2ff7a376b16161bb8b2f09f1de6",
+          "subject": "[KDA] Fix ptx_kda prefill NaN without a gate lower bound and workspace growth (#41572)",
+          "url": "https://github.com/sgl-project/sglang/commit/c0296186b75ef2ff7a376b16161bb8b2f09f1de6"
+        },
+        {
+          "sha": "57c81258d493a08953407ceabf2cf73b1307ff8b",
+          "subject": "[KDA] Enable the ptx_kda prefill backend on SM100 (B200 / GB200) (#41445)",
+          "url": "https://github.com/sgl-project/sglang/commit/57c81258d493a08953407ceabf2cf73b1307ff8b"
+        },
+        {
+          "sha": "47dcde70f40e7ceba59be1b1dc83a81b574c2b6e",
+          "subject": "[Docs] Add MI355X FP8 agentic recipe to the Qwen3.5 cookbook (#41849)",
+          "url": "https://github.com/sgl-project/sglang/commit/47dcde70f40e7ceba59be1b1dc83a81b574c2b6e"
+        },
+        {
+          "sha": "f8500474c94d06845e099f8865593dd2d03e8480",
+          "subject": "[Router] Share one fleet-wide fetch across a discovery burst (9/13) (#40695)",
+          "url": "https://github.com/sgl-project/sglang/commit/f8500474c94d06845e099f8865593dd2d03e8480"
+        },
+        {
+          "sha": "53225fadf40428149315d43f53b6df80d12957e0",
+          "subject": "[Fix] Stop the namespace census at the leaf a read names (#41838)",
+          "url": "https://github.com/sgl-project/sglang/commit/53225fadf40428149315d43f53b6df80d12957e0"
+        },
+        {
+          "sha": "4c930125c7a4f055376db43337cfbb8c75700e13",
+          "subject": "[Router] Ask the fleet when a graft's splice goes unwitnessed (10/13) (#40696)",
+          "url": "https://github.com/sgl-project/sglang/commit/4c930125c7a4f055376db43337cfbb8c75700e13"
+        },
+        {
+          "sha": "4b3f63ec7090f588cc7c7b852031fdce7560c35a",
+          "subject": "[Router] Prove a bootstrapped replica answers like the one it copied (11/13) (#40697)",
+          "url": "https://github.com/sgl-project/sglang/commit/4b3f63ec7090f588cc7c7b852031fdce7560c35a"
+        },
+        {
+          "sha": "bd66ce343e4f6e2f2b75d7e820fe4d0718a8d824",
+          "subject": "[diffusion] nightly: measure every framework with one client end-to-end methodology (#41689)",
+          "url": "https://github.com/sgl-project/sglang/commit/bd66ce343e4f6e2f2b75d7e820fe4d0718a8d824"
+        },
+        {
+          "sha": "28c5e7f5cbac8bb1a4e645579dbf56d83f442cbc",
+          "subject": "[Fix] Stop PD-decode queue_time from counting decode time before a retraction (#41380)",
+          "url": "https://github.com/sgl-project/sglang/commit/28c5e7f5cbac8bb1a4e645579dbf56d83f442cbc"
+        },
+        {
+          "sha": "21ed9fbf441801c30c45504f30bcf54c54b26f40",
+          "subject": "[Rust] Extract shared runtime.v1 protobuf bindings (#41726)",
+          "url": "https://github.com/sgl-project/sglang/commit/21ed9fbf441801c30c45504f30bcf54c54b26f40"
+        },
+        {
+          "sha": "aec4b799e61af971701d960e19d9d3062a6eb5ee",
+          "subject": "[PD][Mamba] fix: free the COW mamba slot of decode requests dropped before preallocation (#41451)",
+          "url": "https://github.com/sgl-project/sglang/commit/aec4b799e61af971701d960e19d9d3062a6eb5ee"
+        },
+        {
+          "sha": "d26ec4690d10d4c69890280b313d0409c8265feb",
+          "subject": "docs: remove unreliable DeepWiki badge (#41851)",
+          "url": "https://github.com/sgl-project/sglang/commit/d26ec4690d10d4c69890280b313d0409c8265feb"
+        },
+        {
+          "sha": "9f9f9e702a48a96b902a5cf580514dbec9acd6d9",
+          "subject": "[HiCache] Attribute buffer-mode storage hits against the joint device match (#41758)",
+          "url": "https://github.com/sgl-project/sglang/commit/9f9f9e702a48a96b902a5cf580514dbec9acd6d9"
+        },
+        {
+          "sha": "3a398442bfccac64a4e681093f1a1aec6a7d4cd1",
+          "subject": "dsv4.1-amd: serve DeepSeek-V4.1 on gfx950 (#41308)",
+          "url": "https://github.com/sgl-project/sglang/commit/3a398442bfccac64a4e681093f1a1aec6a7d4cd1"
+        },
+        {
+          "sha": "4dfc0ac131274e6fc4599345d33863e949e52947",
+          "subject": "[BugFix] Pass token-major Q/K tensors from Gemma-3 to RadixAttention (#37984)",
+          "url": "https://github.com/sgl-project/sglang/commit/4dfc0ac131274e6fc4599345d33863e949e52947"
+        },
+        {
+          "sha": "eae808903ff571d9e00e65cea8ef03ba9a1b309f",
+          "subject": "[Deps] Bump FlashInfer to 0.7.0.post1 (#40709)",
+          "url": "https://github.com/sgl-project/sglang/commit/eae808903ff571d9e00e65cea8ef03ba9a1b309f"
+        },
+        {
+          "sha": "036a3b3e14af76a03a5520c8e07111786ac002b6",
+          "subject": "[Test] Lower the SM120 NVFP4 KV GSM8K threshold to 0.60 (#41799)",
+          "url": "https://github.com/sgl-project/sglang/commit/036a3b3e14af76a03a5520c8e07111786ac002b6"
+        },
+        {
+          "sha": "547286bb5abbabe85e69c6c4d3d84a93f5954993",
+          "subject": "[Deps] Bump transformers to 5.17.0 (#39012)",
+          "url": "https://github.com/sgl-project/sglang/commit/547286bb5abbabe85e69c6c4d3d84a93f5954993"
+        },
+        {
+          "sha": "4407a21f3c390b4c34c367ac8a7eddaa45138f56",
+          "subject": "[Spec][PP] Fix hybrid recurrent-state commit and micro-batch pairing under PP x speculative decoding (#40001)",
+          "url": "https://github.com/sgl-project/sglang/commit/4407a21f3c390b4c34c367ac8a7eddaa45138f56"
+        },
+        {
+          "sha": "e27b6e0971c7fefe74f5d61d0e16e0636da5a2d6",
+          "subject": "[Fix] Read TensorCast's WORLD placement under its current names (#41805)",
+          "url": "https://github.com/sgl-project/sglang/commit/e27b6e0971c7fefe74f5d61d0e16e0636da5a2d6"
+        },
+        {
+          "sha": "3f207388465683d2ed873631983a68eff8b48078",
+          "subject": "[Fix] State the configured MoE-DP width in the weight-cache fingerprint (#41806)",
+          "url": "https://github.com/sgl-project/sglang/commit/3f207388465683d2ed873631983a68eff8b48078"
+        },
+        {
+          "sha": "e2899899331f77f78ecded9435de245aad7d1e4b",
+          "subject": "[Fix] Shard MoE WNA16 and Quark INT4-FP8 weights by the MoE placement (#41807)",
+          "url": "https://github.com/sgl-project/sglang/commit/e2899899331f77f78ecded9435de245aad7d1e4b"
+        },
+        {
+          "sha": "ecc0f0dec2171b7cf9693b362f83b1b2b177cb0c",
+          "subject": "[Fix] Pass the draft's attention ownership to DFLASH's eager LiLiCorr scope (#41808)",
+          "url": "https://github.com/sgl-project/sglang/commit/ecc0f0dec2171b7cf9693b362f83b1b2b177cb0c"
+        },
+        {
+          "sha": "a659e6461f8684cb8aff0a7cfd065c2f4bd988e3",
+          "subject": "[Fix] Size the prefill delayer's gather buffer to its TP group (#41809)",
+          "url": "https://github.com/sgl-project/sglang/commit/a659e6461f8684cb8aff0a7cfd065c2f4bd988e3"
+        },
+        {
+          "sha": "4f3ee94d2572b09af97e9dbd031de0030bf99352",
+          "subject": "[Fix] Make the Solar model constructible and runnable (#41810)",
+          "url": "https://github.com/sgl-project/sglang/commit/4f3ee94d2572b09af97e9dbd031de0030bf99352"
+        },
+        {
+          "sha": "b0cc246ff8cb990e247d8dae3f4b49d3a11738f6",
+          "subject": "[Refactor] Drop placement values nothing reads (#41811)",
+          "url": "https://github.com/sgl-project/sglang/commit/b0cc246ff8cb990e247d8dae3f4b49d3a11738f6"
+        },
+        {
+          "sha": "a09aedf1ca5ebe62c9f9ad646c4819afc95d65b6",
+          "subject": "[Refactor] Drop model placement attributes and parameters nothing reads (#41812)",
+          "url": "https://github.com/sgl-project/sglang/commit/a09aedf1ca5ebe62c9f9ad646c4819afc95d65b6"
+        },
+        {
+          "sha": "499e86db983df6417fc1a5d8bcadc9e7d6edd5e4",
+          "subject": "[Refactor] Keep only the TP and PP groups on the model runner (#41813)",
+          "url": "https://github.com/sgl-project/sglang/commit/499e86db983df6417fc1a5d8bcadc9e7d6edd5e4"
+        },
+        {
+          "sha": "c7fa37a5ca8898d45bd2a92272a35fee6c213c73",
+          "subject": "[Refactor] Let FusedMoE's weight-loading helpers read the layer's MoE-TP rank (#41814)",
+          "url": "https://github.com/sgl-project/sglang/commit/c7fa37a5ca8898d45bd2a92272a35fee6c213c73"
+        },
+        {
+          "sha": "00659ac0998b4243a2ceab4580f30711ab6e5bcb",
+          "subject": "[Refactor] Stop passing models' layers the placement they already read (#41815)",
+          "url": "https://github.com/sgl-project/sglang/commit/00659ac0998b4243a2ceab4580f30711ab6e5bcb"
+        },
+        {
+          "sha": "e7f6a99313633778188cf37d3d7d9f004c55a6e3",
+          "subject": "[Refactor] Add make_pp_layers so models stop handing their PP position down (#41816)",
+          "url": "https://github.com/sgl-project/sglang/commit/e7f6a99313633778188cf37d3d7d9f004c55a6e3"
+        },
+        {
+          "sha": "986cb8268b8bfdc1f937251249943eb5507adbfa",
+          "subject": "[Refactor] Enter draft TP scopes by attention ownership and drop ModelRunner.tp_group (#41817)",
+          "url": "https://github.com/sgl-project/sglang/commit/986cb8268b8bfdc1f937251249943eb5507adbfa"
+        },
+        {
+          "sha": "201c4b9b2a1e5a222bfedf97566ade0eef24d86c",
+          "subject": "[RL, Spec] Introduce top-p mask capture for spec and add DFlash/DSpark impl (#34201)",
+          "url": "https://github.com/sgl-project/sglang/commit/201c4b9b2a1e5a222bfedf97566ade0eef24d86c"
+        },
+        {
+          "sha": "a9c97c9f6973c03e778d1fe1e63a6b9f58a55012",
+          "subject": "[Feature] Add --attn-dp-size and deprecate --enable-dp-attention (#41818)",
+          "url": "https://github.com/sgl-project/sglang/commit/a9c97c9f6973c03e778d1fe1e63a6b9f58a55012"
+        },
+        {
+          "sha": "f050ab194ab5b1c6d792be06925658826c56bbd4",
+          "subject": "fix(spec): enable Qwen3.5 EAGLE3 capture and streaming overlap (#41154)",
+          "url": "https://github.com/sgl-project/sglang/commit/f050ab194ab5b1c6d792be06925658826c56bbd4"
+        },
+        {
+          "sha": "8e4bcc5ca9042396f632d49a05052197d6a7ff4d",
+          "subject": "[rust-renderer] `sglang-processor` lib (#41896)",
+          "url": "https://github.com/sgl-project/sglang/commit/8e4bcc5ca9042396f632d49a05052197d6a7ff4d"
+        },
+        {
+          "sha": "826f15bf9c8be2bd358c389724e9681f73c9d841",
+          "subject": "[Fix] Preserve inline instructions for Responses and Kimi K3 Messages (#40077)",
+          "url": "https://github.com/sgl-project/sglang/commit/826f15bf9c8be2bd358c389724e9681f73c9d841"
+        },
+        {
+          "sha": "488869c2d0f3321299488bcf221934df40b06454",
+          "subject": "[Fix] Keep MiMo-V2 processor available without TorchCodec (#41667)",
+          "url": "https://github.com/sgl-project/sglang/commit/488869c2d0f3321299488bcf221934df40b06454"
+        },
+        {
+          "sha": "517cfa218cfee933ed79d9878ca1ee36f85c1dc0",
+          "subject": "[Test] Prune redundant scheduler unit tests (#41952)",
+          "url": "https://github.com/sgl-project/sglang/commit/517cfa218cfee933ed79d9878ca1ee36f85c1dc0"
+        },
+        {
+          "sha": "63321e3693599a1718644c425be92c519effac46",
+          "subject": "[Scheduler] Move internal-state readback and updates into a collaborator (#41950)",
+          "url": "https://github.com/sgl-project/sglang/commit/63321e3693599a1718644c425be92c519effac46"
+        },
+        {
+          "sha": "b37e6f79fce0a4ec4fc9d5a4224830726da9dee8",
+          "subject": "[ci] grant ci permissions to sagearc (#41935)",
+          "url": "https://github.com/sgl-project/sglang/commit/b37e6f79fce0a4ec4fc9d5a4224830726da9dee8"
+        },
+        {
+          "sha": "a702970ecbb762ae8edd7e3d5bf50e9ea82cecf8",
+          "subject": "[Perf] Use FA4 by default for MiMo on SM100 (#41886)",
+          "url": "https://github.com/sgl-project/sglang/commit/a702970ecbb762ae8edd7e3d5bf50e9ea82cecf8"
+        },
+        {
+          "sha": "6af651ea0cb4da0f98f65f31c0830a8f1fa38221",
+          "subject": "[AMD][Quark] Serve the Kimi-K3 MXFP4 checkpoint on ROCm (#40811)",
+          "url": "https://github.com/sgl-project/sglang/commit/6af651ea0cb4da0f98f65f31c0830a8f1fa38221"
+        },
+        {
+          "sha": "ebccddce19c5fbdd4daa97921df3313c9bee73ad",
+          "subject": "[Rust] Implement the Rust gRPC adapter for native generation (#41766)",
+          "url": "https://github.com/sgl-project/sglang/commit/ebccddce19c5fbdd4daa97921df3313c9bee73ad"
+        },
+        {
+          "sha": "baae0195d9addc0d98503a944d9c35dab56736a9",
+          "subject": "[ci] fix renderer image publish (#41936)",
+          "url": "https://github.com/sgl-project/sglang/commit/baae0195d9addc0d98503a944d9c35dab56736a9"
+        },
+        {
+          "sha": "b4df214948424f101238ed3eece8971e2ab359b1",
+          "subject": "Fix LoRA usage-counter accounting across request lifecycle paths (#31808)",
+          "url": "https://github.com/sgl-project/sglang/commit/b4df214948424f101238ed3eece8971e2ab359b1"
+        },
+        {
+          "sha": "36330b8c08d179e1697a4c7b206d5e090276bace",
+          "subject": "[Router] k8s e2e for cache-aware peer bootstrap (12/13) (#40698)",
+          "url": "https://github.com/sgl-project/sglang/commit/36330b8c08d179e1697a4c7b206d5e090276bace"
+        },
+        {
+          "sha": "2ab1b537f817a43d484c2d4ef1dbe5abb6e2fd96",
+          "subject": "[diffusion] docs: recommend docker for gpu deployments (#41966)",
+          "url": "https://github.com/sgl-project/sglang/commit/2ab1b537f817a43d484c2d4ef1dbe5abb6e2fd96"
+        },
+        {
+          "sha": "0148d9a2fd0f12595f2da0c04846f80cf9e9853b",
+          "subject": "[AMD] Fix MiniMax-M3 EAGLE3 verification on ROCm (#41497)",
+          "url": "https://github.com/sgl-project/sglang/commit/0148d9a2fd0f12595f2da0c04846f80cf9e9853b"
+        }
+      ]
+    },
+    "charts": [
+      {
+        "name": "grafana",
+        "pin": "13.2.5",
+        "latest": "13.2.7",
+        "tags_behind": 2,
+        "newer_tags": [
+          "13.2.6",
+          "13.2.7"
+        ],
+        "url": "https://grafana-community.github.io/helm-charts/index.yaml"
+      },
+      {
+        "name": "loki",
+        "pin": "18.13.4",
+        "latest": "18.13.7",
+        "tags_behind": 3,
+        "newer_tags": [
+          "18.13.5",
+          "18.13.6",
+          "18.13.7"
+        ],
+        "url": "https://grafana-community.github.io/helm-charts/index.yaml"
+      },
+      {
+        "name": "tempo",
+        "pin": "3.0.0",
+        "latest": "3.1.0",
+        "tags_behind": 1,
+        "newer_tags": [
+          "3.1.0"
+        ],
+        "url": "https://grafana-community.github.io/helm-charts/index.yaml"
+      },
+      {
+        "name": "prometheus",
+        "pin": "29.31.1",
+        "latest": "29.35.0",
+        "tags_behind": 5,
+        "newer_tags": [
+          "29.32.0",
+          "29.33.0",
+          "29.33.1",
+          "29.34.0",
+          "29.35.0"
+        ],
+        "url": "https://prometheus-community.github.io/helm-charts/index.yaml"
+      },
+      {
+        "name": "otel-collector",
+        "pin": "0.173.1",
+        "latest": "0.174.0",
+        "tags_behind": 1,
+        "newer_tags": [
+          "0.174.0"
+        ],
+        "url": "https://open-telemetry.github.io/opentelemetry-helm-charts/index.yaml"
+      },
+      {
+        "name": "gitea",
+        "error": "HTTP Error 403: Forbidden"
+      }
+    ]
+  },
+  "agentgateway_chart_reference": {
+    "mode": "commits",
+    "repo": "agentgateway/agentgateway",
+    "pin": "main-3528a428",
+    "pinned_sha": "3528a4286e26cc74a7037aa8c84c3ae512f9e13e",
+    "upstream_sha": "dd7a4b32d352eed90a20f8719b4b3f0696513070",
+    "ahead_by": 24,
+    "behind_by": 0,
+    "commits": [
+      {
+        "sha": "a08efaa32325a5bbee7792fd8cadfa5ebbae306c",
+        "subject": "Update model catalog (#3654)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/a08efaa32325a5bbee7792fd8cadfa5ebbae306c"
+      },
+      {
+        "sha": "c425baea0863391789c92015b7a1397584fa3a3e",
+        "subject": "bump dep and clean up osv-scanner noise (#3658)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/c425baea0863391789c92015b7a1397584fa3a3e"
+      },
+      {
+        "sha": "c4934b2dd6adde3bf247a9772b9c82c9aedb70c0",
+        "subject": "Fix ext_proc clean stream close handling (#3648)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/c4934b2dd6adde3bf247a9772b9c82c9aedb70c0"
+      },
+      {
+        "sha": "146af343e1c6ede62cee6e386a1dc5feb947a10c",
+        "subject": "llm: Expand models in /v1/models (#3649)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/146af343e1c6ede62cee6e386a1dc5feb947a10c"
+      },
+      {
+        "sha": "8a7f736945d04834ffae6043143dd5f991acfe6d",
+        "subject": "llm: preserve additionalProperties in Gemini schema normalization (#3590)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/8a7f736945d04834ffae6043143dd5f991acfe6d"
+      },
+      {
+        "sha": "d08ff313ea9263de9af22684085028e352bd31da",
+        "subject": "CI: add nice diff for model catalog PR (#3660)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/d08ff313ea9263de9af22684085028e352bd31da"
+      },
+      {
+        "sha": "69f1fd25f38f396cbbc989730a93c23d248e48cf",
+        "subject": "timeout: respect backend request timeout for any body buffering (#3599)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/69f1fd25f38f396cbbc989730a93c23d248e48cf"
+      },
+      {
+        "sha": "04ccd39317aadae78e7a0f228c986c8016b8318e",
+        "subject": "bedrock mantle: validate guardrail support (#3507)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/04ccd39317aadae78e7a0f228c986c8016b8318e"
+      },
+      {
+        "sha": "06c20cef063d597d6896b299b20527e17eb4047c",
+        "subject": "(breaking) llm: default messages -> responses (was completions) (#3647)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/06c20cef063d597d6896b299b20527e17eb4047c"
+      },
+      {
+        "sha": "dc376ec75483292f45a1fa4ec58405319845561e",
+        "subject": "catalog: future proof unknown fields (#3669)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/dc376ec75483292f45a1fa4ec58405319845561e"
+      },
+      {
+        "sha": "eba20aafe8168ee46cbe4622f9150c390a635521",
+        "subject": "Misc UI cleanup (#3672)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/eba20aafe8168ee46cbe4622f9150c390a635521"
+      },
+      {
+        "sha": "a02dfa09d9d03ce1c6fae544e256c8f7db0b65eb",
+        "subject": "Update model catalog (#3675)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/a02dfa09d9d03ce1c6fae544e256c8f7db0b65eb"
+      },
+      {
+        "sha": "9e78d1da3286dbca730b33e243cd8e153c773751",
+        "subject": "Fix Substrate egress after the ateom/actor identity split (#3677)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/9e78d1da3286dbca730b33e243cd8e153c773751"
+      },
+      {
+        "sha": "e10197ad4884a2971807ccc97763d46f813ea907",
+        "subject": "Bump istio dependency (#3678)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/e10197ad4884a2971807ccc97763d46f813ea907"
+      },
+      {
+        "sha": "7e47ceb576aa9d3300cb0d2c7c35848fb0af048f",
+        "subject": "ui: support and default to hashed keys (#3671)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/7e47ceb576aa9d3300cb0d2c7c35848fb0af048f"
+      },
+      {
+        "sha": "29e110e912cf6eea1f6cc4785697dbd5aadc6e43",
+        "subject": "ui: misc minor cleanup (#3685)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/29e110e912cf6eea1f6cc4785697dbd5aadc6e43"
+      },
+      {
+        "sha": "ded4663eb03f8602081a9ff69f628374769139ef",
+        "subject": "Update model catalog (#3680)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/ded4663eb03f8602081a9ff69f628374769139ef"
+      },
+      {
+        "sha": "9b00379f14de1c883ba2ce423a24378291eb3bcb",
+        "subject": "Keep service workload endpoints out of backend CEL context (#3679)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/9b00379f14de1c883ba2ce423a24378291eb3bcb"
+      },
+      {
+        "sha": "1fabd19bbbf06e70d83a4b885debdde56c33e9a6",
+        "subject": "build(deps): bump the cargo-weekly group with 9 updates (#3684)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/1fabd19bbbf06e70d83a4b885debdde56c33e9a6"
+      },
+      {
+        "sha": "c9573ed1a2664b2415d6b60994e7fe0b966bdd76",
+        "subject": "fix(transformation): leave the upstream body when a CEL body expression is null (#3653)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/c9573ed1a2664b2415d6b60994e7fe0b966bdd76"
+      },
+      {
+        "sha": "a99934fd313f1ba2162a2e48c2c98c78da827244",
+        "subject": "Fix jwks direct URI nil pointer (#3699)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/a99934fd313f1ba2162a2e48c2c98c78da827244"
+      },
+      {
+        "sha": "d078aa1202b0a77fa86d9f2b55a7acbc4c926d11",
+        "subject": "gateway api: future proof 1.7 (#3697)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/d078aa1202b0a77fa86d9f2b55a7acbc4c926d11"
+      },
+      {
+        "sha": "f6ceca24b0cedaf0be6c0fb8b3269c7ea1b3529b",
+        "subject": "ci: resolve e2e warm-test toolexec path from repo root (#3704)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/f6ceca24b0cedaf0be6c0fb8b3269c7ea1b3529b"
+      },
+      {
+        "sha": "dd7a4b32d352eed90a20f8719b4b3f0696513070",
+        "subject": "fix gemini cost catalog lookup (#3709)",
+        "url": "https://github.com/agentgateway/agentgateway/commit/dd7a4b32d352eed90a20f8719b4b3f0696513070"
+      }
+    ]
+  }
+}

@@ -45,6 +45,20 @@ patch("spans.js", [[
   "    activeLlmContext() {\n        return this.llm?.ctx ?? this.turn?.ctx ?? this.interaction?.ctx ?? null;\n    }\n    hasOpenLlmRequest() {",
 ]]);
 
+// Each fresh RPC process receives the current Go A2A invocation's W3C parent.
+// Resume keeps native history, not the previous turn's span.
+patch("spans.js", [[
+  'import { context as otelContext, SpanKind, SpanStatusCode, trace, } from "@opentelemetry/api";',
+  'import { context as otelContext, propagation, SpanKind, SpanStatusCode, trace, } from "@opentelemetry/api";',
+], [
+  "        const span = this.opts.tracer.startSpan(...this.spanOpts(SPAN_INTERACTION, `${OP_INVOKE_AGENT} ${GEN_AI_AGENT_NAME_PI}`, SpanKind.INTERNAL, attrs, OP_INVOKE_AGENT));",
+  `        const parent = propagation.extract(otelContext.active(), {
+            traceparent: process.env.TRACEPARENT ?? "",
+            tracestate: process.env.TRACESTATE ?? "",
+        });
+        const span = this.opts.tracer.startSpan(...this.spanOpts(SPAN_INTERACTION, \`\${OP_INVOKE_AGENT} \${GEN_AI_AGENT_NAME_PI}\`, SpanKind.INTERNAL, attrs, OP_INVOKE_AGENT), parent);`,
+]]);
+
 patch("index.js", [[
   'import { basename } from "node:path";',
   'import { basename } from "node:path";\nimport { context as otelContext, propagation } from "@opentelemetry/api";',

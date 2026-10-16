@@ -1,6 +1,6 @@
 tempo:
   tempo:
-    tag: "2.10.0"
+    tag: "3.1.0"
     extraVolumeMounts:
       - name: data
         mountPath: /data

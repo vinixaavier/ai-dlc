@@ -60,7 +60,7 @@ spec:
             - name: HF_HOME
               value: /root/.cache/huggingface
             {{- if eq .Values.runtime "sglang" }}
-            # Keep the OTel trace verbosity low;
+            # Keep the OTel trace verbosity low (matches compose/sglang);
             # avoids per-step prefill/decode spans flooding the collector.
             - name: SGLANG_TRACE_LEVEL
               value: "2"

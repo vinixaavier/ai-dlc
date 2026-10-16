@@ -6,24 +6,24 @@ annotations:
     - name: Upstream Project
       url: https://github.com/prometheus/prometheus
 apiVersion: v2
-appVersion: v3.14.0
+appVersion: v3.15.0
 dependencies:
 - condition: alertmanager.enabled
   name: alertmanager
   repository: oci://ghcr.io/prometheus-community/charts
-  version: 2.0.0
+  version: 2.1.1
 - condition: kube-state-metrics.enabled
   name: kube-state-metrics
   repository: oci://ghcr.io/prometheus-community/charts
-  version: 8.5.0
+  version: 8.6.0
 - condition: prometheus-node-exporter.enabled
   name: prometheus-node-exporter
   repository: oci://ghcr.io/prometheus-community/charts
-  version: 4.57.0
+  version: 4.60.0
 - condition: prometheus-pushgateway.enabled
   name: prometheus-pushgateway
   repository: oci://ghcr.io/prometheus-community/charts
-  version: 3.8.0
+  version: 3.9.1
 description: Prometheus is a monitoring system and time series database.
 home: https://prometheus.io/
 icon: https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png
@@ -55,4 +55,4 @@ sources:
 - https://github.com/prometheus/node_exporter
 - https://github.com/kubernetes/kube-state-metrics
 type: application
-version: 29.31.1
+version: 29.37.0

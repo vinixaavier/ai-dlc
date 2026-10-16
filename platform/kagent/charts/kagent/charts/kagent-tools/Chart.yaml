@@ -1,6 +1,9 @@
 apiVersion: v2
-appVersion: 0.2.1
+appVersion: "main-7d3fde6d"
 description: A Helm chart for kagent-tools
 name: kagent-tools
 type: application
-version: 0.2.1
+version: 0.0.0-main.7d3fde6d
+annotations:
+  "org.opencontainers.image.source": "https://github.com/kagent-dev/tools"
+  "org.opencontainers.image.revision": "7d3fde6dade8a8149ba83d8d3cf8b96a2953dc10"

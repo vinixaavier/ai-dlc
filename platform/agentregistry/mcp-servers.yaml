@@ -8,10 +8,10 @@
 # MCP endpoint at /mcp that multiplexes every kagent MCP server. Tool and
 # prompt names are namespaced with the target name so all three servers' tools
 # coexist without collisions:
-#   - kagent-tools_*    -> K8s/Argo/rollout and kagent session tooling
+#   - kagent-tools_*    -> Kubernetes, Helm, Istio, Cilium, Argo and Prometheus
 #   - kagent-grafana_*  -> Grafana tooling
-#   - kagent-actor_*    -> controller /mcp: AgentInstance listing, invocation,
-#                          checkpoints and forks (MCP Tasks extension)
+#   - kagent-actor_*    -> controller /mcp: Session invocation, checkpoints,
+#                          forks and standalone sandboxes (MCP Tasks extension)
 # No routing header is required: one streamable-http connection to /mcp yields
 # the federated toolset.
 apiVersion: ar.dev/v1alpha1
@@ -20,7 +20,7 @@ metadata:
   name: kagent-tools
 spec:
   title: KAgent Tools MCP
-  description: "Federated virtual MCP at aigw.localhost/mcp. The kagent-tools target serves K8s/Argo/rollout and kagent session tools as kagent-tools_* names; the same /mcp endpoint also exposes kagent-grafana_* and kagent-actor_* (AgentInstance) tools."
+  description: "Federated virtual MCP at aigw.localhost/mcp. The kagent-tools target exposes Kubernetes, Helm, Istio, Cilium, Argo and Prometheus tools as kagent-tools_* names; the same endpoint exposes kagent-grafana_* and kagent-actor_* Session tools."
   remote:
     type: streamable-http
     url: http://aigw.localhost/mcp
@@ -41,8 +41,8 @@ kind: MCPServer
 metadata:
   name: kagent-actor
 spec:
-  title: KAgent AgentInstance MCP
-  description: "Kagent controller /mcp exposing AgentInstance listing, invocation, checkpoint and fork tools, federated through aigw.localhost/mcp as kagent-actor_* names."
+  title: KAgent Session MCP
+  description: "Kagent controller /mcp, federated through aigw.localhost/mcp: kagent-actor_list_sessions, kagent-actor_invoke_session, kagent-actor_create_session_checkpoint, kagent-actor_list_session_checkpoints and kagent-actor_fork_session. Sessions execute api.kagent.dev Agent resources; create Sessions through SessionService before invocation. MCP Tasks methods tasks/get, tasks/update and tasks/cancel support asynchronous invocation and approvals. Standalone sandbox tools require a configured SandboxTemplate and guest image."
   remote:
     type: streamable-http
     url: http://aigw.localhost/mcp

@@ -2,5 +2,8 @@
 /repos/
 **/.git/
 kagent-a2a/kagent-a2a
-.env
+
+# Keep local credentials and per-machine environment settings out of Git.
 **/.env
+**/.env.*
+!**/.env.example

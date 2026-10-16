@@ -1,48 +1,50 @@
-apiVersion: kagent.dev/v1alpha3
+apiVersion: api.kagent.dev/v1alpha3
 kind: Harness
 metadata:
   name: pi
   namespace: kagent
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   byo: {}
   workload:
-    image: localhost:5002/ai-dlc/pi-harness@sha256:cd094800787b3df3e5e013b0e9543c34479c7bc5f606753fefadc63dc8163fd8
+    # New snapshot location avoids restoring actors created by an older Pi CLI.
+    image: localhost:5000/ai-dlc/pi-harness:pi-1.3.0@sha256:1217102c798b07f7e9d21f21fa44567f48141266de99c76c4cce9ccebfd99cda
     command: ["/usr/local/bin/pi-harness"]
   env:
-    - name: OTEL_EXPORTER_OTLP_ENDPOINT
-      value: http://agentgateway-api.agentgateway-system.svc.cluster.local:80
-    - name: OTEL_EXPORTER_OTLP_PROTOCOL
-      value: http/protobuf
-    - name: OTEL_SERVICE_NAME
-      value: pi
     - name: PORT
       value: "80"
-    - name: PI_HARNESS_IMAGE_DIGEST
-      value: pi-harness-v0.4.15-pi-trace-parent-fix-v2
     - name: PI_SESSION_DIR
       value: /data/pi-sessions
   substrate:
     workerPoolRef:
       name: kagent-default
     snapshotPolicy:
-      # Fresh location: no golden snapshot exists here yet, so actors are
-      # created from the OTEL image instead of restoring the pre-OTEL
-      # v6-rpc snapshot.
-      location: gs://ate-snapshots/kagent/pi-harness-v0.4.15-pi-trace-parent-fix-v2
-  allowedAgentTemplates:
-    selector:
-      matchLabels:
-        kagent.dev/runtime: pi
+      location: s3://ate-snapshots/kagent/pi-harness-v1.3.0-kagent-main-1eb89fb-rpcfix1
 ---
-apiVersion: kagent.dev/v1alpha3
+apiVersion: api.kagent.dev/v1alpha3
 kind: AgentTemplate
 metadata:
   name: pi-default
   namespace: kagent
-  labels:
-    kagent.dev/runtime: pi
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   description: Pi coding agent through the AgentGateway.
   modelConfig:
     name: default-model-config
   systemPrompt: You are a helpful Pi coding agent.
+---
+apiVersion: api.kagent.dev/v1alpha3
+kind: Agent
+metadata:
+  name: pi
+  namespace: kagent
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  template:
+    ref:
+      name: pi-default
+  harnessRef:
+    name: pi

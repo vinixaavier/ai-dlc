@@ -1,4 +1,11 @@
-# Track the upstream nightly produced from agentgateway/main.
+# Controller, dataplane and vendored charts share the same frozen source.
 agentgateway:
   image:
-    tag: latest-dev
+    registry: registry.registry.svc.cluster.local:5000
+    tag: main-61dd06b4
+  controller:
+    image:
+      repository: agentgateway-controller
+  proxy:
+    image:
+      repository: agentgateway

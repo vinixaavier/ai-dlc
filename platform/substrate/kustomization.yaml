@@ -1,0 +1,5 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # Rendered from kagent-dev/substrate@9c4b1fb52212028100fa02c8a7bc4526575ea37e.
+  - main.yaml

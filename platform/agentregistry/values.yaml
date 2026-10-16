@@ -1,0 +1,7 @@
+agentregistry:
+  image:
+    registry: registry.registry.svc.cluster.local:5000
+    repository: agentregistry-dev/agentregistry
+    name: server
+    tag: main-4be0a2a4
+    pullPolicy: IfNotPresent

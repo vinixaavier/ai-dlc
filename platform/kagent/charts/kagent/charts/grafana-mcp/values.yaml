@@ -7,11 +7,20 @@ grafana:
   # secretRef: ""  # Name of Secret to reference (contains GRAFANA_SERVICE_ACCOUNT_TOKEN or GRAFANA_API_KEY)
 
 image:
+  # -- Registry host only (a mirror or docker.io), never a path: the global
+  # override replaces this whole value, so a path segment here would be lost
+  # under global.imageRegistry. The path lives in repository.
   registry: docker.io
   repository: grafana/mcp-grafana
-  pullPolicy: Always
-  tag: "1.5.1" # docker.io/mcp/grafana (Docker's MCP Catalog mirror) only ever ships "latest";
+  # -- Pull policy for this image. Empty falls back to global.imagePullPolicy,
+  # then to Always, this chart's previous declared default. A value declared
+  # here would shadow the global, which is why the default is empty.
+  pullPolicy: ""
+  tag: "1.4.1" # docker.io/mcp/grafana (Docker's MCP Catalog mirror) only ever ships "latest";
                # pin to the upstream grafana/mcp-grafana image instead, which tags releases.
+
+# -- Pull secrets for the pod, merged (union) with global.imagePullSecrets.
+imagePullSecrets: []
 
 nameOverride: ""
 fullnameOverride: ""
@@ -42,10 +51,6 @@ nodeSelector: {}
 service:
   type: ClusterIP
   port: 8000
-
-# Endpoint used by agents. The federated AgentGateway route is reachable from
-# Substrate actors; the Grafana MCP service DNS name is not.
-serverUrl: "http://agentgateway-api.agentgateway-system:80/mcp"
 
 resources:
   requests:
