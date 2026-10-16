@@ -1,6 +1,0 @@
-dependencies:
-- name: grafana
-  repository: file://charts/grafana
-  version: 14.0.0
-digest: sha256:16a207b011f05c72b4cc018472ee7bd8c4a99daa4ed47ee6655784d1d809ef84
-generated: "2026-10-15T20:09:04.003343634-03:00"

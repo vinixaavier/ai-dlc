@@ -1,6 +1,0 @@
-dependencies:
-- name: prometheus
-  repository: file://charts/prometheus
-  version: 29.37.0
-digest: sha256:44ab16d2ee54bfe7ca04fd9c87930a86db1734b6bea001645234f25b9cc543c0
-generated: "2026-10-15T20:09:04.149856126-03:00"

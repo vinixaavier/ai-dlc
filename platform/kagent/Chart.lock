@@ -1,9 +1,0 @@
-dependencies:
-- name: kagent-crds
-  repository: file://charts/kagent-crds
-  version: 0.0.0-main.1eb89fb
-- name: kagent
-  repository: file://charts/kagent
-  version: 0.0.0-main.1eb89fb
-digest: sha256:6fd7a380d7073ed1431b676a2ae2cdd85316f75bfe67621e7db091aaafb32d7c
-generated: "2026-10-15T21:00:39.659133829-03:00"

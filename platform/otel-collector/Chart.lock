@@ -1,6 +1,0 @@
-dependencies:
-- name: opentelemetry-collector
-  repository: file://charts/opentelemetry-collector
-  version: 0.176.0
-digest: sha256:e29797676716b0858b62dc5a23df48935fad2b72c7aaea4b8509d5379fc3ae0c
-generated: "2026-10-15T20:09:03.957485973-03:00"

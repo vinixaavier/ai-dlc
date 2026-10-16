@@ -1,4 +1,0 @@
-interface:
-  display_name: "Upstream Component Audit"
-  short_description: "Compare repository components with upstream tags and commits"
-  default_prompt: "Audit all components in this codebase against their upstream repositories and report available tag or commit updates."
