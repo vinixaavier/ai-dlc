@@ -1,0 +1,36 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - runtime.yaml
+  - postgres-connection-secrets.yaml
+patches:
+  - target:
+      kind: ConfigMap
+      name: postgres-config
+    patch: |-
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: postgres-config
+        annotations:
+          argocd.argoproj.io/sync-wave: "-1"
+  - target:
+      kind: Service
+      name: postgres
+    patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: postgres
+        annotations:
+          argocd.argoproj.io/sync-wave: "-1"
+  - target:
+      kind: StatefulSet
+      name: postgres
+    patch: |-
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: postgres
+        annotations:
+          argocd.argoproj.io/sync-wave: "-1"

@@ -12,6 +12,9 @@ resources:
   - opencode-harness.yaml
   - codex-harness.yaml
   - claude-harness.yaml
+  - substrate-repository.yaml
+  - substrate-crds.yaml
+  - substrate-podcert.yaml
   - substrate.yaml
   - agentgateway-platform.yaml
   - agentregistry-platform.yaml

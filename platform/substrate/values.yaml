@@ -1,0 +1,42 @@
+createNamespace: false
+
+image:
+  registry: registry.registry.svc.cluster.local:5000
+  repository: kagent-dev/substrate
+  tag: v0.5.0-alpha2
+
+images:
+  agentgateway: registry.registry.svc.cluster.local:5000/kagent-dev/substrate/agentgateway:v0.0.0-alpha.168b05d6@sha256:516026ea5bdc503ac011449cb95a5240f510cdc55a3983bbececa52c1f3429eb
+
+atelet:
+  extraArgs:
+    - --localhost-registry-replacement=registry.registry.svc.cluster.local:5000
+
+otel:
+  endpoint: http://otel-collector.otel.svc.cluster.local:4317
+  traces:
+    enabled: true
+    samplingRatio: 0.01
+  metrics:
+    enabled: true
+  logs:
+    enabled: true
+
+credentialProvider:
+  namespacePolicies:
+    - atespace: kagent
+      allowedNamespaces:
+        - kagent
+
+postgres:
+  clientCertificates:
+    enabled: true
+  readWriteConnectionStringSecretRef:
+    name: substrate-postgres-readwrite
+    key: readWriteConnectionString
+  ownerConnectionStringSecretRef:
+    name: substrate-postgres-owner
+    key: ownerConnectionString
+  readWriteRole: substrate_readwrite
+  ownerRole: substrate_owner
+  schema: substrate

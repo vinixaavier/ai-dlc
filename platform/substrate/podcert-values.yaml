@@ -1,0 +1,12 @@
+createNamespace: false
+workersPerSigner: 1
+
+image:
+  registry: registry.registry.svc.cluster.local:5000
+  repository: kagent-dev/substrate
+  tag: v0.5.0-alpha2
+
+postgresClientNamespace: ate-system
+postgresClientServiceAccount: ate-api-server
+postgresClients:
+  - kagent/kagent-controller=kagent_owner_user,kagent_readwrite_user

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: repo-substrate-upstream
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-3"
+  labels:
+    argocd.argoproj.io/secret-type: repository
+type: Opaque
+stringData:
+  name: substrate-upstream
+  type: helm
+  enableOCI: "true"
+  url: ghcr.io/kagent-dev/substrate/helm

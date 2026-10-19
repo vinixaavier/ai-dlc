@@ -3,15 +3,34 @@ kind: Application
 metadata:
   name: substrate
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   project: default
-  source:
-    repoURL: http://gitea-http.gitea.svc.cluster.local:3000/admin/ai-dlc.git
-    targetRevision: main
-    path: platform/substrate
+  sources:
+    - repoURL: ghcr.io/kagent-dev/substrate/helm
+      chart: substrate
+      targetRevision: 0.5.0-alpha2
+      helm:
+        releaseName: substrate
+        valueFiles:
+          - $values/platform/substrate/values.yaml
+    - repoURL: http://gitea-http.gitea.svc.cluster.local:3000/admin/ai-dlc.git
+      targetRevision: main
+      ref: values
+    - repoURL: http://gitea-http.gitea.svc.cluster.local:3000/admin/ai-dlc.git
+      targetRevision: main
+      path: platform/substrate/local
   destination:
     server: https://kubernetes.default.svc
     namespace: ate-system
+  ignoreDifferences:
+    - group: ""
+      kind: PersistentVolumeClaim
+      name: rustfs-data
+      namespace: ate-system
+      jsonPointers:
+        - /spec/storageClassName
   syncPolicy:
     automated:
       selfHeal: true
@@ -20,3 +39,4 @@ spec:
       - CreateNamespace=true
       - ServerSideApply=true
       - ApplyOutOfSyncOnly=true
+      - RespectIgnoreDifferences=true
