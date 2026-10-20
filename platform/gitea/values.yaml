@@ -1,0 +1,31 @@
+gitea:
+  fullnameOverride: gitea
+  admin:
+    username: admin
+    password: ai-dlc-local-admin
+    email: admin@ai-dlc.local
+    passwordMode: keepUpdated
+  persistence:
+    enabled: true
+    create: true
+    claimName: gitea-shared-storage
+    size: 10Gi
+    accessModes:
+      - ReadWriteOnce
+  service:
+    http:
+      type: NodePort
+      port: 3000
+      nodePort: 30090
+    ssh:
+      type: NodePort
+      port: 22
+      nodePort: 30022
+  postgresql:
+    enabled: true
+  postgresql-ha:
+    enabled: false
+  valkey:
+    enabled: false
+  valkey-cluster:
+    enabled: false

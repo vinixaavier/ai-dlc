@@ -1,75 +1,55 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: kagent-sglang
-  namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "0"
-type: Opaque
-stringData:
-  # AgentGateway's local SGLang route accepts passthrough headers without validating this value.
-  API_KEY: sglang-local
----
-apiVersion: api.kagent.dev/v1alpha3
+apiVersion: kagent.dev/v1alpha3
 kind: ModelConfig
 metadata:
   name: claude-agentgateway
   namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
 spec:
   provider: Anthropic
+  # Claude Code validates this field before sending the request. Use a Claude
+  # alias; AgentGateway/SGLang still receives the Anthropic-compatible call.
+  model: sonnet
   apiKeySecret: kagent-sglang
   apiKeySecretKey: API_KEY
-  # Claude Code requires the Anthropic provider; AgentGateway maps sonnet to Qwen.
-  model: sonnet
   anthropic:
     # The Anthropic SDK appends /v1/messages to this API root.
     baseUrl: http://agentgateway-api.agentgateway-system.svc.cluster.local
 ---
-apiVersion: api.kagent.dev/v1alpha3
+apiVersion: kagent.dev/v1alpha3
 kind: Harness
 metadata:
   name: claude
   namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
 spec:
   claude: {}
   workload:
-    image: localhost:5000/kagent-dev/kagent/claude-harness:main-1eb89fb-claude-2.1.301@sha256:6303742f6e0a6d87a623c148c8acc783b18801211657310c88d980361d89f89b
+    image: localhost:5001/kagent-dev/kagent/claude-harness@sha256:eef90e6369dccc61f1a01545801f2d547cfbee2eb389f3c1ee3a50cf2835b5a0
   env:
     - name: CLAUDE_CODE_EFFORT_LEVEL
       value: medium
+    # The kagent controller owns Claude telemetry switches/export endpoints
+    # and compiles them into each immutable Claude revision. Keep only the
+    # service identity here; do not override controller-owned OTEL variables.
+    - name: OTEL_SERVICE_NAME
+      value: claude
   substrate:
     workerPoolRef:
       name: kagent-default
     snapshotPolicy:
-      location: s3://ate-snapshots/kagent/claude-harness-v2.1.301
+      location: gs://ate-snapshots/kagent/claude-harness-v3
+  allowedAgentTemplates:
+    selector:
+      matchLabels:
+        kagent.dev/runtime: claude
 ---
-apiVersion: api.kagent.dev/v1alpha3
+apiVersion: kagent.dev/v1alpha3
 kind: AgentTemplate
 metadata:
   name: claude-default
   namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    kagent.dev/runtime: claude
 spec:
   description: Claude Code agent through the AgentGateway.
   modelConfig:
     name: claude-agentgateway
   systemPrompt: You are a helpful Claude coding agent.
----
-apiVersion: api.kagent.dev/v1alpha3
-kind: Agent
-metadata:
-  name: claude
-  namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
-spec:
-  template:
-    ref:
-      name: claude-default
-  harnessRef:
-    name: claude

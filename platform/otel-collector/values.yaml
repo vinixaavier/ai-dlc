@@ -3,7 +3,7 @@ opentelemetry-collector:
   fullnameOverride: otel-collector
   image:
     repository: otel/opentelemetry-collector-contrib
-    tag: "0.162.0"
+    tag: "0.161.0"
   ports:
     otlp: {enabled: true, containerPort: 4317, servicePort: 4317}
     otlp-http: {enabled: true, containerPort: 4318, servicePort: 4318, nodePort: 30418}

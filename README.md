@@ -58,43 +58,24 @@ inside the worker container. The bootstrap exits after dispatching the Argo
 applications; reconciliation and application health remain Argo's
 responsibility.
 
-All agent platform images are built from the source-pinned revisions in
-[`scripts/agent-platform-versions.sh`](scripts/agent-platform-versions.sh):
-kagent `main-bf8afa56`, kagent tools `main-7d3fde6d`, substrate
-`v0.3.0-alpha3` (kagent-dev fork `228790e9`, the revision Kagent main pins),
-agentgateway `main-61dd06b4`, and AgentRegistry `main-4be0a2a4`.
+Required local image:
 
-The local SGLang model is configured without `apiKeySecret`: the endpoint is
-unauthenticated, and the Go ADK supports a custom OpenAI-compatible base URL
-without an API key. Do not set this value to `null`; Helm removes null-valued
-overrides and restores the chart's `kagent-openai` default. Use an empty string
-to disable the reference. Secret-backed credential injection requires the
-Substrate `k8s.io` credential provider; it is not deployed by this setup.
+```text
+registry.registry.svc.cluster.local:5000/kagent-dev/kagent/golang-adk:0.10.1-otel
 
-The bootstrap script builds and publishes them with
-[`scripts/publish-agent-platform.sh`](scripts/publish-agent-platform.sh),
-then initializes the Substrate signing pools, CA pools and API
-authentication with
-[`scripts/init-substrate.sh`](scripts/init-substrate.sh).
-The Kagent controller runs schema migrations on a fresh database;
-existing Postgres volumes are not migrated automatically.
+The substrate-enabled kagent controller also requires:
 
-## Observability chart pins
+```text
+registry.registry.svc.cluster.local:5000/kagent-dev/kagent/controller:0.10.1-otel
+```
 
-Argo CD deploys the following upstream Helm charts and application versions:
+The controller image is built from the kagent `v0.10.1` source with the
+runtime digest and tracing patch applied. Both images are loaded into every
+Kind node by the bootstrap script.
+```
 
-| Component | Chart | Application |
-|---|---:|---:|
-| Loki | `18.13.7` | `3.7.8` |
-| Grafana | `13.2.7` | `13.2.3` |
-| Prometheus | `29.35.0` | `3.15.0` |
-| Tempo | `3.1.0` | `3.1.0` |
-| OpenTelemetry Collector | `0.175.0` | `0.161.0` |
-
-Loki and Grafana retain their existing PVCs. Prometheus and Tempo use ephemeral
-storage in this local environment.
-
-Tempo runs in monolithic mode with seven-day block retention.
+The image is built from
+[`patches/kagent-0.10.1-adk-otel.patch`](patches/kagent-0.10.1-adk-otel.patch).
 
 Prometheus discovers the Substrate metrics endpoints on port `9090` for the
 `ate-system` pods through the `substrate` scrape job in

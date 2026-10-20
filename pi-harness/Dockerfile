@@ -1,15 +1,16 @@
 FROM golang:1.27-bookworm AS builder
 
 WORKDIR /src/pi-harness
+COPY vendor/kagent/go /src/kagent
 COPY pi-harness/go.mod pi-harness/main.go ./
 RUN go mod tidy && CGO_ENABLED=0 go build -o /out/pi-harness .
 
-FROM node:22.19.0-bookworm-slim
+FROM node:22-bookworm-slim
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends ca-certificates \
   && rm -rf /var/lib/apt/lists/* \
-  && npm install -g @earendil-works/pi-coding-agent@1.3.0 \
+  && npm install -g @earendil-works/pi-coding-agent@0.85.1 \
   && npm cache clean --force \
   && rm -rf /root/.npm
 

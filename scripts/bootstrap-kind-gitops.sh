@@ -18,12 +18,15 @@ REGISTRY_CLUSTER_IP="${REGISTRY_CLUSTER_IP:-10.96.200.10}"
 REGISTRY_NODE_PORT="${REGISTRY_NODE_PORT:-30500}"
 REGISTRY_HOST_PORT="${REGISTRY_HOST_PORT:-5002}"
 REGISTRY_INTERNAL="${REGISTRY_INTERNAL:-${REGISTRY_SERVICE}:${REGISTRY_PORT}}"
+CUSTOM_ADK_SOURCE_IMAGE="${CUSTOM_ADK_SOURCE_IMAGE:-172.17.0.1:5001/kagent-dev/kagent/golang-adk:0.10.1-otel}"
+CUSTOM_CONTROLLER_SOURCE_IMAGE="${CUSTOM_CONTROLLER_SOURCE_IMAGE:-172.17.0.1:5001/kagent-dev/kagent/controller:0.10.1-otel}"
 REGISTRY_IMAGE="${REGISTRY_IMAGE:-registry:2}"
 NVIDIA_SMOKE_TEST_IMAGE="${NVIDIA_SMOKE_TEST_IMAGE:-nvidia/cuda:12.8.1-base-ubuntu24.04}"
 GITEA_ADMIN_USERNAME="${GITEA_ADMIN_USERNAME:-admin}"
 GITEA_ADMIN_PASSWORD="${GITEA_ADMIN_PASSWORD:-ai-dlc-local-admin}"
 GITEA_REPOSITORY_URL="${GITEA_REPOSITORY_URL:-http://gitea-http.gitea.svc.cluster.local:3000/admin/ai-dlc.git}"
-GITEA_BOOTSTRAP_URL="${GITEA_BOOTSTRAP_URL:-}"
+GITEA_BOOTSTRAP_URL="${GITEA_BOOTSTRAP_URL:-http://127.0.0.1:30090}"
+HELM_BIN="${HELM_BIN:-helm}"
 
 log() {
   printf '[bootstrap] %s\n' "$*"
@@ -49,6 +52,7 @@ trap cleanup EXIT
 for command_name in docker kind kubectl curl nvidia-ctk sudo; do
   require_command "$command_name"
 done
+require_command "$HELM_BIN"
 require_command go
 require_command git
 
@@ -203,7 +207,7 @@ kubectl rollout status deployment/registry -n "$REGISTRY_NAMESPACE" --timeout=18
 
 REGISTRY_CONTROL_PLANE_IP="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' \
   "${KIND_CLUSTER_NAME}-control-plane")"
-GITEA_BOOTSTRAP_URL="${GITEA_BOOTSTRAP_URL:-http://${REGISTRY_CONTROL_PLANE_IP}:30090}"
+REGISTRY_PUSH_REPOSITORY="${REGISTRY_PUSH_REPOSITORY:-oci://${REGISTRY_CONTROL_PLANE_IP}:${REGISTRY_NODE_PORT}/charts}"
 wait_for_registry_endpoint() {
   local endpoint="$1"
   local attempt
@@ -220,15 +224,83 @@ wait_for_registry_endpoint "http://${REGISTRY_CONTROL_PLANE_IP}:${REGISTRY_NODE_
 wait_for_registry_endpoint "http://127.0.0.1:${REGISTRY_HOST_PORT}/v2/" \
   || die "host publishing port ${REGISTRY_HOST_PORT} is unavailable; recreate Kind with the current kind config"
 
-log "Building and publishing the source-pinned agent platform"
-PUBLISH_REGISTRY="localhost:${REGISTRY_HOST_PORT}" "$ROOT_DIR/scripts/publish-agent-platform.sh"
-PUBLISH_REGISTRY="localhost:${REGISTRY_HOST_PORT}" "$ROOT_DIR/scripts/update-harness-image-digests.sh"
-if ! git -C "$ROOT_DIR" diff --quiet -- argocd/apps/{adk,pi,codex,claude}-harness.yaml; then
-  git -C "$ROOT_DIR" commit -s --only -m "chore: pin rebuilt agent harness images" \
-    -- argocd/apps/{adk,pi,codex,claude}-harness.yaml
+if docker image inspect "$CUSTOM_ADK_SOURCE_IMAGE" >/dev/null 2>&1; then
+  log "Loading the custom Go ADK image into every Kind node"
+  kind load docker-image "$CUSTOM_ADK_SOURCE_IMAGE" --name "$KIND_CLUSTER_NAME"
+  docker tag "$CUSTOM_ADK_SOURCE_IMAGE" "localhost:${REGISTRY_HOST_PORT}/kagent-dev/kagent/golang-adk:0.10.1-otel"
+  docker push "localhost:${REGISTRY_HOST_PORT}/kagent-dev/kagent/golang-adk:0.10.1-otel"
+else
+  die "custom image $CUSTOM_ADK_SOURCE_IMAGE is not present locally; build it before bootstrapping"
 fi
-log "Initializing Substrate signing pools and authentication"
-"$ROOT_DIR/scripts/init-substrate.sh"
+
+if docker image inspect "$CUSTOM_CONTROLLER_SOURCE_IMAGE" >/dev/null 2>&1; then
+  log "Loading the custom kagent controller image into every Kind node"
+  kind load docker-image "$CUSTOM_CONTROLLER_SOURCE_IMAGE" --name "$KIND_CLUSTER_NAME"
+  docker tag "$CUSTOM_CONTROLLER_SOURCE_IMAGE" "localhost:${REGISTRY_HOST_PORT}/kagent-dev/kagent/controller:0.10.1-otel"
+  docker push "localhost:${REGISTRY_HOST_PORT}/kagent-dev/kagent/controller:0.10.1-otel"
+else
+  die "custom image $CUSTOM_CONTROLLER_SOURCE_IMAGE is not present locally; build it before bootstrapping"
+fi
+
+push_helm_chart_http() {
+  local package_file="$1"
+  local repository="$2"
+  local registry_base registry_path repository_path chart_version
+  local config_file manifest_file layer_digest config_digest location upload_url
+
+  registry_path="${repository#oci://}"
+  registry_base="http://${registry_path%%/*}"
+  repository_path="${registry_path#*/}/$(basename -- "$package_file" | sed -E 's/-[^-]+\.tgz$//')"
+  chart_version="$(basename -- "$package_file" | sed -E 's/^.+-([^-]+)\.tgz$/\1/')"
+  config_file="$(mktemp /tmp/ai-dlc-helm-config.XXXXXX.json)"
+  manifest_file="$(mktemp /tmp/ai-dlc-helm-manifest.XXXXXX.json)"
+  printf '{}\n' > "$config_file"
+  config_digest="sha256:$(sha256sum "$config_file" | awk '{print $1}')"
+  layer_digest="sha256:$(sha256sum "$package_file" | awk '{print $1}')"
+
+  for blob in "$config_file|$config_digest" "$package_file|$layer_digest"; do
+    blob_file="${blob%|*}"
+    blob_digest="${blob##*|}"
+    location="$(curl --silent --show-error --fail -D - -o /dev/null \
+      -X POST "$registry_base/v2/$repository_path/blobs/uploads/" \
+      | awk 'BEGIN{IGNORECASE=1} /^Location:/{sub(/^[^:]+:[[:space:]]*/, ""); gsub(/\r/, ""); print; exit}')"
+    [[ -n "$location" ]] || die "failed to start OCI upload for $blob_file"
+    case "$location" in
+      http://*\?*) upload_url="${location}&digest=$blob_digest" ;;
+      http://*) upload_url="${location}?digest=$blob_digest" ;;
+      /*) upload_url="${registry_base}${location}?digest=$blob_digest" ;;
+      *) die "unexpected OCI upload location: $location" ;;
+    esac
+    curl --silent --show-error --fail -X PUT --upload-file "$blob_file" "$upload_url" >/dev/null
+  done
+
+  printf '{"schemaVersion":2,"config":{"mediaType":"application/vnd.cncf.helm.config.v1+json","digest":"%s","size":3},"layers":[{"mediaType":"application/vnd.cncf.helm.chart.content.v1.tar+gzip","digest":"%s","size":%s}]}\n' \
+    "$config_digest" "$layer_digest" "$(stat -c '%s' "$package_file")" > "$manifest_file"
+  curl --silent --show-error --fail -X PUT \
+    -H 'Content-Type: application/vnd.oci.image.manifest.v1+json' \
+    --data-binary "@$manifest_file" \
+    "$registry_base/v2/$repository_path/manifests/$chart_version" >/dev/null
+}
+
+publish_platform_chart() {
+  local chart_name="$1"
+  local package_dir package_file chart_metadata package_name package_version
+
+  package_dir="$(mktemp -d /tmp/ai-dlc-chart.XXXXXX)"
+  chart_metadata="$("$HELM_BIN" show chart "$ROOT_DIR/platform/$chart_name")"
+  package_name="$(printf '%s\n' "$chart_metadata" | awk -F': ' '$1 == "name" {print $2; exit}')"
+  package_version="$(printf '%s\n' "$chart_metadata" | awk -F': ' '$1 == "version" {print $2; exit}')"
+  [[ -n "$package_name" && -n "$package_version" ]] \
+    || die "failed to read platform chart metadata: $chart_name"
+  package_file="$package_dir/${package_name}-${package_version}.tgz"
+  tar --transform="s,^${chart_name},${package_name}," \
+    -czf "$package_file" \
+    -C "$ROOT_DIR/platform" "$chart_name"
+  push_helm_chart_http "$package_file" "$REGISTRY_PUSH_REPOSITORY"
+}
+
+log "Publishing only the bootstrap parent chart to the in-cluster registry"
+publish_platform_chart gitea
 
 if ! kubectl get namespace argocd >/dev/null 2>&1; then
   log "Creating the argocd namespace"
@@ -292,7 +364,7 @@ git -C "$ROOT_DIR" rev-parse --verify HEAD >/dev/null 2>&1 \
   || die "the bootstrap source directory must be a Git repository with at least one commit"
 git -C "$ROOT_DIR" \
   -c "http.extraHeader=Authorization: Basic $gitea_basic_auth" \
-  push "$GITEA_BOOTSTRAP_URL/admin/ai-dlc.git" HEAD:main >/dev/null
+  push "$GITEA_REPOSITORY_URL" HEAD:main >/dev/null
 
 log "Registering the Gitea repository in Argo CD"
 kubectl -n argocd create secret generic repo-gitea \

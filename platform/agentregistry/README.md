@@ -5,11 +5,6 @@ CRD and there is no `ar.dev` CRD in this cluster. The
 `agentregistry-platform` Argo Application syncs both catalog streams through a
 hook Job after the AgentRegistry service is healthy.
 
-The server image is built from the pinned AgentRegistry upstream `main`
-commit in `scripts/agent-platform-versions.sh` and published to the in-cluster
-registry. `platform/agentregistry/values.yaml` selects that immutable
-`main-<commit>` image tag for Argo CD.
-
 The Kubernetes Service exposes the API on port `12121` and the MCP endpoint on
 port `31313`. From inside the cluster, the application listens on port `8080`:
 
@@ -29,11 +24,13 @@ kubectl -n agentregistry exec -i -c agentregistry "$pod" -- \
 
 ## Current limitations
 
-- AgentRegistry main currently accepts only Bedrock for typed `Model` resources.
-  The local OpenAI-compatible SGLang model remains registered through
+- AgentRegistry v0.4.0 does not accept the local OpenAI-compatible model in its
+  model provider enum. The SGLang model remains registered through
   AgentGateway instead.
-- AgentRegistry main has no Kubernetes catalog CRD; the Argo hook applies the
+- AgentRegistry v0.4.0 has no Kubernetes catalog CRD; the Argo hook applies the
   streams through `/v0/apply`.
+- The upstream server image does not contain `git`, so repository-backed skills
+  require a custom image with Git or an OCI/package source.
 
 The bootstrap publishes the chart and Argo runs the catalog sync automatically:
 

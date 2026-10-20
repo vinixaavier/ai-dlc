@@ -8,51 +8,12 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://dl.gitea.com/charts
-    chart: gitea
-    targetRevision: 12.7.0
-    helm:
-      valuesObject:
-        fullnameOverride: gitea
-        admin:
-          username: admin
-          password: ai-dlc-local-admin
-          email: admin@ai-dlc.local
-          passwordMode: keepUpdated
-        persistence:
-          enabled: true
-          create: true
-          claimName: gitea-shared-storage
-          size: 10Gi
-          accessModes:
-            - ReadWriteOnce
-        service:
-          http:
-            type: NodePort
-            port: 3000
-            nodePort: 30090
-          ssh:
-            type: NodePort
-            port: 22
-            nodePort: 30022
-        postgresql:
-          enabled: true
-        postgresql-ha:
-          enabled: false
-        valkey:
-          enabled: false
-        valkey-cluster:
-          enabled: false
+    repoURL: registry.registry.svc.cluster.local:5000/charts
+    chart: ai-dlc-gitea-platform
+    targetRevision: 0.1.0
   destination:
     server: https://kubernetes.default.svc
     namespace: gitea
-  ignoreDifferences:
-    - group: ""
-      kind: Secret
-      name: gitea-postgresql
-      namespace: gitea
-      jsonPointers:
-        - /data
   syncPolicy:
     automated:
       selfHeal: true
@@ -61,4 +22,3 @@ spec:
       - CreateNamespace=true
       - ServerSideApply=true
       - ApplyOutOfSyncOnly=true
-      - RespectIgnoreDifferences=true

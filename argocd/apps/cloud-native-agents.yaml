@@ -1,10 +1,10 @@
-apiVersion: api.kagent.dev/v1alpha3
+apiVersion: kagent.dev/v1alpha3
 kind: AgentTemplate
 metadata:
   name: argo-rollouts-conversion-agent
   namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    kagent.dev/runtime: hello-substrate
 spec:
   description: Converts Kubernetes Deployments to Argo Rollouts and explains the required migration.
   modelConfig:
@@ -32,13 +32,13 @@ spec:
           - argo_rollouts_list
           - argo_verify_argo_rollouts_controller_install
 ---
-apiVersion: api.kagent.dev/v1alpha3
+apiVersion: kagent.dev/v1alpha3
 kind: AgentTemplate
 metadata:
   name: cilium-crd-agent
   namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    kagent.dev/runtime: hello-substrate
 spec:
   description: Creates, validates, and troubleshoots Cilium network policy resources.
   modelConfig:
@@ -81,13 +81,13 @@ spec:
           - k8s_patch_resource
           - k8s_delete_resource
 ---
-apiVersion: api.kagent.dev/v1alpha3
+apiVersion: kagent.dev/v1alpha3
 kind: AgentTemplate
 metadata:
   name: helm-agent
   namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    kagent.dev/runtime: hello-substrate
 spec:
   description: Manages Helm releases and troubleshoots Helm workloads.
   modelConfig:
@@ -123,13 +123,13 @@ spec:
           - helm_upgrade
           - helm_uninstall
 ---
-apiVersion: api.kagent.dev/v1alpha3
+apiVersion: kagent.dev/v1alpha3
 kind: AgentTemplate
 metadata:
   name: istio-agent
   namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    kagent.dev/runtime: hello-substrate
 spec:
   description: Operates, diagnoses, and troubleshoots Istio service meshes.
   modelConfig:
@@ -175,13 +175,13 @@ spec:
           - istio_apply_waypoint
           - istio_delete_waypoint
 ---
-apiVersion: api.kagent.dev/v1alpha3
+apiVersion: kagent.dev/v1alpha3
 kind: AgentTemplate
 metadata:
   name: k8s-agent
   namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    kagent.dev/runtime: hello-substrate
 spec:
   description: Investigates and operates Kubernetes resources safely.
   modelConfig:
@@ -224,13 +224,13 @@ spec:
           - k8s_label_resource
           - k8s_delete_resource
 ---
-apiVersion: api.kagent.dev/v1alpha3
+apiVersion: kagent.dev/v1alpha3
 kind: AgentTemplate
 metadata:
   name: kgateway-agent
   namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    kagent.dev/runtime: hello-substrate
 spec:
   description: Configures and troubleshoots kgateway and Gateway API resources.
   modelConfig:
@@ -267,13 +267,13 @@ spec:
           - k8s_patch_resource
           - k8s_delete_resource
 ---
-apiVersion: api.kagent.dev/v1alpha3
+apiVersion: kagent.dev/v1alpha3
 kind: AgentTemplate
 metadata:
   name: observability-agent
   namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    kagent.dev/runtime: hello-substrate
 spec:
   description: Investigates Prometheus, Grafana, Loki, and Kubernetes telemetry.
   modelConfig:
@@ -324,13 +324,13 @@ spec:
           - k8s_get_events
           - k8s_get_pod_logs
 ---
-apiVersion: api.kagent.dev/v1alpha3
+apiVersion: kagent.dev/v1alpha3
 kind: AgentTemplate
 metadata:
   name: promql-agent
   namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    kagent.dev/runtime: hello-substrate
 spec:
   description: Generates, validates, and explains PromQL queries from natural language.
   modelConfig:
@@ -366,115 +366,3 @@ spec:
           - kagent-grafana_list_prometheus_label_values
           - kagent-grafana_query_prometheus
           - kagent-grafana_query_prometheus_histogram
----
-apiVersion: api.kagent.dev/v1alpha3
-kind: Agent
-metadata:
-  name: argo-rollouts-conversion-agent
-  namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
-spec:
-  template:
-    ref:
-      name: argo-rollouts-conversion-agent
-  harnessRef:
-    name: adk
----
-apiVersion: api.kagent.dev/v1alpha3
-kind: Agent
-metadata:
-  name: cilium-crd-agent
-  namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
-spec:
-  template:
-    ref:
-      name: cilium-crd-agent
-  harnessRef:
-    name: adk
----
-apiVersion: api.kagent.dev/v1alpha3
-kind: Agent
-metadata:
-  name: helm-agent
-  namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
-spec:
-  template:
-    ref:
-      name: helm-agent
-  harnessRef:
-    name: adk
----
-apiVersion: api.kagent.dev/v1alpha3
-kind: Agent
-metadata:
-  name: istio-agent
-  namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
-spec:
-  template:
-    ref:
-      name: istio-agent
-  harnessRef:
-    name: adk
----
-apiVersion: api.kagent.dev/v1alpha3
-kind: Agent
-metadata:
-  name: k8s-agent
-  namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
-spec:
-  template:
-    ref:
-      name: k8s-agent
-  harnessRef:
-    name: adk
----
-apiVersion: api.kagent.dev/v1alpha3
-kind: Agent
-metadata:
-  name: kgateway-agent
-  namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
-spec:
-  template:
-    ref:
-      name: kgateway-agent
-  harnessRef:
-    name: adk
----
-apiVersion: api.kagent.dev/v1alpha3
-kind: Agent
-metadata:
-  name: observability-agent
-  namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
-spec:
-  template:
-    ref:
-      name: observability-agent
-  harnessRef:
-    name: adk
----
-apiVersion: api.kagent.dev/v1alpha3
-kind: Agent
-metadata:
-  name: promql-agent
-  namespace: kagent
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
-spec:
-  template:
-    ref:
-      name: promql-agent
-  harnessRef:
-    name: adk

@@ -126,14 +126,8 @@ spec:
       sectionName: http
   match:
     model: qwen3.8-27b-nvfp4
-  # OpenAI advertises Responses too; Custom keeps Messages translation on
-  # Completions even if this model route is selected instead of the HTTPRoute.
-  provider: Custom
-  custom:
-    formats:
-      - type: Completions
-        path: /v1/chat/completions
-  baseURL: http://llm.sglang.svc.cluster.local:8000
+  provider: OpenAI
+  baseURL: http://llm.sglang.svc.cluster.local:8000/v1
   policies:
     auth:
       passthrough: {}

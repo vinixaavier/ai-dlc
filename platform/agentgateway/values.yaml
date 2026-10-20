@@ -1,11 +1,4 @@
-# Controller and dataplane images follow the pinned upstream release.
+# Track the upstream nightly produced from agentgateway/main.
 agentgateway:
   image:
-    registry: registry.registry.svc.cluster.local:5000
-    tag: v1.5.0
-  controller:
-    image:
-      repository: agentgateway-controller
-  proxy:
-    image:
-      repository: agentgateway
+    tag: latest-dev

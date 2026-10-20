@@ -4,98 +4,145 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
+	"iter"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"sync"
 	"syscall"
 	"time"
 
 	a2a "github.com/a2aproject/a2a-go/v2/a2a"
+	"github.com/a2aproject/a2a-go/v2/a2asrv"
 	"github.com/kagent-dev/kagent/go/adk/pkg/app"
-	"github.com/kagent-dev/kagent/go/harness/runtime"
-	runtimea2a "github.com/kagent-dev/kagent/go/harness/runtime/a2a"
-	"github.com/kagent-dev/kagent/go/harness/runtime/continuation"
 	"github.com/kagent-dev/kagent/go/pkg/logging"
-	"github.com/kagent-dev/kagent/go/pkg/telemetry"
-	"github.com/kagent-dev/kagent/go/pkg/tracing"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/propagation"
 )
 
-// One Actor owns one native Pi conversation. The shared upstream executor
-// supplies task admission, cancellation, A2A artifacts and durable TaskStore
-// integration; Pi owns its JSONL history in the Actor's /data directory.
+type executor struct {
+	pi *piProcess
+}
+
+func (e *executor) Execute(ctx context.Context, request *a2asrv.ExecutorContext) iter.Seq2[a2a.Event, error] {
+	return func(yield func(a2a.Event, error) bool) {
+		if !yield(a2a.NewSubmittedTask(request, request.Message), nil) {
+			return
+		}
+		if !yield(a2a.NewStatusUpdateEvent(request, a2a.TaskStateWorking, nil), nil) {
+			return
+		}
+		var artifactID a2a.ArtifactID
+		streamed := false
+		answer, err := e.pi.Run(ctx, request.Message, func(delta string) error {
+			if delta == "" {
+				return nil
+			}
+			var event *a2a.TaskArtifactUpdateEvent
+			if artifactID == "" {
+				event = a2a.NewArtifactEvent(request, a2a.NewTextPart(delta))
+				artifactID = event.Artifact.ID
+			} else {
+				event = a2a.NewArtifactUpdateEvent(request, artifactID, a2a.NewTextPart(delta))
+			}
+			streamed = true
+			if !yield(event, nil) {
+				return errStreamStopped
+			}
+			return nil
+		}, func(activity piToolActivity) error {
+			// Tool activity is a first-class A2A artifact. This keeps Pi's
+			// RPC tool events visible to the kagent UI instead of silently
+			// dropping them in the custom harness.
+			artifactID = ""
+			data := map[string]any{
+				"id":   activity.ID,
+				"name": activity.Name,
+			}
+			partType := "function_call"
+			if activity.Kind == "result" {
+				partType = "function_response"
+				response := map[string]any{"result": activity.Result}
+				if activity.IsError {
+					response["isError"] = true
+				}
+				data["response"] = response
+			} else if activity.Kind == "update" {
+				partType = "function_response"
+				data["response"] = map[string]any{"result": activity.Result}
+			} else {
+				data["args"] = activity.Args
+			}
+			part := a2a.NewDataPart(data)
+			part.Metadata = map[string]any{"kagent_type": partType}
+			update := a2a.NewArtifactEvent(request, part)
+			update.LastChunk = true
+			if !yield(update, nil) {
+				return errStreamStopped
+			}
+			return nil
+		})
+		if err != nil {
+			if err == errStreamStopped {
+				return
+			}
+			message := a2a.NewMessage(a2a.MessageRoleAgent, a2a.NewTextPart(err.Error()))
+			message.ContextID, message.TaskID = request.ContextID, request.TaskID
+			yield(a2a.NewStatusUpdateEvent(request, a2a.TaskStateFailed, message), nil)
+			return
+		}
+		if streamed {
+			yield(a2a.NewStatusUpdateEvent(request, a2a.TaskStateCompleted, nil), nil)
+			return
+		}
+		message := a2a.NewMessage(a2a.MessageRoleAgent, a2a.NewTextPart(answer))
+		message.ContextID, message.TaskID = request.ContextID, request.TaskID
+		yield(a2a.NewStatusUpdateEvent(request, a2a.TaskStateCompleted, message), nil)
+	}
+}
+
+var errStreamStopped = fmt.Errorf("A2A stream stopped")
+
+func (executor) Cancel(context.Context, *a2asrv.ExecutorContext) iter.Seq2[a2a.Event, error] {
+	return func(func(a2a.Event, error) bool) {}
+}
+
 type piProcess struct {
+	mu     sync.Mutex
 	cmd    *exec.Cmd
 	stdin  io.WriteCloser
 	stdout *bufio.Reader
-	stderr lockedOutput
+	stderr strings.Builder
 	nextID uint64
 }
 
-type lockedOutput struct {
-	mu   sync.Mutex
-	text strings.Builder
+type piToolActivity struct {
+	Kind    string
+	ID      string
+	Name    string
+	Args    map[string]any
+	Result  any
+	IsError bool
 }
 
-func (o *lockedOutput) Write(data []byte) (int, error) {
-	o.mu.Lock()
-	defer o.mu.Unlock()
-	return o.text.Write(data)
-}
-
-func (o *lockedOutput) String() string {
-	o.mu.Lock()
-	defer o.mu.Unlock()
-	return o.text.String()
-}
-
-func (o *lockedOutput) Reset() {
-	o.mu.Lock()
-	defer o.mu.Unlock()
-	o.text.Reset()
-}
-
-func validateSessionFile(path string) error {
-	dir := filepath.Clean(env("PI_SESSION_DIR", "/data/pi-sessions"))
-	if !filepath.IsAbs(path) || filepath.Dir(path) != dir || filepath.Ext(path) != ".jsonl" {
-		return fmt.Errorf("Pi continuation must be a JSONL file in %s", dir)
+func (p *piProcess) startLocked() error {
+	if p.cmd != nil && p.cmd.ProcessState == nil {
+		return nil
 	}
-	return nil
-}
-
-func (p *piProcess) start(ctx context.Context, sessionFile string) error {
-	dir := env("PI_SESSION_DIR", "/data/pi-sessions")
-	if err := os.MkdirAll(dir, 0o700); err != nil {
+	if p.cmd != nil {
+		_ = p.cmd.Wait()
+	}
+	if err := os.MkdirAll(env("PI_SESSION_DIR", "/data/pi-sessions"), 0o700); err != nil {
 		return fmt.Errorf("create Pi session directory: %w", err)
 	}
-	args := []string{"--no-skills", "--offline",
+	cmd := exec.Command("pi", "--no-skills", "--offline",
 		"--no-extensions", "--extension", "/root/.pi/agent/npm/node_modules/pi-otel/dist/index.js",
 		"--provider", env("PI_PROVIDER", "agentgateway"),
 		"--model", env("PI_MODEL", "qwen3.8-27b-nvfp4"),
 		"--api-key", env("PI_API_KEY", "sglang-local"),
-		"--thinking", "off", "--session-dir", dir, "--mode", "rpc"}
-	if sessionFile != "" {
-		if err := validateSessionFile(sessionFile); err != nil {
-			return err
-		}
-		if _, err := os.Stat(sessionFile); err != nil {
-			return fmt.Errorf("read durable Pi session: %w", err)
-		}
-		args = append(args, "--session", sessionFile)
-	}
-	cmd := exec.Command("pi", args...)
-	// Pi starts once per turn, so these headers cannot leak between invocations.
-	// The extension extracts this parent when creating its interaction span.
-	carrier := propagation.MapCarrier{}
-	otel.GetTextMapPropagator().Inject(ctx, carrier)
-	cmd.Env = append(os.Environ(), "TRACEPARENT="+carrier.Get("traceparent"), "TRACESTATE="+carrier.Get("tracestate"))
-	p.stderr.Reset()
+		"--thinking", "off",
+		"--session-dir", env("PI_SESSION_DIR", "/data/pi-sessions"),
+		"--mode", "rpc")
 	cmd.Stderr = &p.stderr
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
@@ -103,20 +150,31 @@ func (p *piProcess) start(ctx context.Context, sessionFile string) error {
 	}
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		_ = stdin.Close()
 		return fmt.Errorf("open Pi stdout: %w", err)
 	}
 	if err := cmd.Start(); err != nil {
-		_ = stdin.Close()
 		return fmt.Errorf("start Pi RPC: %w", err)
 	}
 	p.cmd, p.stdin, p.stdout = cmd, stdin, bufio.NewReader(stdout)
+	p.stderr.Reset()
 	return nil
 }
 
-// session_shutdown flushes pi-otel before the TaskStore reports quiescence and
-// Substrate freezes the Actor. This also reaps the native process on cancellation.
-func (p *piProcess) shutdown() {
+func (p *piProcess) stopLocked() {
+	if p.cmd == nil {
+		return
+	}
+	_ = p.stdin.Close()
+	_ = p.cmd.Process.Kill()
+	_ = p.cmd.Wait()
+	p.cmd, p.stdin, p.stdout = nil, nil, nil
+}
+
+// Pi's pi-otel extension flushes its BatchSpanProcessor during
+// session_shutdown. ATE suspends the actor immediately after the A2A turn,
+// so terminate Pi gracefully at the turn boundary instead of freezing the
+// process before that lifecycle event runs.
+func (p *piProcess) shutdownLocked() {
 	if p.cmd == nil {
 		return
 	}
@@ -141,9 +199,8 @@ func (p *piProcess) readLine(ctx context.Context) ([]byte, error) {
 		line []byte
 		err  error
 	}
-	reader := p.stdout
 	ch := make(chan result, 1)
-	go func() { line, err := reader.ReadBytes('\n'); ch <- result{line, err} }()
+	go func() { line, err := p.stdout.ReadBytes('\n'); ch <- result{line, err} }()
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()
@@ -152,203 +209,134 @@ func (p *piProcess) readLine(ctx context.Context) ([]byte, error) {
 	}
 }
 
-func (p *piProcess) send(command string, fields map[string]any) (string, error) {
+func (p *piProcess) Run(ctx context.Context, message *a2a.Message, onDelta func(string) error, onTool func(piToolActivity) error) (string, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	if err := p.startLocked(); err != nil {
+		return "", err
+	}
+	var prompt strings.Builder
+	for _, part := range message.Parts {
+		if part.Text() != "" {
+			prompt.WriteString(part.Text())
+		}
+	}
+	if prompt.Len() == 0 {
+		return "", fmt.Errorf("text message required")
+	}
+	piCtx, cancel := context.WithTimeout(ctx, 90e9)
+	defer cancel()
 	p.nextID++
-	id := fmt.Sprintf("a2a-%d", p.nextID)
-	fields["id"], fields["type"] = id, command
-	encoded, err := json.Marshal(fields)
+	requestID := fmt.Sprintf("a2a-%d", p.nextID)
+	request := map[string]any{"id": requestID, "type": "prompt", "message": prompt.String()}
+	encoded, err := json.Marshal(request)
 	if err != nil {
 		return "", err
 	}
 	if _, err := p.stdin.Write(append(encoded, '\n')); err != nil {
-		return "", fmt.Errorf("write Pi RPC %s: %w", command, err)
+		p.stopLocked()
+		return "", fmt.Errorf("write Pi RPC prompt: %w", err)
 	}
-	return id, nil
-}
-
-type rpcEvent struct {
-	Type          string         `json:"type"`
-	ID            string         `json:"id"`
-	Success       bool           `json:"success"`
-	Error         string         `json:"error"`
-	ToolCallID    string         `json:"toolCallId"`
-	ToolName      string         `json:"toolName"`
-	Args          map[string]any `json:"args"`
-	Result        any            `json:"result"`
-	IsError       bool           `json:"isError"`
-	PartialResult any            `json:"partialResult"`
-	Data          struct {
-		SessionFile string `json:"sessionFile"`
-	} `json:"data"`
-	AssistantMessageEvent struct {
-		Type  string `json:"type"`
-		Delta string `json:"delta"`
-	} `json:"assistantMessageEvent"`
-	Messages []struct {
-		Role       string          `json:"role"`
-		StopReason string          `json:"stopReason"`
-		Content    json.RawMessage `json:"content"`
-	} `json:"messages"`
-}
-
-func assistantText(content json.RawMessage) string {
-	var text string
-	if json.Unmarshal(content, &text) == nil {
-		return text
-	}
-	var parts []struct {
-		Type string `json:"type"`
-		Text string `json:"text"`
-	}
-	if json.Unmarshal(content, &parts) != nil {
-		return ""
-	}
-	for _, part := range parts {
-		if part.Type == "text" {
-			text += part.Text
-		}
-	}
-	return text
-}
-
-func (p *piProcess) readEvent(ctx context.Context) (rpcEvent, error) {
-	line, err := p.readLine(ctx)
-	if err != nil {
-		return rpcEvent{}, err
-	}
-	var event rpcEvent
-	if err := json.Unmarshal(line, &event); err != nil {
-		return rpcEvent{}, fmt.Errorf("decode Pi RPC event: %w", err)
-	}
-	return event, nil
-}
-
-func (p *piProcess) Run(ctx context.Context, turn runtime.Turn, sink runtime.EventSink) (outcome runtime.Outcome, runErr error) {
-	if turn.InputResponse != nil {
-		return runtime.Outcome{}, fmt.Errorf("Pi has no parked native input request")
-	}
-	piCtx, cancel := context.WithTimeout(ctx, 90*time.Second)
-	defer cancel()
-	// A local deadline is a failed turn, not the supervisor's cancellation
-	// path (which deliberately publishes its terminal event from Cancel).
-	defer func() {
-		if ctx.Err() == nil && errors.Is(runErr, context.DeadlineExceeded) {
-			outcome = runtime.Outcome{Failure: &runtime.Failure{Message: "Pi turn timed out"}}
-			runErr = nil
-		}
-	}()
-	if err := p.start(piCtx, turn.ContinuationID); err != nil {
-		return runtime.Outcome{}, err
-	}
-	defer p.shutdown()
-	stateID, err := p.send("get_state", map[string]any{})
-	if err != nil {
-		return runtime.Outcome{}, err
-	}
-	var sessionFile string
-	for sessionFile == "" {
-		event, err := p.readEvent(piCtx)
+	accepted := false
+	var answer string
+	for {
+		line, err := p.readLine(piCtx)
 		if err != nil {
-			return runtime.Outcome{}, err
+			p.stopLocked()
+			return "", fmt.Errorf("Pi RPC failed: %w: %s", err, tail(p.stderr.String(), 800))
 		}
-		if event.Type != "response" || event.ID != stateID {
+		var event struct {
+			Type                  string         `json:"type"`
+			ID                    string         `json:"id"`
+			Success               *bool          `json:"success"`
+			Command               string         `json:"command"`
+			Delta                 string         `json:"delta"`
+			ToolCallID            string         `json:"toolCallId"`
+			ToolName              string         `json:"toolName"`
+			Args                  map[string]any `json:"args"`
+			Result                any            `json:"result"`
+			IsError               bool           `json:"isError"`
+			PartialResult         any            `json:"partialResult"`
+			AssistantMessageEvent struct {
+				Type  string `json:"type"`
+				Delta string `json:"delta"`
+			} `json:"assistantMessageEvent"`
+			Messages []struct {
+				Role    string `json:"role"`
+				Content []struct {
+					Type string `json:"type"`
+					Text string `json:"text"`
+				} `json:"content"`
+			} `json:"messages"`
+		}
+		if json.Unmarshal(line, &event) != nil {
 			continue
 		}
-		if !event.Success || event.Data.SessionFile == "" {
-			return runtime.Outcome{}, fmt.Errorf("Pi did not return a persistent session")
-		}
-		sessionFile = event.Data.SessionFile
-		if err := validateSessionFile(sessionFile); err != nil {
-			return runtime.Outcome{}, err
-		}
-		if turn.ContinuationID != "" && sessionFile != turn.ContinuationID {
-			return runtime.Outcome{}, fmt.Errorf("Pi resumed a different native session")
-		}
-	}
-	bound := turn.ContinuationID != ""
-	bind := func() error {
-		if bound {
-			return nil
-		}
-		// Pi creates the file on its first assistant response, not at startup.
-		if _, err := os.Stat(sessionFile); err != nil {
-			return fmt.Errorf("Pi did not persist its native session: %w", err)
-		}
-		if err := sink.SessionStarted(runtime.SessionStarted{ContinuationID: sessionFile}); err != nil {
-			return err
-		}
-		bound = true
-		return nil
-	}
-	requestID, err := p.send("prompt", map[string]any{"message": turn.Prompt})
-	if err != nil {
-		return runtime.Outcome{}, err
-	}
-	accepted, streamed := false, false
-	answer, failed := "", false
-	for {
-		event, err := p.readEvent(piCtx)
-		if err != nil {
-			return runtime.Outcome{}, fmt.Errorf("Pi RPC failed: %w: %s", err, tail(p.stderr.String(), 800))
-		}
-		switch event.Type {
-		case "response":
-			if event.ID == requestID {
-				if !event.Success {
-					return runtime.Outcome{}, fmt.Errorf("Pi rejected prompt: %s", event.Error)
-				}
-				accepted = true
-			}
-		case "message_update":
-			if event.AssistantMessageEvent.Type == "text_delta" {
-				if err := sink.TextDelta(runtime.TextDelta{Text: event.AssistantMessageEvent.Delta}); err != nil {
-					return runtime.Outcome{}, err
-				}
-				streamed = true
-			}
-		case "tool_execution_start":
-			if err := sink.ToolCall(runtime.ToolCall{ID: event.ToolCallID, Name: event.ToolName, Arguments: event.Args}); err != nil {
-				return runtime.Outcome{}, err
-			}
-		case "tool_execution_update", "tool_execution_end":
-			result := event.Result
-			if event.Type == "tool_execution_update" {
-				result = event.PartialResult
-			}
-			if err := sink.ToolResult(runtime.ToolResult{ID: event.ToolCallID, Name: event.ToolName, Result: result, IsError: event.IsError}); err != nil {
-				return runtime.Outcome{}, err
-			}
-		case "agent_end":
-			answer, failed = "", false
-			for i := len(event.Messages) - 1; i >= 0; i-- {
-				message := event.Messages[i]
-				if message.Role == "assistant" {
-					// agent_end follows message persistence; message_end is
-					// emitted before Pi writes the JSONL file.
-					if err := bind(); err != nil {
-						return runtime.Outcome{}, err
-					}
-					failed = message.StopReason == "error" || message.StopReason == "aborted"
-					answer = assistantText(message.Content)
-					break
-				}
-			}
-		case "agent_settled":
+		if event.Type == "response" && event.ID == requestID {
+			accepted = event.Success != nil && *event.Success
 			if !accepted {
-				return runtime.Outcome{}, fmt.Errorf("Pi settled before accepting prompt")
+				return "", fmt.Errorf("Pi rejected prompt")
 			}
-			if failed || answer == "" {
-				return runtime.Outcome{Failure: &runtime.Failure{Message: "Pi returned no successful assistant text"}}, nil
+			continue
+		}
+		if event.Type == "message_update" && event.AssistantMessageEvent.Type == "text_delta" {
+			if err := onDelta(event.AssistantMessageEvent.Delta); err != nil {
+				p.stopLocked()
+				return "", err
 			}
-			if err := bind(); err != nil {
-				return runtime.Outcome{}, err
+			continue
+		}
+		if event.Type == "tool_execution_start" {
+			if err := onTool(piToolActivity{Kind: "call", ID: event.ToolCallID, Name: event.ToolName, Args: event.Args}); err != nil {
+				p.stopLocked()
+				return "", err
 			}
-			if !streamed {
-				if err := sink.TextDelta(runtime.TextDelta{Text: answer}); err != nil {
-					return runtime.Outcome{}, err
+			continue
+		}
+		if event.Type == "tool_execution_update" {
+			if err := onTool(piToolActivity{Kind: "update", ID: event.ToolCallID, Name: event.ToolName, Result: event.PartialResult}); err != nil {
+				p.stopLocked()
+				return "", err
+			}
+			continue
+		}
+		if event.Type == "tool_execution_end" {
+			if err := onTool(piToolActivity{Kind: "result", ID: event.ToolCallID, Name: event.ToolName, Result: event.Result, IsError: event.IsError}); err != nil {
+				p.stopLocked()
+				return "", err
+			}
+			continue
+		}
+		if event.Type == "bash_execution_update" {
+			if err := onTool(piToolActivity{Kind: "update", ID: event.ID, Name: "bash", Result: map[string]any{"output": event.Delta}}); err != nil {
+				p.stopLocked()
+				return "", err
+			}
+			continue
+		}
+		if event.Type == "agent_settled" {
+			if answer == "" {
+				return "", fmt.Errorf("Pi returned no assistant text")
+			}
+			p.shutdownLocked()
+			return answer, nil
+		}
+		if event.Type != "agent_end" {
+			continue
+		}
+		if !accepted {
+			return "", fmt.Errorf("Pi ended before accepting prompt")
+		}
+		answer = ""
+		for i := len(event.Messages) - 1; i >= 0; i-- {
+			if event.Messages[i].Role == "assistant" {
+				for _, part := range event.Messages[i].Content {
+					if part.Type == "text" {
+						answer += part.Text
+					}
 				}
+				break
 			}
-			return runtime.Outcome{}, nil
 		}
 	}
 }
@@ -359,7 +347,6 @@ func env(key, fallback string) string {
 	}
 	return fallback
 }
-
 func tail(value string, n int) string {
 	if len(value) <= n {
 		return value
@@ -367,62 +354,19 @@ func tail(value string, n int) string {
 	return value[len(value)-n:]
 }
 
-func run(ctx context.Context) error {
-	var runtimeConfig struct {
-		Runtime struct {
-			ControlPlaneURL string `json:"control_plane_url"`
-		} `json:"runtime"`
-	}
-	if err := json.Unmarshal([]byte(os.Getenv("KAGENT_CONFIG_JSON")), &runtimeConfig); err != nil {
-		return fmt.Errorf("decode controller runtime config: %w", err)
-	}
-	var card a2a.AgentCard
-	if err := json.Unmarshal([]byte(os.Getenv("KAGENT_AGENT_CARD_JSON")), &card); err != nil {
-		return fmt.Errorf("decode controller agent card: %w", err)
-	}
-	if card.Name == "" {
-		return fmt.Errorf("controller agent card name is required")
-	}
-	// BYO compilers do not assign one of the native RuntimeTelemetry enums.
-	// Preserve their SDK environment identity instead of impersonating ADK.
-	runtimeTelemetry := tracing.RuntimeTelemetry{}
-	providers, err := telemetry.Init(ctx, telemetry.Options{Defaults: runtimeTelemetry.ResourceDefaults(card.Name)})
-	if err != nil {
-		logging.FromContext(ctx).ErrorContext(ctx, "initialize Pi telemetry", "error", err)
-	}
-	defer func() {
-		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-		if err := providers.Shutdown(shutdownCtx); err != nil {
-			logging.FromContext(ctx).ErrorContext(ctx, "shutdown Pi telemetry", "error", err)
-		}
-	}()
-	store, err := continuation.New("/data/adapter", "pi", validateSessionFile)
-	if err != nil {
-		return err
-	}
-	executor, err := runtimea2a.New(&piProcess{}, store, runtimeTelemetry)
-	if err != nil {
-		return err
-	}
-	application, err := app.New(app.AppConfig{
-		AgentCard: card, Port: env("KAGENT_PORT", "80"), AppName: card.Name, ControlPlaneURL: runtimeConfig.Runtime.ControlPlaneURL,
-		Logger: logging.FromContext(ctx), Telemetry: runtimeTelemetry, Flush: providers.ForceFlush,
-	}, executor)
-	if err != nil {
-		return err
-	}
-	return application.Run()
-}
-
 func main() {
-	logger, err := logging.New(os.Stderr, env("KAGENT_LOG_LEVEL", "info"))
+	logger, err := logging.NewFromEnv(os.Stderr)
 	if err != nil {
 		panic(err)
 	}
-	ctx := logging.IntoContext(context.Background(), logger)
-	if err := run(ctx); err != nil {
-		logger.ErrorContext(ctx, "Pi harness stopped", "error", err)
-		os.Exit(1)
+	application, err := app.New(app.AppConfig{
+		AgentCard: a2a.AgentCard{Name: "pi-harness", Version: "v1", Capabilities: a2a.AgentCapabilities{Streaming: true}, DefaultInputModes: []string{"text"}, DefaultOutputModes: []string{"text"}},
+		Port:      env("PORT", "80"), AppName: "pi-harness", Logger: logger,
+	}, &executor{pi: &piProcess{}})
+	if err != nil {
+		panic(err)
+	}
+	if err := application.Run(); err != nil {
+		panic(err)
 	}
 }
