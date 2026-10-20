@@ -132,6 +132,7 @@ Use Grafana Explore or Tempo TraceQL to inspect the complete flow.
 - `argocd/apps/`: Argo CD Applications and chart configuration.
 - `kind/`: declarative Kind configuration.
 - `platform/llm-runtime/`: selectable SGLang/vLLM GPU Deployment and Service.
+- `compose/sglang/`: legacy external SGLang + DSpark runtime for migration.
 - `platform/`: Kubernetes gateways, routes, observability resources, and catalogs.
 - `patches/`: reproducible source patch for the custom ADK image.
 - `scripts/`: bootstrap and lifecycle automation.

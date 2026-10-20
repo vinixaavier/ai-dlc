@@ -7,7 +7,7 @@ appVersion: "0.0.0-main.20260920"
 dependencies:
   - name: substrate-crds
     version: 0.0.0-main.20260920
-    repository: file://charts/substrate-crds
+    repository: oci://ghcr.io/kagent-dev/substrate/helm
   - name: substrate
     version: 0.0.0-main.20260920
-    repository: file://charts/substrate
+    repository: oci://ghcr.io/kagent-dev/substrate/helm

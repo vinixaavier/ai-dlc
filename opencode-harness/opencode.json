@@ -1,0 +1,19 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "agentgateway": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "AgentGateway",
+      "options": {
+        "baseURL": "http://agentgateway-api.agentgateway-system.svc.cluster.local/v1",
+        "apiKey": "{env:OPENAI_API_KEY}"
+      },
+      "models": {
+        "qwen3.8-27b-nvfp4": {
+          "name": "Qwen 3.8 27B NVFP4",
+          "limit": { "context": 180000, "output": 8192 }
+        }
+      }
+    }
+  }
+}

@@ -7,4 +7,4 @@ appVersion: "1.27.0"
 dependencies:
   - name: gitea
     version: 12.7.0
-    repository: file://charts/gitea
+    repository: https://dl.gitea.com/charts

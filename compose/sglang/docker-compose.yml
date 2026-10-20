@@ -1,0 +1,73 @@
+services:
+  sglang:
+    image: lmsysorg/sglang:qwen38-27b
+    container_name: ai-dlc-sglang
+    restart: unless-stopped
+    runtime: nvidia
+    ipc: host
+    ports:
+      - "8000:8000"
+    environment:
+      CUDA_VISIBLE_DEVICES: "0"
+      PYTORCH_CUDA_ALLOC_CONF: expandable_segments:True
+      SGLANG_TRACE_LEVEL: "2"
+      # Keep /health from issuing a traced 1-token inference.
+      SGLANG_ENABLE_HEALTH_ENDPOINT_GENERATION: "false"
+      HF_TOKEN: "${HF_TOKEN:-}"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - "${HF_CACHE:-~/.cache/huggingface}:/root/.cache/huggingface"
+      - "${VLLM_CACHE:-~/.cache/vllm}:/root/.cache/vllm"
+    command:
+      - sglang
+      - serve
+      - --model-path=gittensor-model-hub/Qwen3.8-27B-NVFP4-RTX5090
+      - --served-model-name=qwen3.8-27b-nvfp4
+      - --trust-remote-code
+      - --tp-size=1
+      - --host=0.0.0.0
+      - --port=8000
+      - --kv-cache-dtype=fp8_e4m3
+      - --attention-backend=flashinfer
+      - --context-length=262144
+      - --chunked-prefill-size=2048
+      - --mamba-radix-cache-strategy=extra_buffer_lazy
+      - --mamba-ssm-dtype=bfloat16
+      - --max-mamba-cache-size=8
+      - --mem-fraction-static=0.92
+      - --max-running-requests=1
+      - --speculative-algorithm=DSPARK
+      - --speculative-draft-model-path=gittensor-model-hub/Qwen3.8-27B-DSpark-NVFP4
+      - --speculative-dspark-block-size=7
+      - --speculative-draft-model-quantization=modelopt_fp4
+      - --reasoning-parser=qwen3
+      - --default-chat-template-kwargs
+      - '{"reasoning_effort":"medium"}'
+      - --tool-call-parser=qwen3_coder
+      - --mm-feature-transport=cpu
+      - --language-only
+      - --enable-metrics
+      - --enable-cache-report
+      - --enable-trace
+      - --trace-modules=request
+      # SGLang runs outside Kubernetes, so send OTLP/gRPC through the
+      # collector NodePort on the Kind control-plane node.
+      - --otlp-traces-endpoint=${KIND_CONTROL_PLANE_IP:-172.18.0.2}:${OTEL_GRPC_NODE_PORT:-32737}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 600s
+    networks:
+      - kind
+
+networks:
+  kind:
+    external: true

@@ -3,8 +3,8 @@ name: ai-dlc-gpu-operator-platform
 description: NVIDIA GPU Operator managed from the GitOps repository
 type: application
 version: 0.1.1
-appVersion: "v26.7.1"
+appVersion: "v26.7.2"
 dependencies:
   - name: gpu-operator
-    version: v26.7.1
-    repository: file://charts/gpu-operator
+    version: v26.7.2
+    repository: oci://nvcr.io/nvidia/cloud-native-charts
